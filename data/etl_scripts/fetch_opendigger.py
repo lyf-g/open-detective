@@ -1,12 +1,24 @@
 import requests
-import sqlite3
+import mysql.connector
 import os
 import json
 
 # Configuration
-DB_PATH = os.path.join(os.path.dirname(__file__), '../../open_detective.db')
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_USER = os.getenv("DB_USER", "root")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+DB_NAME = os.getenv("DB_NAME", "open_detective")
+
 BASE_URL = "https://oss.x-lab.info/open_digger/github"
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), '../repos.json')
+
+def get_db_connection():
+    return mysql.connector.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME
+    )
 
 def load_repos():
     try:
@@ -14,85 +26,56 @@ def load_repos():
             return json.load(f)
     except FileNotFoundError:
         print(f"⚠️ Config file not found at {CONFIG_PATH}, utilizing defaults.")
-        return ["vuejs/core"] # Fallback
+        return ["vuejs/core"]
 
-# Target repositories to track
-TARGET_REPOS = load_repos()
-
-METRICS = [
-    "stars",
-    "activity",
-    "openrank",
-    "bus_factor",
-    "issues_new",
-    "issues_closed"
-]
+METRICS = ["stars", "activity", "openrank", "bus_factor", "issues_new", "issues_closed"]
 
 def fetch_metric(repo, metric):
-    """Fetch metric JSON from OpenDigger GitHub raw content."""
     url = f"{BASE_URL}/{repo}/{metric}.json"
-    print(f"Fetching {metric} for {repo} from {url}...")
     try:
         response = requests.get(url, timeout=10)
         if response.status_code == 200:
             return response.json()
-        else:
-            print(f"⚠️ Failed to fetch {url}: Status {response.status_code}")
-            return None
     except Exception as e:
         print(f"❌ Error fetching {url}: {e}")
-        return None
+    return None
 
 def transform_and_load(repo, metric, data):
-    """Parse OpenDigger JSON format and insert into DB."""
-    if not data:
-        return
-
+    if not data: return
     records = []
-    
-    # OpenDigger data format is typically: { "2023-01": 123, "2023-02": 456, ... }
-    # Sometimes it's nested, but for stars/activity/openrank simple keys are YYYY-MM
-    
     for month, value in data.items():
-        # Simple validation for YYYY-MM format
-        if not (len(month) == 7 and month[4] == '-'):
-            continue
-            
-        records.append((repo, metric, month, value))
+        if not (len(month) == 7 and month[4] == '-'): continue
+        records.append((repo, metric, month, float(value)))
 
-    if not records:
-        return
+    if not records: return
 
-    with sqlite3.connect(DB_PATH) as conn:
-        cursor = conn.cursor()
-        # Remove old data for this repo+metric to avoid duplicates
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Delete old data
         cursor.execute(
-            "DELETE FROM open_digger_metrics WHERE repo_name = ? AND metric_type = ?",
+            "DELETE FROM open_digger_metrics WHERE repo_name = %s AND metric_type = %s",
             (repo, metric)
         )
-        
+        # MySQL use %s placeholder
         cursor.executemany(
-            "INSERT INTO open_digger_metrics (repo_name, metric_type, month, value) VALUES (?, ?, ?, ?)",
+            "INSERT INTO open_digger_metrics (repo_name, metric_type, month, value) VALUES (%s, %s, %s, %s)",
             records
         )
         conn.commit()
-    
-    print(f"✅ Saved {len(records)} records for {repo} - {metric}")
+        print(f"✅ Saved {len(records)} records for {repo} - {metric}")
+    finally:
+        cursor.close()
+        conn.close()
 
 def run_etl():
-    print("🚀 Starting OpenDigger ETL...")
-    
-    # Ensure DB exists
-    if not os.path.exists(DB_PATH):
-        print("Database not found. Please run mock_data.py first to init schema.")
-        return
-
-    for repo in TARGET_REPOS:
+    print("🚀 Starting OpenDigger MySQL ETL...")
+    repos = load_repos()
+    for repo in repos:
         for metric in METRICS:
             data = fetch_metric(repo, metric)
             if data:
                 transform_and_load(repo, metric, data)
-    
     print("🎉 ETL Complete!")
 
 if __name__ == "__main__":
