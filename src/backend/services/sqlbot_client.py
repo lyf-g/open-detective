@@ -19,7 +19,14 @@ class SQLBotClient:
         return config.get("SQLBOT_API_KEY", "")
 
     def _extract_sql(self, text: str) -> str:
-# ... (rest of the functions)
+        if not text: return ""
+        # Match SQL within markdown blocks
+        match = re.search(r"```sql\n(.*?)\n```", text, re.DOTALL | re.IGNORECASE)
+        if match: return match.group(1).strip()
+        match = re.search(r"```\n(.*?)\n```", text, re.DOTALL)
+        if match: return match.group(1).strip()
+        return text.strip()
+
     def generate_sql(self, question: str) -> Optional[str]:
         api_key = self._get_live_token()
         if not api_key:
