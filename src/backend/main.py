@@ -1,6 +1,11 @@
 import os
 import sqlite3
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv()
+
 from fastapi import FastAPI, HTTPException, APIRouter, Request
 from pydantic import BaseModel
 from typing import List, Dict, Any
