@@ -1,5 +1,5 @@
 import os
-import sqlite3
+import mysql.connector
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 
@@ -13,9 +13,13 @@ from src.backend.services.engine_factory import get_sql_engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Open DB connection
-    app.state.db = sqlite3.connect(DB_PATH, check_same_thread=False)
-    app.state.db.row_factory = sqlite3.Row
+    # Startup: Open MySQL connection
+    app.state.db = mysql.connector.connect(
+        host=os.getenv("DB_HOST", "localhost"),
+        user=os.getenv("DB_USER", "root"),
+        password=os.getenv("DB_PASSWORD", ""),
+        database=os.getenv("DB_NAME", "open_detective")
+    )
     yield
     # Shutdown: Close DB connection
     app.state.db.close()
@@ -27,26 +31,11 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# ... (rest of the file remains similar but uses MySQL cursor)
+
 # Version 1 Router
 router_v1 = APIRouter(prefix="/api/v1")
 
-# Database Configuration
-DB_PATH = os.getenv("DATABASE_PATH", os.path.join(os.path.dirname(__file__), '../../open_detective.db'))
-
-class ChatRequest(BaseModel):
-    message: str
-
-class ChatResponse(BaseModel):
-    answer: str
-    sql_query: str
-    data: List[Dict[str, Any]]
-    engine_source: str
-
-class HealthResponse(BaseModel):
-    status: str
-    version: str
-
-# ... (inside chat endpoint)
 @router_v1.post("/chat", response_model=ChatResponse)
 async def chat(request_request: Request, chat_request: ChatRequest):
     print(f"Received message: {chat_request.message}")
@@ -67,10 +56,11 @@ async def chat(request_request: Request, chat_request: ChatRequest):
     # 2. Execute SQL
     data = []
     try:
-        cursor = request_request.app.state.db.cursor()
+        # MySQL dictionary cursor
+        cursor = request_request.app.state.db.cursor(dictionary=True)
         cursor.execute(sql_query)
-        rows = cursor.fetchall()
-        data = [dict(row) for row in rows]
+        data = cursor.fetchall()
+        cursor.close()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
