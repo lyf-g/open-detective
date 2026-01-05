@@ -9,7 +9,7 @@ load_dotenv()
 from fastapi import FastAPI, HTTPException, APIRouter, Request
 from pydantic import BaseModel
 from typing import List, Dict, Any
-from src.backend.services.sql_engine import mock_text_to_sql
+from src.backend.services.engine_factory import get_sql_engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -49,8 +49,9 @@ class HealthResponse(BaseModel):
 async def chat(request_request: Request, chat_request: ChatRequest):
     print(f"Received message: {chat_request.message}")
     
-    # 1. Generate SQL (Mock AI)
-    sql_query = mock_text_to_sql(chat_request.message)
+    # 1. Generate SQL via configured engine
+    engine = get_sql_engine()
+    sql_query = engine(chat_request.message)
     
     if not sql_query:
         return ChatResponse(
