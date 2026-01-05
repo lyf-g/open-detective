@@ -13,4 +13,4 @@ COPY data ./data
 RUN python data/etl_scripts/mock_data.py
 
 EXPOSE 8081
-CMD ["uvicorn", "src.backend.main:app", "--host", "0.0.0.0", "--port", "8081"]
+CMD ["python", "-m", "uvicorn", "src.backend.main:app", "--host", "0.0.0.0", "--port", "8081"]
