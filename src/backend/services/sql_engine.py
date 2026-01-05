@@ -1,18 +1,32 @@
+import json
+import os
+
 def mock_text_to_sql(text: str) -> str:
     """
-    A very simple rule-based 'AI' for the MVP.
-    Real implementation will use LLM here.
+    A rule-based 'AI' that dynamically matches against supported repositories.
     """
     text = text.lower()
     
-    # improved detection logic
+    # Load supported repositories from config
+    config_path = os.path.join(os.path.dirname(__file__), '../../../data/repos.json')
+    try:
+        with open(config_path, 'r') as f:
+            repo_list = json.load(f)
+    except Exception:
+        repo_list = []
+
+    # Dynamic repository matching
     repo = None
-    if "vue" in text: repo = "vuejs/core"
-    elif "fastapi" in text: repo = "fastapi/fastapi"
-    elif "react" in text: repo = "facebook/react"
-    elif "tensorflow" in text: repo = "tensorflow/tensorflow"
-    elif "vscode" in text: repo = "microsoft/vscode"
-    elif "kubernetes" in text or "k8s" in text: repo = "kubernetes/kubernetes"
+    for r in repo_list:
+        # Match if the short name (e.g. 'ollama') or full name is in the text
+        short_name = r.split('/')[-1].lower()
+        if short_name in text or r.lower() in text:
+            repo = r
+            break
+    
+    # Special aliases
+    if not repo:
+        if "k8s" in text: repo = "kubernetes/kubernetes"
     
     metric = "stars" # default
     if "activity" in text: metric = "activity"
