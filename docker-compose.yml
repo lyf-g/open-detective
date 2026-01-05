@@ -8,10 +8,11 @@ services:
     ports:
       - "8081:8081"
     volumes:
-      - ./open_detective.db:/app/open_detective.db
+      - db_data:/app/db_shared
     environment:
       - SQL_ENGINE_TYPE=sqlbot
       - SQLBOT_ENDPOINT=http://sqlbot:8000
+      - DATABASE_PATH=/app/db_shared/open_detective.db
     depends_on:
       - sqlbot
 
@@ -32,8 +33,12 @@ services:
       - "8000:8000"
       - "8001:8001"
     volumes:
+      - db_data:/opt/sqlbot/db_shared
       - ./data/sqlbot/excel:/opt/sqlbot/data/excel
       - ./data/sqlbot/file:/opt/sqlbot/data/file
       - ./data/sqlbot/images:/opt/sqlbot/images
       - ./data/sqlbot/logs:/opt/sqlbot/app/logs
       - ./data/postgresql:/var/lib/postgresql/data
+
+volumes:
+  db_data:

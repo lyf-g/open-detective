@@ -31,7 +31,7 @@ app = FastAPI(
 router_v1 = APIRouter(prefix="/api/v1")
 
 # Database Configuration
-DB_PATH = os.path.join(os.path.dirname(__file__), '../../open_detective.db')
+DB_PATH = os.getenv("DATABASE_PATH", os.path.join(os.path.dirname(__file__), '../../open_detective.db'))
 
 class ChatRequest(BaseModel):
     message: str
