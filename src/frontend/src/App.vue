@@ -35,7 +35,10 @@
 
               <!-- Evidence: SQL -->
               <div v-if="msg.sql" class="evidence-block">
-                <div class="evidence-header">🔍 EXECUTED QUERY</div>
+                <div class="evidence-header">
+                  <span>🔍 EXECUTED QUERY</span>
+                  <button class="copy-btn" @click="copyToClipboard(msg.sql)">COPY</button>
+                </div>
                 <pre class="code-block">{{ msg.sql }}</pre>
               </div>
 
@@ -168,47 +171,17 @@ const sendMessage = async () => {
 }
 
 const exportToMarkdown = () => {
-  let mdContent = `# 🕵️‍♂️ Open-Detective: Case File\n`
-  mdContent += `**Date:** ${new Date().toLocaleString()}\n`
-  mdContent += `**Status:** ${backendConnected.value ? 'ONLINE' : 'OFFLINE'}\n\n`
-  mdContent += `---\n\n`
-
-  history.value.forEach((msg, index) => {
-    const role = msg.role === 'user' ? '👤 DETECTIVE' : '🤖 SYSTEM'
-    mdContent += `### ${role}:\n${msg.text}\n\n`
-    
-    if (msg.sql) {
-      mdContent += `**🔍 Query:** \`${msg.sql}\`\n\n`
-    }
-
-    if (msg.data && msg.data.length > 0) {
-      mdContent += `**📊 Evidence Data (Top 10 rows):**\n\n`
-      // Create Markdown Table
-      const headers = Object.keys(msg.data[0])
-      mdContent += `| ${headers.join(' | ')} |\n`
-      mdContent += `| ${headers.map(() => '---').join(' | ')} |\n`
-      
-      msg.data.slice(0, 10).forEach((row: any) => {
-        mdContent += `| ${Object.values(row).join(' | ')} |\n`
-      })
-      if (msg.data.length > 10) {
-        mdContent += `\n*(...and ${msg.data.length - 10} more records)*\n`
-      }
-      mdContent += `\n`
-    }
-    mdContent += `---\n\n`
-  })
-
-  // Trigger Download
-  const blob = new Blob([mdContent], { type: 'text/markdown' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `case-report-${new Date().toISOString().slice(0,10)}.md`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
+// ... existing code ...
   URL.revokeObjectURL(url)
+}
+
+const copyToClipboard = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    alert('SQL copied to clipboard!')
+  } catch (err) {
+    console.error('Failed to copy: ', err)
+  }
 }
 </script>
 
@@ -373,6 +346,24 @@ const exportToMarkdown = () => {
   font-weight: bold;
   letter-spacing: 1px;
   border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid #444;
+  color: #666;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 .code-block {
