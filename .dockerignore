@@ -1,0 +1,10 @@
+# Docker ignore file
+**/node_modules
+**/venv
+**/.venv
+**/__pycache__
+**/.git
+**/.DS_Store
+*.db
+dist
+.env
