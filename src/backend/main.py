@@ -52,7 +52,18 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# ... (rest of the file remains similar but uses MySQL cursor)
+class ChatRequest(BaseModel):
+    message: str
+
+class ChatResponse(BaseModel):
+    answer: str
+    sql_query: str
+    data: List[Dict[str, Any]]
+    engine_source: str
+
+class HealthResponse(BaseModel):
+    status: str
+    version: str
 
 # Version 1 Router
 router_v1 = APIRouter(prefix="/api/v1")
