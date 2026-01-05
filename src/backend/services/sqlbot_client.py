@@ -39,7 +39,7 @@ class SQLBotClient:
 
         url = f"{self.endpoint}/api/v1/chat"
         headers = {
-            "Authorization": f"Bearer {self.api_key}",
+            "X-SQLBOT-TOKEN": self.api_key,
             "Content-Type": "application/json"
         }
         payload = {
