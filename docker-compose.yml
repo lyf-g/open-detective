@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: src/backend/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./open_detective.db:/app/open_detective.db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: src/frontend/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
