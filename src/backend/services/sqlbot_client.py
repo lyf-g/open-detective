@@ -1,6 +1,7 @@
 import requests
 import os
 import json
+import re
 from typing import Optional
 
 class SQLBotClient:
@@ -10,6 +11,23 @@ class SQLBotClient:
     def __init__(self, endpoint: Optional[str] = None):
         self.endpoint = endpoint or os.getenv("SQLBOT_ENDPOINT", "http://localhost:8080")
         self.api_key = os.getenv("SQLBOT_API_KEY", "")
+
+    def _extract_sql(self, text: str) -> str:
+        """
+        Extracts SQL from a string, supporting markdown code blocks.
+        """
+        # Try to find content between ```sql ... ```
+        match = re.search(r"```sql\n(.*?)\n```", text, re.DOTALL | re.IGNORECASE)
+        if match:
+            return match.group(1).strip()
+        
+        # Try to find content between ``` ... ```
+        match = re.search(r"```\n(.*?)\n```", text, re.DOTALL)
+        if match:
+            return match.group(1).strip()
+            
+        # Return as is if no markdown found
+        return text.strip()
 
     def generate_sql(self, question: str) -> Optional[str]:
         """
@@ -35,8 +53,8 @@ class SQLBotClient:
             
             if response.status_code == 200:
                 data = response.json()
-                # Assuming standard SQLBot response format
-                return data.get("sql") or data.get("content")
+                raw_content = data.get("sql") or data.get("content") or ""
+                return self._extract_sql(raw_content)
             else:
                 print(f"❌ SQLBot Error: Status {response.status_code} - {response.text}")
                 return None
