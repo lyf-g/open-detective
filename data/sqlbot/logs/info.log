@@ -1223,3 +1223,690 @@
 2026-01-06 00:31:22,214 - apps.chat.task.llm - INFO:1512 - content='数据' additional_kwargs={} response_metadata={} id='run--f3a7f6ca-1c46-4aa6-a3cd-2a0d4d1b2681'
 2026-01-06 00:31:22,215 - apps.chat.task.llm - INFO:1512 - content='"]' additional_kwargs={} response_metadata={} id='run--f3a7f6ca-1c46-4aa6-a3cd-2a0d4d1b2681'
 2026-01-06 00:31:22,272 - apps.chat.task.llm - INFO:1512 - content='' additional_kwargs={} response_metadata={'finish_reason': 'stop', 'model_name': 'deepseek-chat', 'system_fingerprint': 'fp_eaab8d114b_prod0820_fp8_kvcache'} id='run--f3a7f6ca-1c46-4aa6-a3cd-2a0d4d1b2681' usage_metadata={'input_tokens': 402, 'output_tokens': 42, 'total_tokens': 444, 'input_token_details': {'cache_read': 320}, 'output_token_details': {}}
+2026-01-06 00:42:39,188 - apps.db.db - INFO:40 - init oracle client success, use thick mode
+2026-01-06 00:42:39,188 - apps.db.db - INFO:40 - init oracle client success, use thick mode
+2026-01-06 00:42:39,368 - fastapi_mcp.server - INFO:297 - No auth config provided, skipping auth setup
+2026-01-06 00:42:39,368 - fastapi_mcp.server - INFO:297 - No auth config provided, skipping auth setup
+2026-01-06 00:42:39,368 - fastapi_mcp.server - INFO:368 - MCP server listening at /mcp
+2026-01-06 00:42:39,368 - fastapi_mcp.server - INFO:368 - MCP server listening at /mcp
+2026-01-06 00:42:39,448 - sqlbot_xpack.core - INFO:52 - XPack core initialized successfully.
+2026-01-06 00:42:39,452 - sqlbot_xpack.core - INFO:52 - XPack core initialized successfully.
+2026-01-06 00:46:13,964 - apps.db.db - INFO:40 - init oracle client success, use thick mode
+2026-01-06 00:46:13,964 - apps.db.db - INFO:40 - init oracle client success, use thick mode
+2026-01-06 00:46:14,145 - fastapi_mcp.server - INFO:297 - No auth config provided, skipping auth setup
+2026-01-06 00:46:14,145 - fastapi_mcp.server - INFO:368 - MCP server listening at /mcp
+2026-01-06 00:46:14,147 - fastapi_mcp.server - INFO:297 - No auth config provided, skipping auth setup
+2026-01-06 00:46:14,148 - fastapi_mcp.server - INFO:368 - MCP server listening at /mcp
+2026-01-06 00:46:14,222 - sqlbot_xpack.core - INFO:52 - XPack core initialized successfully.
+2026-01-06 00:46:14,222 - sqlbot_xpack.core - INFO:52 - XPack core initialized successfully.
+2026-01-06 00:48:23,215 - apps.db.db - INFO:40 - init oracle client success, use thick mode
+2026-01-06 00:48:23,215 - apps.db.db - INFO:40 - init oracle client success, use thick mode
+2026-01-06 00:48:23,275 - fastapi_mcp.server - INFO:297 - No auth config provided, skipping auth setup
+2026-01-06 00:48:23,275 - fastapi_mcp.server - INFO:368 - MCP server listening at /mcp
+2026-01-06 00:48:23,285 - fastapi_mcp.server - INFO:297 - No auth config provided, skipping auth setup
+2026-01-06 00:48:23,285 - fastapi_mcp.server - INFO:368 - MCP server listening at /mcp
+2026-01-06 00:48:23,489 - sqlbot_xpack.core - INFO:52 - XPack core initialized successfully.
+2026-01-06 00:48:23,497 - sqlbot_xpack.core - INFO:52 - XPack core initialized successfully.
+2026-01-06 00:50:05,467 - apps.db.db - INFO:40 - init oracle client success, use thick mode
+2026-01-06 00:50:05,467 - apps.db.db - INFO:40 - init oracle client success, use thick mode
+2026-01-06 00:50:05,644 - fastapi_mcp.server - INFO:297 - No auth config provided, skipping auth setup
+2026-01-06 00:50:05,644 - fastapi_mcp.server - INFO:297 - No auth config provided, skipping auth setup
+2026-01-06 00:50:05,644 - fastapi_mcp.server - INFO:368 - MCP server listening at /mcp
+2026-01-06 00:50:05,644 - fastapi_mcp.server - INFO:368 - MCP server listening at /mcp
+2026-01-06 00:50:05,775 - sqlbot_xpack.core - INFO:52 - XPack core initialized successfully.
+2026-01-06 00:50:05,775 - sqlbot_xpack.core - INFO:52 - XPack core initialized successfully.
+2026-01-06 00:50:05,783 - alembic.runtime.migration - INFO:211 - Context impl PostgresqlImpl.
+2026-01-06 00:50:05,783 - alembic.runtime.migration - INFO:214 - Will assume transactional DDL.
+2026-01-06 00:50:05,809 - alembic.runtime.migration - INFO:622 - Running upgrade  -> 5348b743b05f, 001_ddl
+2026-01-06 00:50:05,815 - alembic.runtime.migration - INFO:622 - Running upgrade 5348b743b05f -> 1c8bcc7e25c8, 002_ddl_autogenerate
+2026-01-06 00:50:05,820 - alembic.runtime.migration - INFO:622 - Running upgrade 1c8bcc7e25c8 -> d116056121c3, 003 add datasource
+2026-01-06 00:50:05,823 - alembic.runtime.migration - INFO:622 - Running upgrade d116056121c3 -> 8fe654655905, 004_add_aimodel_auto
+2026-01-06 00:50:05,827 - alembic.runtime.migration - INFO:622 - Running upgrade 8fe654655905 -> 0a6f11be9be4, 005_table_and_field
+2026-01-06 00:50:05,833 - alembic.runtime.migration - INFO:622 - Running upgrade 0a6f11be9be4 -> e6276ddab06e, 006_add_ds_field
+2026-01-06 00:50:05,833 - alembic.runtime.migration - INFO:622 - Running upgrade e6276ddab06e -> ff653d5df198, 006_add_chat
+2026-01-06 00:50:05,838 - alembic.runtime.migration - INFO:622 - Running upgrade ff653d5df198 -> 35d925df4568, 008_modify_field_type
+2026-01-06 00:50:05,842 - alembic.runtime.migration - INFO:622 - Running upgrade 35d925df4568 -> 1f077c30e476, 009_modify_chat
+2026-01-06 00:50:05,845 - alembic.runtime.migration - INFO:622 - Running upgrade 1f077c30e476 -> 804b08ac329d, core_dashboard
+2026-01-06 00:50:05,851 - alembic.runtime.migration - INFO:622 - Running upgrade 804b08ac329d -> 8dc3b1bdbfef, 010_upgrade_user_language
+2026-01-06 00:50:05,851 - alembic.runtime.migration - INFO:622 - Running upgrade 8dc3b1bdbfef -> 941e2355a94d, msg...
+2026-01-06 00:50:05,852 - alembic.runtime.migration - INFO:622 - Running upgrade 941e2355a94d -> a3af70d43e98, 011_license_ddl
+2026-01-06 00:50:05,859 - alembic.runtime.migration - INFO:622 - Running upgrade a3af70d43e98 -> bfa10ce83d73, 010_modify_chat
+2026-01-06 00:50:05,860 - alembic.runtime.migration - INFO:622 - Running upgrade bfa10ce83d73 -> fde8acca6143, modify_chat_record
+2026-01-06 00:50:05,861 - alembic.runtime.migration - INFO:622 - Running upgrade fde8acca6143 -> 02d84523a979, 015_modify_chat
+2026-01-06 00:50:05,861 - alembic.runtime.migration - INFO:622 - Running upgrade 02d84523a979 -> 031148da1d81, 016_modify_chat
+2026-01-06 00:50:05,863 - alembic.runtime.migration - INFO:622 - Running upgrade 031148da1d81 -> a0ba8268868d, 017_rsa_ddl
+2026-01-06 00:50:05,867 - alembic.runtime.migration - INFO:622 - Running upgrade a0ba8268868d -> 863105882eba, 018_modify_chat
+2026-01-06 00:50:05,880 - alembic.runtime.migration - INFO:622 - Running upgrade 863105882eba -> dcaecd481715, 019_upgrade_model
+2026-01-06 00:50:05,884 - alembic.runtime.migration - INFO:622 - Running upgrade dcaecd481715 -> a6b44114c17f, 020_workspace_ddl
+2026-01-06 00:50:05,888 - alembic.runtime.migration - INFO:622 - Running upgrade a6b44114c17f -> 440e9e41da3c, 021_user_ws_ddl
+2026-01-06 00:50:05,890 - alembic.runtime.migration - INFO:622 - Running upgrade 440e9e41da3c -> e6b20ae73606, 022_assistant_ddl
+2026-01-06 00:50:05,894 - alembic.runtime.migration - INFO:622 - Running upgrade e6b20ae73606 -> f535d09946f6, 023_modify_chat_record
+2026-01-06 00:50:05,908 - alembic.runtime.migration - INFO:622 - Running upgrade f535d09946f6 -> 806bc67ff45f, 024_modify_chat_record
+2026-01-06 00:50:05,909 - alembic.runtime.migration - INFO:622 - Running upgrade 806bc67ff45f -> 97dcdbedaaf3, 025_ds_num
+2026-01-06 00:50:05,910 - alembic.runtime.migration - INFO:622 - Running upgrade 97dcdbedaaf3 -> 4c6d18a18bd4, 026_row_column_permission
+2026-01-06 00:50:05,916 - alembic.runtime.migration - INFO:622 - Running upgrade 4c6d18a18bd4 -> b049c9f8ca5b, 027_modify_permission
+2026-01-06 00:50:05,917 - alembic.runtime.migration - INFO:622 - Running upgrade b049c9f8ca5b -> e96b16d3daab, 028_ds_oid
+2026-01-06 00:50:05,918 - alembic.runtime.migration - INFO:622 - Running upgrade e96b16d3daab -> 77d4c39ec22f, 029_modify_chat
+2026-01-06 00:50:05,925 - alembic.runtime.migration - INFO:622 - Running upgrade 77d4c39ec22f -> c1d7ac00b3a8, 030_permission_oid
+2026-01-06 00:50:05,928 - alembic.runtime.migration - INFO:622 - Running upgrade c1d7ac00b3a8 -> bd2ed188b5bd, 031_modify_chat_record
+2026-01-06 00:50:05,929 - alembic.runtime.migration - INFO:622 - Running upgrade bd2ed188b5bd -> 6549e47f9adc, 032_modify_assistant_ddl
+2026-01-06 00:50:05,929 - alembic.runtime.migration - INFO:622 - Running upgrade 6549e47f9adc -> 3cb5d6a54f2e, 033_chat_origin_ddl
+2026-01-06 00:50:05,930 - alembic.runtime.migration - INFO:622 - Running upgrade 3cb5d6a54f2e -> e8b470d2b150, 034_field_sort
+2026-01-06 00:50:05,931 - alembic.runtime.migration - INFO:622 - Running upgrade e8b470d2b150 -> 29559ee607af, 035_sys_arg_ddl
+2026-01-06 00:50:05,935 - alembic.runtime.migration - INFO:622 - Running upgrade 29559ee607af -> 646e7ca28e0e, 036_modify_assistant
+2026-01-06 00:50:05,936 - alembic.runtime.migration - INFO:622 - Running upgrade 646e7ca28e0e -> 68a06302cf70, 035_create_chat_log
+2026-01-06 00:50:05,942 - alembic.runtime.migration - INFO:622 - Running upgrade 68a06302cf70 -> fc23c4f3e755, 038_remove_chat_record_cloumns
+2026-01-06 00:50:05,943 - alembic.runtime.migration - INFO:622 - Running upgrade fc23c4f3e755 -> 25cbc85766fd, 039_create_terminology
+2026-01-06 00:50:05,963 - alembic.runtime.migration - INFO:622 - Running upgrade 25cbc85766fd -> 0fc14c2cfe41, 040_modify_ai_model
+2026-01-06 00:50:05,964 - alembic.runtime.migration - INFO:622 - Running upgrade 0fc14c2cfe41 -> c4c3c36b720d, 041_add_terminology_oid
+2026-01-06 00:50:05,964 - alembic.runtime.migration - INFO:622 - Running upgrade c4c3c36b720d -> a487d9c69341, 042_data_training
+2026-01-06 00:50:05,967 - alembic.runtime.migration - INFO:622 - Running upgrade a487d9c69341 -> dac062c1f7b1, 043_modify_ds_id_type
+2026-01-06 00:50:05,977 - alembic.runtime.migration - INFO:622 - Running upgrade dac062c1f7b1 -> 455b8ce69e80, 044_table_relation
+2026-01-06 00:50:05,977 - alembic.runtime.migration - INFO:622 - Running upgrade 455b8ce69e80 -> 45e7e52bf2b8, 045_modify_terminolog
+2026-01-06 00:50:05,978 - alembic.runtime.migration - INFO:622 - Running upgrade 45e7e52bf2b8 -> 8855aea2dd61, 046_add_custom_prompt
+2026-01-06 00:50:05,981 - alembic.runtime.migration - INFO:622 - Running upgrade 8855aea2dd61 -> c1b794a961ce, 047_table_embedding
+2026-01-06 00:50:05,982 - alembic.runtime.migration - INFO:622 - Running upgrade c1b794a961ce -> 073bf544b373, 048_authentication_ddl
+2026-01-06 00:50:05,986 - alembic.runtime.migration - INFO:622 - Running upgrade 073bf544b373 -> b58a71ca6ae3, 049_user_platform_ddl
+2026-01-06 00:50:05,989 - alembic.runtime.migration - INFO:622 - Running upgrade b58a71ca6ae3 -> 2785e54dc1c4, 050_modify_ddl.py
+2026-01-06 00:50:05,990 - alembic.runtime.migration - INFO:622 - Running upgrade 2785e54dc1c4 -> cb12c4238120, 051_modify_data_training_ddl
+2026-01-06 00:50:05,990 - alembic.runtime.migration - INFO:622 - Running upgrade cb12c4238120 -> e408f8766753, empty message
+2026-01-06 00:50:05,993 - alembic.runtime.migration - INFO:622 - Running upgrade e408f8766753 -> 5755c0b95839, empty message
+2026-01-06 00:50:05,995 - alembic.runtime.migration - INFO:622 - Running upgrade 5755c0b95839 -> 24e961f6326b, 054_update_chat_record_dll
+2026-01-06 00:50:05,996 - alembic.runtime.migration - INFO:622 - Running upgrade 24e961f6326b -> 3d4bd2d673dc, empty message
+2026-01-06 00:50:05,999 - alembic.runtime.migration - INFO:622 - Running upgrade 3d4bd2d673dc -> d9a5589fc00b, 056_api_key_ddl
+2026-01-06 00:50:06,003 - alembic.runtime.migration - INFO:622 - Running upgrade d9a5589fc00b -> c431a0bf478b, empty message
+2026-01-06 00:50:06,004 - alembic.runtime.migration - INFO:622 - Running upgrade c431a0bf478b -> fb2e8dd19158, empty message
+2026-01-06 00:50:06,006 - alembic.runtime.migration - INFO:622 - Running upgrade fb2e8dd19158 -> db1a95567cbb, empty message
+2026-01-06 00:50:06,038 - common.core.sqlbot_cache - INFO:131 - SQLBot 使用内存缓存, 仅支持单进程模式
+2026-01-06 00:50:06,044 - apps.datasource.crud.table - INFO:40 - get tables
+2026-01-06 00:50:06,044 - main - INFO:58 - ✅ SQLBot 初始化完成
+2026-01-06 00:50:06,054 - apps.datasource.crud.table - INFO:43 - table result: 0
+2026-01-06 00:50:06,058 - apps.datasource.crud.table - INFO:46 - get datasource
+2026-01-06 00:50:06,063 - apps.datasource.crud.table - INFO:49 - datasource result: 0
+2026-01-06 00:50:06,204 - sqlbot_xpack.config.rsa_manage - INFO:121 - XPack global rsa cache clean successfully.
+2026-01-06 00:50:31,770 - sqlbot_xpack.license.manage - INFO:145 - query license info without cache!
+2026-01-06 00:51:31,406 - apps.db.db - INFO:170 - success
+2026-01-06 00:51:33,067 - apps.db.db - INFO:170 - success
+2026-01-06 00:51:39,792 - apps.datasource.crud.table - INFO:64 - start table embedding
+2026-01-06 00:51:39,792 - apps.datasource.crud.table - INFO:116 - start datasource embedding
+2026-01-06 00:51:40,755 - sentence_transformers.SentenceTransformer - INFO:227 - Load pretrained SentenceTransformer: /opt/sqlbot/models/embedding/shibing624_text2vec-base-chinese
+2026-01-06 00:51:41,206 - apps.datasource.crud.table - INFO:102 - table embedding finished in: 1.413811206817627 seconds
+2026-01-06 00:51:41,206 - apps.datasource.crud.table - INFO:157 - datasource embedding finished in: 1.4136524200439453 seconds
+2026-01-06 00:52:56,374 - httpx - INFO:1740 - HTTP Request: POST https://api.deepseek.com/chat/completions "HTTP/1.1 200 OK"
+2026-01-06 00:52:57,165 - apps.system.api.aimodel - INFO:37 - content='' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,166 - apps.system.api.aimodel - INFO:37 - content='That' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,284 - apps.system.api.aimodel - INFO:37 - content='’' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,339 - apps.system.api.aimodel - INFO:37 - content='s' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,341 - apps.system.api.aimodel - INFO:37 - content=' a' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,394 - apps.system.api.aimodel - INFO:37 - content=' simple' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,443 - apps.system.api.aimodel - INFO:37 - content=' one' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,444 - apps.system.api.aimodel - INFO:37 - content=':\n\n' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,496 - apps.system.api.aimodel - INFO:37 - content='**' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,497 - apps.system.api.aimodel - INFO:37 - content='1' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,549 - apps.system.api.aimodel - INFO:37 - content=' +' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,551 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,622 - apps.system.api.aimodel - INFO:37 - content='1' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,624 - apps.system.api.aimodel - INFO:37 - content=' =' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,653 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,653 - apps.system.api.aimodel - INFO:37 - content='2' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,703 - apps.system.api.aimodel - INFO:37 - content='**' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,757 - apps.system.api.aimodel - INFO:37 - content='  \n\n' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,759 - apps.system.api.aimodel - INFO:37 - content='If' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,852 - apps.system.api.aimodel - INFO:37 - content=' you' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,854 - apps.system.api.aimodel - INFO:37 - content="'re" additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,864 - apps.system.api.aimodel - INFO:37 - content=' asking' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,937 - apps.system.api.aimodel - INFO:37 - content=' in' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,938 - apps.system.api.aimodel - INFO:37 - content=' a' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,970 - apps.system.api.aimodel - INFO:37 - content=' different' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:57,971 - apps.system.api.aimodel - INFO:37 - content=' context' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,026 - apps.system.api.aimodel - INFO:37 - content=' (' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,028 - apps.system.api.aimodel - INFO:37 - content='like' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,076 - apps.system.api.aimodel - INFO:37 - content=' binary' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,077 - apps.system.api.aimodel - INFO:37 - content=',' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,138 - apps.system.api.aimodel - INFO:37 - content=' logic' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,139 - apps.system.api.aimodel - INFO:37 - content=',' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,183 - apps.system.api.aimodel - INFO:37 - content=' or' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,184 - apps.system.api.aimodel - INFO:37 - content=' even' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,236 - apps.system.api.aimodel - INFO:37 - content=' a' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,238 - apps.system.api.aimodel - INFO:37 - content=' playful' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,290 - apps.system.api.aimodel - INFO:37 - content=' r' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,291 - apps.system.api.aimodel - INFO:37 - content='iddle' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,343 - apps.system.api.aimodel - INFO:37 - content='),' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,345 - apps.system.api.aimodel - INFO:37 - content=' here' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,399 - apps.system.api.aimodel - INFO:37 - content=' are' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,400 - apps.system.api.aimodel - INFO:37 - content=' some' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,450 - apps.system.api.aimodel - INFO:37 - content=' alternative' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,502 - apps.system.api.aimodel - INFO:37 - content=' answers' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,503 - apps.system.api.aimodel - INFO:37 - content=':' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,554 - apps.system.api.aimodel - INFO:37 - content='  \n\n' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,556 - apps.system.api.aimodel - INFO:37 - content='-' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,605 - apps.system.api.aimodel - INFO:37 - content=' **' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,712 - apps.system.api.aimodel - INFO:37 - content='Binary' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,713 - apps.system.api.aimodel - INFO:37 - content=':**' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,718 - apps.system.api.aimodel - INFO:37 - content=' \\(' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,766 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,767 - apps.system.api.aimodel - INFO:37 - content='1' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,818 - apps.system.api.aimodel - INFO:37 - content=' +' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,821 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,876 - apps.system.api.aimodel - INFO:37 - content='1' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,879 - apps.system.api.aimodel - INFO:37 - content=' =' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,929 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,932 - apps.system.api.aimodel - INFO:37 - content='10' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:58,998 - apps.system.api.aimodel - INFO:37 - content=' \\)' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,000 - apps.system.api.aimodel - INFO:37 - content=' (' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,033 - apps.system.api.aimodel - INFO:37 - content='in' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,033 - apps.system.api.aimodel - INFO:37 - content=' base' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,081 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,142 - apps.system.api.aimodel - INFO:37 - content='2' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,143 - apps.system.api.aimodel - INFO:37 - content=')' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,187 - apps.system.api.aimodel - INFO:37 - content='  \n' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,188 - apps.system.api.aimodel - INFO:37 - content='-' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,240 - apps.system.api.aimodel - INFO:37 - content=' **' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,241 - apps.system.api.aimodel - INFO:37 - content='Boolean' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,296 - apps.system.api.aimodel - INFO:37 - content=' logic' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,345 - apps.system.api.aimodel - INFO:37 - content=':**' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,347 - apps.system.api.aimodel - INFO:37 - content=' \\(' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,401 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,402 - apps.system.api.aimodel - INFO:37 - content='1' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,456 - apps.system.api.aimodel - INFO:37 - content=' +' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,457 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,507 - apps.system.api.aimodel - INFO:37 - content='1' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,508 - apps.system.api.aimodel - INFO:37 - content=' =' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,559 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,561 - apps.system.api.aimodel - INFO:37 - content='1' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,663 - apps.system.api.aimodel - INFO:37 - content=' \\)' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,665 - apps.system.api.aimodel - INFO:37 - content=' (' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,666 - apps.system.api.aimodel - INFO:37 - content='if' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,667 - apps.system.api.aimodel - INFO:37 - content=' using' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,720 - apps.system.api.aimodel - INFO:37 - content=' logical' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,772 - apps.system.api.aimodel - INFO:37 - content=' OR' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,775 - apps.system.api.aimodel - INFO:37 - content=')' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,825 - apps.system.api.aimodel - INFO:37 - content='  \n' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,828 - apps.system.api.aimodel - INFO:37 - content='-' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,876 - apps.system.api.aimodel - INFO:37 - content=' **' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,877 - apps.system.api.aimodel - INFO:37 - content='Mod' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,929 - apps.system.api.aimodel - INFO:37 - content='ulo' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,982 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:52:59,983 - apps.system.api.aimodel - INFO:37 - content='2' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,036 - apps.system.api.aimodel - INFO:37 - content=':**' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,037 - apps.system.api.aimodel - INFO:37 - content=' \\(' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,088 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,089 - apps.system.api.aimodel - INFO:37 - content='1' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,141 - apps.system.api.aimodel - INFO:37 - content=' +' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,142 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,200 - apps.system.api.aimodel - INFO:37 - content='1' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,208 - apps.system.api.aimodel - INFO:37 - content=' =' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,244 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,245 - apps.system.api.aimodel - INFO:37 - content='0' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,299 - apps.system.api.aimodel - INFO:37 - content=' \\)' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,300 - apps.system.api.aimodel - INFO:37 - content=' (' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,350 - apps.system.api.aimodel - INFO:37 - content='in' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,351 - apps.system.api.aimodel - INFO:37 - content=' arithmetic' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,402 - apps.system.api.aimodel - INFO:37 - content=' modulo' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,404 - apps.system.api.aimodel - INFO:37 - content=' ' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,454 - apps.system.api.aimodel - INFO:37 - content='2' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,456 - apps.system.api.aimodel - INFO:37 - content=')' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,514 - apps.system.api.aimodel - INFO:37 - content='  \n' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,515 - apps.system.api.aimodel - INFO:37 - content='-' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,565 - apps.system.api.aimodel - INFO:37 - content=' **' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,566 - apps.system.api.aimodel - INFO:37 - content='String' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,617 - apps.system.api.aimodel - INFO:37 - content=' concaten' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,619 - apps.system.api.aimodel - INFO:37 - content='ation' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,682 - apps.system.api.aimodel - INFO:37 - content=':**' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,683 - apps.system.api.aimodel - INFO:37 - content=' \\(' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,723 - apps.system.api.aimodel - INFO:37 - content=' "' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,774 - apps.system.api.aimodel - INFO:37 - content='1' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,775 - apps.system.api.aimodel - INFO:37 - content='"' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,829 - apps.system.api.aimodel - INFO:37 - content=' +' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,830 - apps.system.api.aimodel - INFO:37 - content=' "' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,881 - apps.system.api.aimodel - INFO:37 - content='1' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,882 - apps.system.api.aimodel - INFO:37 - content='"' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,933 - apps.system.api.aimodel - INFO:37 - content=' =' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,936 - apps.system.api.aimodel - INFO:37 - content=' "' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,987 - apps.system.api.aimodel - INFO:37 - content='11' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:00,989 - apps.system.api.aimodel - INFO:37 - content='"' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,043 - apps.system.api.aimodel - INFO:37 - content=' \\)' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,045 - apps.system.api.aimodel - INFO:37 - content='  \n' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,095 - apps.system.api.aimodel - INFO:37 - content='-' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,096 - apps.system.api.aimodel - INFO:37 - content=' **' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,147 - apps.system.api.aimodel - INFO:37 - content='Philosoph' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,149 - apps.system.api.aimodel - INFO:37 - content='ical' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,204 - apps.system.api.aimodel - INFO:37 - content=' joke' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,251 - apps.system.api.aimodel - INFO:37 - content=':**' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,253 - apps.system.api.aimodel - INFO:37 - content=' “' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,307 - apps.system.api.aimodel - INFO:37 - content='A' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,361 - apps.system.api.aimodel - INFO:37 - content=' window' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,362 - apps.system.api.aimodel - INFO:37 - content='”' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,412 - apps.system.api.aimodel - INFO:37 - content=' (' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,413 - apps.system.api.aimodel - INFO:37 - content='if' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,465 - apps.system.api.aimodel - INFO:37 - content=' you' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,467 - apps.system.api.aimodel - INFO:37 - content='’' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,518 - apps.system.api.aimodel - INFO:37 - content='re' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,519 - apps.system.api.aimodel - INFO:37 - content=' drawing' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,575 - apps.system.api.aimodel - INFO:37 - content=' lines' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,628 - apps.system.api.aimodel - INFO:37 - content=')' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,746 - apps.system.api.aimodel - INFO:37 - content='  \n\n' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,746 - apps.system.api.aimodel - INFO:37 - content='But' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,751 - apps.system.api.aimodel - INFO:37 - content=' in' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,752 - apps.system.api.aimodel - INFO:37 - content=' standard' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,787 - apps.system.api.aimodel - INFO:37 - content=' arithmetic' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,788 - apps.system.api.aimodel - INFO:37 - content=',' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,839 - apps.system.api.aimodel - INFO:37 - content=' the' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,840 - apps.system.api.aimodel - INFO:37 - content=' answer' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,891 - apps.system.api.aimodel - INFO:37 - content=' is' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,893 - apps.system.api.aimodel - INFO:37 - content=' **' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,944 - apps.system.api.aimodel - INFO:37 - content='2' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,945 - apps.system.api.aimodel - INFO:37 - content='**.' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:01,996 - apps.system.api.aimodel - INFO:37 - content=' 😊' additional_kwargs={} response_metadata={} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3'
+2026-01-06 00:53:02,064 - apps.system.api.aimodel - INFO:37 - content='' additional_kwargs={} response_metadata={'finish_reason': 'stop', 'model_name': 'deepseek-chat', 'system_fingerprint': 'fp_eaab8d114b_prod0820_fp8_kvcache'} id='run--1f62d205-5f46-4049-96ad-1a2ad56e67c3' usage_metadata={'input_tokens': 8, 'output_tokens': 165, 'total_tokens': 173, 'input_token_details': {'cache_read': 0}, 'output_token_details': {}}
+2026-01-06 00:53:06,419 - apps.db.db - INFO:170 - success
+2026-01-06 00:53:06,748 - httpx - INFO:1025 - HTTP Request: POST https://api.deepseek.com/chat/completions "HTTP/1.1 200 OK"
+2026-01-06 00:53:07,622 - apps.chat.task.llm - INFO:1512 - content='' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:07,624 - apps.chat.task.llm - INFO:1512 - content='["' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:07,746 - apps.chat.task.llm - INFO:1512 - content='查询' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:07,798 - apps.chat.task.llm - INFO:1512 - content='所有' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:07,800 - apps.chat.task.llm - INFO:1512 - content=' open' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:07,852 - apps.chat.task.llm - INFO:1512 - content='_d' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:07,855 - apps.chat.task.llm - INFO:1512 - content='igger' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:07,905 - apps.chat.task.llm - INFO:1512 - content='_' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:07,907 - apps.chat.task.llm - INFO:1512 - content='metrics' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:07,959 - apps.chat.task.llm - INFO:1512 - content=' ' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:07,961 - apps.chat.task.llm - INFO:1512 - content='数据' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,013 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,014 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,066 - apps.chat.task.llm - INFO:1512 - content='使用' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,068 - apps.chat.task.llm - INFO:1512 - content='表格' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,120 - apps.chat.task.llm - INFO:1512 - content='展示' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,123 - apps.chat.task.llm - INFO:1512 - content='各' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,169 - apps.chat.task.llm - INFO:1512 - content='仓库' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,171 - apps.chat.task.llm - INFO:1512 - content='的' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,224 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,226 - apps.chat.task.llm - INFO:1512 - content='类型' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,276 - apps.chat.task.llm - INFO:1512 - content='和' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,278 - apps.chat.task.llm - INFO:1512 - content='数值' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,332 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,333 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,382 - apps.chat.task.llm - INFO:1512 - content='使用' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,384 - apps.chat.task.llm - INFO:1512 - content='柱' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,437 - apps.chat.task.llm - INFO:1512 - content='状' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,439 - apps.chat.task.llm - INFO:1512 - content='图' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,487 - apps.chat.task.llm - INFO:1512 - content='展示' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,489 - apps.chat.task.llm - INFO:1512 - content='不同' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,540 - apps.chat.task.llm - INFO:1512 - content='仓库' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,543 - apps.chat.task.llm - INFO:1512 - content='的' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,594 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,596 - apps.chat.task.llm - INFO:1512 - content='值' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,646 - apps.chat.task.llm - INFO:1512 - content='对比' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,648 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,699 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,701 - apps.chat.task.llm - INFO:1512 - content='使用' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,753 - apps.chat.task.llm - INFO:1512 - content='折' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,755 - apps.chat.task.llm - INFO:1512 - content='线' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,805 - apps.chat.task.llm - INFO:1512 - content='图' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,807 - apps.chat.task.llm - INFO:1512 - content='展示' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,860 - apps.chat.task.llm - INFO:1512 - content='指定' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,910 - apps.chat.task.llm - INFO:1512 - content='仓库' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,913 - apps.chat.task.llm - INFO:1512 - content='各' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:08,963 - apps.chat.task.llm - INFO:1512 - content='月份的' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,017 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,018 - apps.chat.task.llm - INFO:1512 - content='变化' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,068 - apps.chat.task.llm - INFO:1512 - content='趋势' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,069 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,125 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,129 - apps.chat.task.llm - INFO:1512 - content='使用' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,174 - apps.chat.task.llm - INFO:1512 - content='饼' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,174 - apps.chat.task.llm - INFO:1512 - content='图' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,226 - apps.chat.task.llm - INFO:1512 - content='展示' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,228 - apps.chat.task.llm - INFO:1512 - content='各' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,280 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,282 - apps.chat.task.llm - INFO:1512 - content='类型' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,359 - apps.chat.task.llm - INFO:1512 - content='在' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,361 - apps.chat.task.llm - INFO:1512 - content='总' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,385 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,439 - apps.chat.task.llm - INFO:1512 - content='中的' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,440 - apps.chat.task.llm - INFO:1512 - content='占比' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,491 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,494 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,546 - apps.chat.task.llm - INFO:1512 - content='查询' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,548 - apps.chat.task.llm - INFO:1512 - content='指定' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,601 - apps.chat.task.llm - INFO:1512 - content='月份' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,653 - apps.chat.task.llm - INFO:1512 - content='所有' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,705 - apps.chat.task.llm - INFO:1512 - content='仓库' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,707 - apps.chat.task.llm - INFO:1512 - content='的' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,756 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,758 - apps.chat.task.llm - INFO:1512 - content='数据' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,812 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,813 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,889 - apps.chat.task.llm - INFO:1512 - content='查询' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,892 - apps.chat.task.llm - INFO:1512 - content='指定' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,915 - apps.chat.task.llm - INFO:1512 - content='仓库' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:09,969 - apps.chat.task.llm - INFO:1512 - content='的所有' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,023 - apps.chat.task.llm - INFO:1512 - content='历史' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,074 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,076 - apps.chat.task.llm - INFO:1512 - content='数据' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,184 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,185 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,191 - apps.chat.task.llm - INFO:1512 - content='查询' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,245 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,246 - apps.chat.task.llm - INFO:1512 - content='值' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,285 - apps.chat.task.llm - INFO:1512 - content='最高的' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,287 - apps.chat.task.llm - INFO:1512 - content='前' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,338 - apps.chat.task.llm - INFO:1512 - content='10' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,341 - apps.chat.task.llm - INFO:1512 - content='个' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,408 - apps.chat.task.llm - INFO:1512 - content='仓库' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,409 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,447 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,449 - apps.chat.task.llm - INFO:1512 - content='使用' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,497 - apps.chat.task.llm - INFO:1512 - content='条形' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,558 - apps.chat.task.llm - INFO:1512 - content='图' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,560 - apps.chat.task.llm - INFO:1512 - content='展示' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,604 - apps.chat.task.llm - INFO:1512 - content='各' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,605 - apps.chat.task.llm - INFO:1512 - content='仓库' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,656 - apps.chat.task.llm - INFO:1512 - content='在' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,658 - apps.chat.task.llm - INFO:1512 - content='指定' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,710 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,761 - apps.chat.task.llm - INFO:1512 - content='类型' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,814 - apps.chat.task.llm - INFO:1512 - content='上的' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,816 - apps.chat.task.llm - INFO:1512 - content='数值' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,868 - apps.chat.task.llm - INFO:1512 - content='排名' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,924 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,926 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,975 - apps.chat.task.llm - INFO:1512 - content='使用' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:10,977 - apps.chat.task.llm - INFO:1512 - content='折' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,029 - apps.chat.task.llm - INFO:1512 - content='线' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,030 - apps.chat.task.llm - INFO:1512 - content='图' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,081 - apps.chat.task.llm - INFO:1512 - content='对比' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,082 - apps.chat.task.llm - INFO:1512 - content='多个' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,146 - apps.chat.task.llm - INFO:1512 - content='仓库' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,147 - apps.chat.task.llm - INFO:1512 - content='在同一' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,187 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,190 - apps.chat.task.llm - INFO:1512 - content='类型' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,241 - apps.chat.task.llm - INFO:1512 - content='上的' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,243 - apps.chat.task.llm - INFO:1512 - content='月度' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,293 - apps.chat.task.llm - INFO:1512 - content='变化' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,298 - apps.chat.task.llm - INFO:1512 - content='"]' additional_kwargs={} response_metadata={} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0'
+2026-01-06 00:53:11,350 - apps.chat.task.llm - INFO:1512 - content='' additional_kwargs={} response_metadata={'finish_reason': 'stop', 'model_name': 'deepseek-chat', 'system_fingerprint': 'fp_eaab8d114b_prod0820_fp8_kvcache'} id='run--e000e86c-d4ce-428f-bea5-7282d8578ef0' usage_metadata={'input_tokens': 377, 'output_tokens': 123, 'total_tokens': 500, 'input_token_details': {'cache_read': 320}, 'output_token_details': {}}
+2026-01-06 00:53:18,266 - apps.datasource.embedding.table_embedding - INFO:71 - 0.16920256614685059
+2026-01-06 00:53:18,267 - apps.datasource.embedding.table_embedding - INFO:72 - [{"id": 1, "schema_table": "# Table: open_digger_metrics\n[\n(created_at:timestamp),\n(id:int),\n(metric_type:varchar),\n(month:varchar),\n(repo_name:varchar),\n(value:double)\n]\n", "cosine_similarity": 0.7147132668665652}]
+2026-01-06 00:53:18,390 - apps.db.db - INFO:170 - success
+2026-01-06 00:53:18,645 - httpx - INFO:1025 - HTTP Request: POST https://api.deepseek.com/chat/completions "HTTP/1.1 200 OK"
+2026-01-06 00:53:19,314 - apps.chat.task.llm - INFO:1512 - content='' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,316 - apps.chat.task.llm - INFO:1512 - content='```' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,485 - apps.chat.task.llm - INFO:1512 - content='json' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,487 - apps.chat.task.llm - INFO:1512 - content='\n' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,488 - apps.chat.task.llm - INFO:1512 - content='{\n' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,535 - apps.chat.task.llm - INFO:1512 - content='   ' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,588 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,590 - apps.chat.task.llm - INFO:1512 - content='success' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,639 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,641 - apps.chat.task.llm - INFO:1512 - content=' true' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,691 - apps.chat.task.llm - INFO:1512 - content=',\n' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,693 - apps.chat.task.llm - INFO:1512 - content='   ' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,747 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,749 - apps.chat.task.llm - INFO:1512 - content='sql' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,806 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,809 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,855 - apps.chat.task.llm - INFO:1512 - content='SELECT' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,857 - apps.chat.task.llm - INFO:1512 - content=' `' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,908 - apps.chat.task.llm - INFO:1512 - content='created' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,909 - apps.chat.task.llm - INFO:1512 - content='_at' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:19,966 - apps.chat.task.llm - INFO:1512 - content='`,' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,017 - apps.chat.task.llm - INFO:1512 - content=' `' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,018 - apps.chat.task.llm - INFO:1512 - content='id' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,069 - apps.chat.task.llm - INFO:1512 - content='`,' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,071 - apps.chat.task.llm - INFO:1512 - content=' `' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,124 - apps.chat.task.llm - INFO:1512 - content='metric' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,125 - apps.chat.task.llm - INFO:1512 - content='_type' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,177 - apps.chat.task.llm - INFO:1512 - content='`,' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,179 - apps.chat.task.llm - INFO:1512 - content=' `' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,235 - apps.chat.task.llm - INFO:1512 - content='month' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,238 - apps.chat.task.llm - INFO:1512 - content='`,' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,281 - apps.chat.task.llm - INFO:1512 - content=' `' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,283 - apps.chat.task.llm - INFO:1512 - content='repo' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,336 - apps.chat.task.llm - INFO:1512 - content='_name' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,338 - apps.chat.task.llm - INFO:1512 - content='`,' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,391 - apps.chat.task.llm - INFO:1512 - content=' `' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,393 - apps.chat.task.llm - INFO:1512 - content='value' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,445 - apps.chat.task.llm - INFO:1512 - content='`' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,446 - apps.chat.task.llm - INFO:1512 - content=' FROM' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,497 - apps.chat.task.llm - INFO:1512 - content=' `' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,499 - apps.chat.task.llm - INFO:1512 - content='open' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,549 - apps.chat.task.llm - INFO:1512 - content='_d' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,550 - apps.chat.task.llm - INFO:1512 - content='igger' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,606 - apps.chat.task.llm - INFO:1512 - content='_' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,609 - apps.chat.task.llm - INFO:1512 - content='metrics' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,657 - apps.chat.task.llm - INFO:1512 - content='`' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,659 - apps.chat.task.llm - INFO:1512 - content=' `' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,716 - apps.chat.task.llm - INFO:1512 - content='t' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,766 - apps.chat.task.llm - INFO:1512 - content='1' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,768 - apps.chat.task.llm - INFO:1512 - content='`' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,830 - apps.chat.task.llm - INFO:1512 - content=' LIM' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,834 - apps.chat.task.llm - INFO:1512 - content='IT' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,871 - apps.chat.task.llm - INFO:1512 - content=' ' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,872 - apps.chat.task.llm - INFO:1512 - content='100' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,925 - apps.chat.task.llm - INFO:1512 - content='0' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,927 - apps.chat.task.llm - INFO:1512 - content='",\n' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,978 - apps.chat.task.llm - INFO:1512 - content='   ' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:20,979 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,047 - apps.chat.task.llm - INFO:1512 - content='t' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,049 - apps.chat.task.llm - INFO:1512 - content='ables' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,085 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,088 - apps.chat.task.llm - INFO:1512 - content=' ["' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,139 - apps.chat.task.llm - INFO:1512 - content='open' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,141 - apps.chat.task.llm - INFO:1512 - content='_d' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,195 - apps.chat.task.llm - INFO:1512 - content='igger' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,197 - apps.chat.task.llm - INFO:1512 - content='_' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,244 - apps.chat.task.llm - INFO:1512 - content='metrics' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,246 - apps.chat.task.llm - INFO:1512 - content='"],\n' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,298 - apps.chat.task.llm - INFO:1512 - content='   ' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,299 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,352 - apps.chat.task.llm - INFO:1512 - content='chart' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,355 - apps.chat.task.llm - INFO:1512 - content='-type' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,405 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,407 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,458 - apps.chat.task.llm - INFO:1512 - content='table' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,459 - apps.chat.task.llm - INFO:1512 - content='",\n' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,509 - apps.chat.task.llm - INFO:1512 - content='   ' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,510 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,563 - apps.chat.task.llm - INFO:1512 - content='brief' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,565 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,615 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,617 - apps.chat.task.llm - INFO:1512 - content='查询' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,675 - apps.chat.task.llm - INFO:1512 - content='所有' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,679 - apps.chat.task.llm - INFO:1512 - content='Open' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,722 - apps.chat.task.llm - INFO:1512 - content='Dig' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,725 - apps.chat.task.llm - INFO:1512 - content='ger' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,775 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,778 - apps.chat.task.llm - INFO:1512 - content='数据' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,829 - apps.chat.task.llm - INFO:1512 - content='"\n' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,833 - apps.chat.task.llm - INFO:1512 - content='}\n' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,881 - apps.chat.task.llm - INFO:1512 - content='```' additional_kwargs={} response_metadata={} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421'
+2026-01-06 00:53:21,883 - apps.chat.task.llm - INFO:1512 - content='' additional_kwargs={} response_metadata={'finish_reason': 'stop', 'model_name': 'deepseek-chat', 'system_fingerprint': 'fp_eaab8d114b_prod0820_fp8_kvcache'} id='run--afdcbf3e-3ba8-4c51-aab9-7ef40f860421' usage_metadata={'input_tokens': 3938, 'output_tokens': 90, 'total_tokens': 4028, 'input_token_details': {'cache_read': 3840}, 'output_token_details': {}}
+2026-01-06 00:53:21,898 - apps.chat.task.llm - INFO:1027 - ```json
+{
+    "success": true,
+    "sql": "SELECT `created_at`, `id`, `metric_type`, `month`, `repo_name`, `value` FROM `open_digger_metrics` `t1` LIMIT 1000",
+    "tables": ["open_digger_metrics"],
+    "chart-type": "table",
+    "brief": "查询所有OpenDigger指标数据"
+}
+```
+2026-01-06 00:53:21,903 - apps.chat.task.llm - INFO:1075 - sql: SELECT `created_at`, `id`, `metric_type`, `month`, `repo_name`, `value` FROM `open_digger_metrics` `t1` LIMIT 1000
+2026-01-06 00:53:21,910 - apps.chat.task.llm - INFO:906 - Executing SQL on ds_id 1: SELECT `created_at`, `id`, `metric_type`, `month`, `repo_name`, `value` FROM `open_digger_metrics` `t1` LIMIT 1000
+2026-01-06 00:53:22,107 - httpx - INFO:1025 - HTTP Request: POST https://api.deepseek.com/chat/completions "HTTP/1.1 200 OK"
+2026-01-06 00:53:22,712 - apps.chat.task.llm - INFO:1512 - content='' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:22,713 - apps.chat.task.llm - INFO:1512 - content='```' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:22,947 - apps.chat.task.llm - INFO:1512 - content='json' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:22,993 - apps.chat.task.llm - INFO:1512 - content='\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:22,995 - apps.chat.task.llm - INFO:1512 - content='{\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,109 - apps.chat.task.llm - INFO:1512 - content='   ' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,111 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,116 - apps.chat.task.llm - INFO:1512 - content='type' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,117 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,151 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,154 - apps.chat.task.llm - INFO:1512 - content='table' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,205 - apps.chat.task.llm - INFO:1512 - content='",\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,207 - apps.chat.task.llm - INFO:1512 - content='   ' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,259 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,263 - apps.chat.task.llm - INFO:1512 - content='title' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,313 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,316 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,366 - apps.chat.task.llm - INFO:1512 - content='开源' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,421 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,423 - apps.chat.task.llm - INFO:1512 - content='数据' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,475 - apps.chat.task.llm - INFO:1512 - content='",\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,476 - apps.chat.task.llm - INFO:1512 - content='   ' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,528 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,530 - apps.chat.task.llm - INFO:1512 - content='columns' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,582 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,584 - apps.chat.task.llm - INFO:1512 - content=' [\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,635 - apps.chat.task.llm - INFO:1512 - content='       ' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,637 - apps.chat.task.llm - INFO:1512 - content=' {"' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,688 - apps.chat.task.llm - INFO:1512 - content='name' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,690 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,741 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,742 - apps.chat.task.llm - INFO:1512 - content='创建' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,794 - apps.chat.task.llm - INFO:1512 - content='时间' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,796 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,847 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,849 - apps.chat.task.llm - INFO:1512 - content='value' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,902 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,903 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,954 - apps.chat.task.llm - INFO:1512 - content='created' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:23,956 - apps.chat.task.llm - INFO:1512 - content='_at' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,008 - apps.chat.task.llm - INFO:1512 - content='"},\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,009 - apps.chat.task.llm - INFO:1512 - content='       ' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,064 - apps.chat.task.llm - INFO:1512 - content=' {"' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,067 - apps.chat.task.llm - INFO:1512 - content='name' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,120 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,122 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,170 - apps.chat.task.llm - INFO:1512 - content='ID' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,173 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,224 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,226 - apps.chat.task.llm - INFO:1512 - content='value' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,276 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,277 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,349 - apps.chat.task.llm - INFO:1512 - content='id' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,350 - apps.chat.task.llm - INFO:1512 - content='"},\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,387 - apps.chat.task.llm - INFO:1512 - content='       ' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,389 - apps.chat.task.llm - INFO:1512 - content=' {"' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,440 - apps.chat.task.llm - INFO:1512 - content='name' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,443 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,493 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,494 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,548 - apps.chat.task.llm - INFO:1512 - content='类型' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,549 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,600 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,601 - apps.chat.task.llm - INFO:1512 - content='value' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,653 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,655 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,708 - apps.chat.task.llm - INFO:1512 - content='metric' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,709 - apps.chat.task.llm - INFO:1512 - content='_type' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,759 - apps.chat.task.llm - INFO:1512 - content='"},\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,762 - apps.chat.task.llm - INFO:1512 - content='       ' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,812 - apps.chat.task.llm - INFO:1512 - content=' {"' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,814 - apps.chat.task.llm - INFO:1512 - content='name' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,867 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,868 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,926 - apps.chat.task.llm - INFO:1512 - content='月份' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,928 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,972 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:24,973 - apps.chat.task.llm - INFO:1512 - content='value' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,026 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,027 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,077 - apps.chat.task.llm - INFO:1512 - content='month' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,078 - apps.chat.task.llm - INFO:1512 - content='"},\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,130 - apps.chat.task.llm - INFO:1512 - content='       ' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,131 - apps.chat.task.llm - INFO:1512 - content=' {"' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,184 - apps.chat.task.llm - INFO:1512 - content='name' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,185 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,244 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,250 - apps.chat.task.llm - INFO:1512 - content='仓库' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,293 - apps.chat.task.llm - INFO:1512 - content='名称' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,295 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,345 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,346 - apps.chat.task.llm - INFO:1512 - content='value' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,399 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,400 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,452 - apps.chat.task.llm - INFO:1512 - content='repo' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,454 - apps.chat.task.llm - INFO:1512 - content='_name' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,505 - apps.chat.task.llm - INFO:1512 - content='"},\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,506 - apps.chat.task.llm - INFO:1512 - content='       ' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,559 - apps.chat.task.llm - INFO:1512 - content=' {"' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,561 - apps.chat.task.llm - INFO:1512 - content='name' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,613 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,614 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,666 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,667 - apps.chat.task.llm - INFO:1512 - content='值' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,719 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,721 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,772 - apps.chat.task.llm - INFO:1512 - content='value' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,774 - apps.chat.task.llm - INFO:1512 - content='":' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,826 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,827 - apps.chat.task.llm - INFO:1512 - content='value' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,879 - apps.chat.task.llm - INFO:1512 - content='"}\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,881 - apps.chat.task.llm - INFO:1512 - content='   ' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,932 - apps.chat.task.llm - INFO:1512 - content=' ]\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,933 - apps.chat.task.llm - INFO:1512 - content='}\n' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,987 - apps.chat.task.llm - INFO:1512 - content='```' additional_kwargs={} response_metadata={} id='run--62bcfed9-10a2-490b-8767-4788e4792b41'
+2026-01-06 00:53:25,992 - apps.chat.task.llm - INFO:1512 - content='' additional_kwargs={} response_metadata={'finish_reason': 'stop', 'model_name': 'deepseek-chat', 'system_fingerprint': 'fp_eaab8d114b_prod0820_fp8_kvcache'} id='run--62bcfed9-10a2-490b-8767-4788e4792b41' usage_metadata={'input_tokens': 2069, 'output_tokens': 114, 'total_tokens': 2183, 'input_token_details': {'cache_read': 1984}, 'output_token_details': {}}
+2026-01-06 00:53:26,007 - apps.chat.task.llm - INFO:1152 - ```json
+{
+    "type": "table",
+    "title": "开源指标数据",
+    "columns": [
+        {"name": "创建时间", "value": "created_at"},
+        {"name": "ID", "value": "id"},
+        {"name": "指标类型", "value": "metric_type"},
+        {"name": "月份", "value": "month"},
+        {"name": "仓库名称", "value": "repo_name"},
+        {"name": "指标值", "value": "value"}
+    ]
+}
+```
+2026-01-06 00:53:26,010 - apps.chat.task.llm - INFO:1154 - {'type': 'table', 'title': '开源指标数据', 'columns': [{'name': '创建时间', 'value': 'created_at'}, {'name': 'ID', 'value': 'id'}, {'name': '指标类型', 'value': 'metric_type'}, {'name': '月份', 'value': 'month'}, {'name': '仓库名称', 'value': 'repo_name'}, {'name': '指标值', 'value': 'value'}]}
+2026-01-06 00:53:26,265 - httpx - INFO:1025 - HTTP Request: POST https://api.deepseek.com/chat/completions "HTTP/1.1 200 OK"
+2026-01-06 00:53:27,146 - apps.chat.task.llm - INFO:1512 - content='' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,148 - apps.chat.task.llm - INFO:1512 - content='["' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,330 - apps.chat.task.llm - INFO:1512 - content='使用' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,382 - apps.chat.task.llm - INFO:1512 - content='柱' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,434 - apps.chat.task.llm - INFO:1512 - content='状' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,436 - apps.chat.task.llm - INFO:1512 - content='图' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,488 - apps.chat.task.llm - INFO:1512 - content='展示' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,491 - apps.chat.task.llm - INFO:1512 - content='各' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,540 - apps.chat.task.llm - INFO:1512 - content='仓库' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,593 - apps.chat.task.llm - INFO:1512 - content='的' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,595 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,647 - apps.chat.task.llm - INFO:1512 - content='数量' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,649 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,698 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,700 - apps.chat.task.llm - INFO:1512 - content='使用' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,752 - apps.chat.task.llm - INFO:1512 - content='折' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,754 - apps.chat.task.llm - INFO:1512 - content='线' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,824 - apps.chat.task.llm - INFO:1512 - content='图' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,825 - apps.chat.task.llm - INFO:1512 - content='展示' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,857 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,910 - apps.chat.task.llm - INFO:1512 - content='值' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,969 - apps.chat.task.llm - INFO:1512 - content='随时间' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:27,970 - apps.chat.task.llm - INFO:1512 - content='的变化' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,016 - apps.chat.task.llm - INFO:1512 - content='趋势' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,018 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,069 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,071 - apps.chat.task.llm - INFO:1512 - content='使用' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,121 - apps.chat.task.llm - INFO:1512 - content='饼' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,123 - apps.chat.task.llm - INFO:1512 - content='图' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,175 - apps.chat.task.llm - INFO:1512 - content='展示' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,176 - apps.chat.task.llm - INFO:1512 - content='不同' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,228 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,230 - apps.chat.task.llm - INFO:1512 - content='类型的' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,285 - apps.chat.task.llm - INFO:1512 - content='占比' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,287 - apps.chat.task.llm - INFO:1512 - content='",' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,334 - apps.chat.task.llm - INFO:1512 - content=' "' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,336 - apps.chat.task.llm - INFO:1512 - content='查询' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,431 - apps.chat.task.llm - INFO:1512 - content='特定' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,440 - apps.chat.task.llm - INFO:1512 - content='仓库' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,494 - apps.chat.task.llm - INFO:1512 - content='的' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,495 - apps.chat.task.llm - INFO:1512 - content='指标' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,547 - apps.chat.task.llm - INFO:1512 - content='数据' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,549 - apps.chat.task.llm - INFO:1512 - content='"]' additional_kwargs={} response_metadata={} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0'
+2026-01-06 00:53:28,602 - apps.chat.task.llm - INFO:1512 - content='' additional_kwargs={} response_metadata={'finish_reason': 'stop', 'model_name': 'deepseek-chat', 'system_fingerprint': 'fp_eaab8d114b_prod0820_fp8_kvcache'} id='run--e3b024bc-437c-4d24-87f8-e2e04f05bfa0' usage_metadata={'input_tokens': 397, 'output_tokens': 42, 'total_tokens': 439, 'input_token_details': {'cache_read': 320}, 'output_token_details': {}}
