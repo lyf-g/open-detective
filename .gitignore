@@ -1,8 +1,13 @@
 
 venv/
+.venv/
 src/frontend/node_modules/
-
+__pycache__/
+*.pyc
 .DS_Store
-
 .prompt
+.env
+data/postgresql/
+data/sqlbot/
+open_detective.db
 
