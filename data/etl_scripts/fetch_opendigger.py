@@ -6,16 +6,18 @@ import json
 # Configuration
 DB_PATH = os.path.join(os.path.dirname(__file__), '../../open_detective.db')
 BASE_URL = "https://oss.x-lab.info/open_digger/github"
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), '../repos.json')
 
-# Target repositories to track (add more as needed)
-TARGET_REPOS = [
-    "vuejs/core",
-    "facebook/react",
-    "fastapi/fastapi",
-    "tensorflow/tensorflow",
-    "microsoft/vscode",
-    "kubernetes/kubernetes"
-]
+def load_repos():
+    try:
+        with open(CONFIG_PATH, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"⚠️ Config file not found at {CONFIG_PATH}, utilizing defaults.")
+        return ["vuejs/core"] # Fallback
+
+# Target repositories to track
+TARGET_REPOS = load_repos()
 
 METRICS = [
     "stars",
