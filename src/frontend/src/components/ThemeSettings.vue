@@ -17,6 +17,10 @@
         <label>Accent Color</label>
         <input type="color" v-model="accentColor" @input="applyAccentColor" />
       </div>
+      <div class="setting-group admin-section">
+        <label>Intelligence Engine</label>
+        <a href="http://localhost:8001" target="_blank" class="admin-link">Launch SQLBot Admin ↗</a>
+      </div>
       <button class="close-btn" @click="isOpen = false">Close</button>
     </div>
   </div>
@@ -111,11 +115,33 @@ select, input[type="color"] {
   width: 100%;
   padding: 6px;
   background: var(--primary-color);
-  color: #000;
+  color: var(--bg-color);
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
   font-size: 0.8rem;
+}
+
+.admin-section {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+.admin-link {
+  display: block;
+  text-decoration: none;
+  color: var(--primary-color);
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px;
+  border: 1px dashed var(--primary-color);
+  border-radius: 4px;
+}
+
+.admin-link:hover {
+  background: var(--primary-color);
+  color: var(--bg-color);
 }
 </style>
