@@ -31,9 +31,7 @@
 
             <!-- Bubble -->
             <div class="message-content">
-              <div class="bubble">
-                <p>{{ msg.text }}</p>
-              </div>
+              <div class="bubble" v-html="md.render(msg.text)"></div>
 
               <!-- Evidence: SQL -->
               <div v-if="msg.sql" class="evidence-block">
@@ -103,6 +101,9 @@
 import { ref, nextTick, onMounted } from 'vue'
 import axios from 'axios'
 import ResultChart from './components/ResultChart.vue'
+import MarkdownIt from 'markdown-it'
+
+const md = new MarkdownIt()
 
 interface ChatMessage {
   role: 'user' | 'assistant'
