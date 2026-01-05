@@ -1,14 +1,22 @@
 import os
 import sqlite3
-from fastapi import FastAPI, HTTPException, APIRouter
-from pydantic import BaseModel
-from typing import List, Dict, Any
-from src.backend.services.sql_engine import mock_text_to_sql
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException, APIRouter, Request
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Open DB connection
+    app.state.db = sqlite3.connect(DB_PATH, check_same_thread=False)
+    app.state.db.row_factory = sqlite3.Row
+    yield
+    # Shutdown: Close DB connection
+    app.state.db.close()
 
 app = FastAPI(
     title="Open-Detective API",
     description="Backend for Open-Detective",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan
 )
 
 # Version 1 Router
@@ -29,17 +37,12 @@ class HealthResponse(BaseModel):
     status: str
     version: str
 
-def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row # Access columns by name
-    return conn
-
 @router_v1.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
-    print(f"Received message: {request.message}")
+async def chat(request_request: Request, chat_request: ChatRequest):
+    print(f"Received message: {chat_request.message}")
     
     # 1. Generate SQL (Mock AI)
-    sql_query = mock_text_to_sql(request.message)
+    sql_query = mock_text_to_sql(chat_request.message)
     
     if not sql_query:
         return ChatResponse(
@@ -51,12 +54,10 @@ async def chat(request: ChatRequest):
     # 2. Execute SQL
     data = []
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = request_request.app.state.db.cursor()
         cursor.execute(sql_query)
         rows = cursor.fetchall()
         data = [dict(row) for row in rows]
-        conn.close()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
