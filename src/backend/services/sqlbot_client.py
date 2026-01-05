@@ -6,65 +6,83 @@ from typing import Optional
 
 class SQLBotClient:
     """
-    HTTP Client for communicating with DataEase SQLBot.
+    HTTP Client for communicating with DataEase SQLBot via standard Chat API.
     """
     def __init__(self, endpoint: Optional[str] = None):
-        self.endpoint = endpoint or os.getenv("SQLBOT_ENDPOINT", "http://localhost:8080")
+        self.endpoint = endpoint or os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
         self.api_key = os.getenv("SQLBOT_API_KEY", "")
+        # The datasource ID configured in SQLBot Admin
+        self.datasource_id = int(os.getenv("SQLBOT_DATASOURCE_ID", "1"))
 
     def _extract_sql(self, text: str) -> str:
-        """
-        Extracts SQL from a string, supporting markdown code blocks.
-        """
-        # Try to find content between ```sql ... ```
+        if not text: return ""
+        # Support various markdown formats returned by LLMs
         match = re.search(r"```sql\n(.*?)\n```", text, re.DOTALL | re.IGNORECASE)
-        if match:
-            return match.group(1).strip()
-        
-        # Try to find content between ``` ... ```
+        if match: return match.group(1).strip()
         match = re.search(r"```\n(.*?)\n```", text, re.DOTALL)
-        if match:
-            return match.group(1).strip()
-            
-        # Return as is if no markdown found
+        if match: return match.group(1).strip()
         return text.strip()
 
     def generate_sql(self, question: str) -> Optional[str]:
-        """
-        Sends natural language to SQLBot and expects a SQL response.
-        """
         if not self.api_key:
-            print("⚠️ SQLBOT_API_KEY not set. Falling back.")
+            print("⚠️ SQLBOT_API_KEY is missing!")
             return None
 
-        url = f"{self.endpoint}/api/v1/chat"
         headers = {
             "X-SQLBOT-TOKEN": self.api_key,
             "Content-Type": "application/json"
         }
-        payload = {
-            "message": question,
-            "stream": False
-        }
 
         try:
-            print(f"📡 Sending query to SQLBot at {url}...")
-            response = requests.post(url, json=payload, headers=headers, timeout=30)
+            # 1. Start a Chat Session
+            start_url = f"{self.endpoint}/api/v1/chat/start"
+            start_payload = {
+                "question": question,
+                "datasource": self.datasource_id
+            }
+            print(f"📡 Initializing SQLBot session: {start_url}")
+            start_res = requests.post(start_url, json=start_payload, headers=headers, timeout=10)
             
-            if response.status_code == 200:
-                data = response.json()
-                raw_content = data.get("sql") or data.get("content") or ""
-                return self._extract_sql(raw_content)
-            else:
-                print(f"❌ SQLBot Error: Status {response.status_code} - {response.text}")
+            if start_res.status_code != 200:
+                print(f"❌ Failed to start chat: {start_res.status_code} - {start_res.text}")
                 return None
+            
+            chat_info = start_res.json()
+            chat_id = chat_info.get("id")
+            
+            if not chat_id:
+                print("❌ SQLBot returned no chat_id")
+                return None
+
+            # 2. Ask the actual question (if not already answered by start)
+            # Some SQLBot versions process the question in 'start' if provided.
+            # Let's check if the first record already has an answer.
+            records = chat_info.get("records", [])
+            if records and records[0].get("sql"):
+                return self._extract_sql(records[0].get("sql"))
+
+            # If not answered, call question endpoint
+            ask_url = f"{self.endpoint}/api/v1/chat/question"
+            ask_payload = {
+                "question": question,
+                "chat_id": chat_id
+            }
+            print(f"📡 Sending question to Chat #{chat_id}: {ask_url}")
+            ask_res = requests.post(ask_url, json=ask_payload, headers=headers, timeout=30)
+            
+            if ask_res.status_code == 200:
+                # The response for question might be the record itself
+                data = ask_res.json()
+                # SQLBot usually returns the SQL in 'sql' field of the record
+                return self._extract_sql(data.get("sql") or data.get("content") or "")
+            else:
+                print(f"❌ SQLBot Ask Error: {ask_res.status_code}")
+                return None
+
         except Exception as e:
-            print(f"❌ SQLBot Connection Failed: {e}")
+            print(f"❌ SQLBot Integration Error: {e}")
             return None
 
 def sqlbot_text_to_sql(text: str) -> str:
-    """
-    Unified interface for Text-to-SQL.
-    """
     client = SQLBotClient()
     return client.generate_sql(text)
