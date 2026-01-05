@@ -11,7 +11,11 @@
           </span>
         </div>
       </div>
-      <div class="subtitle">Open Source Intelligence Bureau</div>
+      <div class="actions">
+        <button class="action-btn" @click="exportToMarkdown" title="Export Case File">
+          📁 EXPORT CASE
+        </button>
+      </div>
     </header>
 
     <main class="main-terminal">
@@ -160,6 +164,50 @@ const sendMessage = async () => {
     scrollToBottom()
   }
 }
+
+const exportToMarkdown = () => {
+  let mdContent = `# 🕵️‍♂️ Open-Detective: Case File\n`
+  mdContent += `**Date:** ${new Date().toLocaleString()}\n`
+  mdContent += `**Status:** ${backendConnected.value ? 'ONLINE' : 'OFFLINE'}\n\n`
+  mdContent += `---\n\n`
+
+  history.value.forEach((msg, index) => {
+    const role = msg.role === 'user' ? '👤 DETECTIVE' : '🤖 SYSTEM'
+    mdContent += `### ${role}:\n${msg.text}\n\n`
+    
+    if (msg.sql) {
+      mdContent += `**🔍 Query:** \`${msg.sql}\`\n\n`
+    }
+
+    if (msg.data && msg.data.length > 0) {
+      mdContent += `**📊 Evidence Data (Top 10 rows):**\n\n`
+      // Create Markdown Table
+      const headers = Object.keys(msg.data[0])
+      mdContent += `| ${headers.join(' | ')} |\n`
+      mdContent += `| ${headers.map(() => '---').join(' | ')} |\n`
+      
+      msg.data.slice(0, 10).forEach((row: any) => {
+        mdContent += `| ${Object.values(row).join(' | ')} |\n`
+      })
+      if (msg.data.length > 10) {
+        mdContent += `\n*(...and ${msg.data.length - 10} more records)*\n`
+      }
+      mdContent += `\n`
+    }
+    mdContent += `---\n\n`
+  })
+
+  // Trigger Download
+  const blob = new Blob([mdContent], { type: 'text/markdown' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `case-report-${new Date().toISOString().slice(0,10)}.md`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
 </script>
 
 <style scoped>
@@ -197,6 +245,23 @@ const sendMessage = async () => {
   font-weight: 700;
   letter-spacing: 1px;
   color: #fff;
+}
+
+.action-btn {
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: rgba(0, 188, 212, 0.1);
+  box-shadow: 0 0 8px rgba(0, 188, 212, 0.4);
 }
 
 .status-badge {

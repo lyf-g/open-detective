@@ -20,7 +20,10 @@ TARGET_REPOS = [
 METRICS = [
     "stars",
     "activity",
-    "openrank"
+    "openrank",
+    "bus_factor",
+    "issues_new",
+    "issues_closed"
 ]
 
 def fetch_metric(repo, metric):

@@ -43,6 +43,9 @@ def mock_text_to_sql(text: str) -> str:
     metric = "stars" # default
     if "activity" in text: metric = "activity"
     elif "rank" in text: metric = "openrank"
+    elif "bus" in text or "risk" in text: metric = "bus_factor"
+    elif "closed" in text and "issue" in text: metric = "issues_closed"
+    elif "issue" in text or "bug" in text: metric = "issues_new"
     
     if repo:
         return f"SELECT month, value FROM open_digger_metrics WHERE repo_name = '{repo}' AND metric_type = '{metric}' ORDER BY month ASC"
