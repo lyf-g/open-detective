@@ -91,6 +91,18 @@ async def chat(request_request: Request, chat_request: ChatRequest):
 def health_check():
     return {"status": "ok", "version": "0.1.0"}
 
+@router_v1.get("/sqlbot-health")
+async def sqlbot_health():
+    """Checks if the SQLBot service is reachable."""
+    import requests
+    endpoint = os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
+    try:
+        # Just a simple ping to the root
+        res = requests.get(endpoint, timeout=2)
+        return {"status": "reachable", "code": res.status_code}
+    except Exception as e:
+        return {"status": "unreachable", "error": str(e)}
+
 # Include Router
 app.include_router(router_v1)
 
