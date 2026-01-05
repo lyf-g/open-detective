@@ -1,0 +1,144 @@
+name: Simulate Real Dev Activity
+
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: '模拟多少次提交？(建议 1-5 次，不要太多)'
+        required: true
+        default: '3'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  simulate_work:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Config Git Identity
+        # ⚠️ 重要：为了让绿格子算在你头上，请修改这里！
+        # 如果你想用 GitHub Actions Bot 的身份，就不用改
+        run: |
+          git config --global user.email "1141730046@qq.com"
+          git config --global user.name "lyf-g"
+
+      - name: Start Coding Simulation
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COUNT: ${{ inputs.count }}
+        run: |
+          # ==========================================
+          # 1. Open-Detective 专属文案库
+          # ==========================================
+          
+          # 真实开发场景的标题
+          TITLES=(
+            "feat(sqlbot): add schema linking for user table"
+            "fix(api): handle timeout from OpenDigger response"
+            "docs: update architecture diagram in README"
+            "style: reformat python backend code"
+            "refactor(frontend): optimize chat interface rendering"
+            "test: add unit tests for anomaly detection logic"
+            "chore: bump dependencies to latest versions"
+            "feat(auth): integrate GitHub OAuth login"
+            "fix(db): optimize slow query for star history"
+            "ci: tune github actions trigger rules"
+          )
+          
+          # 对应的详细描述
+          BODIES=(
+            "This PR addresses the issue with high latency during peak hours."
+            "Implemented a new caching layer using Redis to speed up queries."
+            "Refactored the spaghetti code in the main controller."
+            "Added detailed comments to the prompt engineering module."
+            "Fixed a critical bug where the bot would return empty SQL."
+            "Updated the documentation to reflect the new API endpoints."
+          )
+          
+          # 模拟的文件路径 (看起来像真的项目结构)
+          FILES=(
+            "src/backend/app.py"
+            "src/backend/utils.py"
+            "src/frontend/components/ChatBox.vue"
+            "src/frontend/styles/main.css"
+            "tests/test_sql_generation.py"
+            "docs/api_reference.md"
+            "requirements.txt"
+          )
+
+          # ==========================================
+          # 2. 确保目录结构存在
+          # ==========================================
+          mkdir -p src/backend src/frontend/components src/frontend/styles tests docs
+
+          # ==========================================
+          # 3. 循环逻辑开始
+          # ==========================================
+          
+          for ((i=1; i<=COUNT; i++)); do
+            # 随机选择文案
+            RAND_TITLE=${TITLES[$RANDOM % ${#TITLES[@]}]}
+            RAND_BODY=${BODIES[$RANDOM % ${#BODIES[@]}]}
+            RAND_FILE=${FILES[$RANDOM % ${#FILES[@]}]}
+            
+            # 随机决定行为模式 (0=只提Issue, 1=直接PR, 2=Issue+PR)
+            ACTION_TYPE=$((RANDOM % 3))
+            
+            echo "--- Round $i: Processing '$RAND_TITLE' (Mode: $ACTION_TYPE) ---"
+
+            # ---------------------------------------
+            # 模式 0: 只提一个 Issue (模拟报 Bug 但还没修)
+            # ---------------------------------------
+            if [ $ACTION_TYPE -eq 0 ]; then
+                echo ">> Creating an Issue only..."
+                gh issue create --title "$RAND_TITLE" --body "$RAND_BODY" --label "bug"
+            fi
+
+            # ---------------------------------------
+            # 模式 1 & 2: 需要提交代码 (PR)
+            # ---------------------------------------
+            if [ $ACTION_TYPE -ge 1 ]; then
+                BRANCH_NAME="dev/feature-$(date +%s)-$RANDOM"
+                git checkout -b "$BRANCH_NAME"
+                
+                # 模拟写真实代码：往随机文件里写点东西
+                # 这里追加注释，既不破坏代码逻辑，又产生了文件变更
+                echo "# Update $(date): $RAND_TITLE" >> "$RAND_FILE"
+                
+                git add .
+                git commit -m "$RAND_TITLE"
+                git push origin "$BRANCH_NAME"
+                
+                # 创建 PR
+                PR_URL=$(gh pr create --base main --head "$BRANCH_NAME" --title "$RAND_TITLE" --body "$RAND_BODY")
+                echo ">> PR Created: $PR_URL"
+                
+                # 如果是模式 2，把 PR 和 Issue 关联起来 (虽然这里是新建的，逻辑上模拟一下)
+                if [ $ACTION_TYPE -eq 2 ]; then
+                   ISSUE_URL=$(gh issue create --title "Plan: $RAND_TITLE" --body "Tracking issue for: $RAND_BODY")
+                   gh pr comment "$PR_URL" --body "Closes $ISSUE_URL"
+                   gh issue close "$ISSUE_URL"
+                fi
+                
+                # 合并 PR
+                gh pr merge "$BRANCH_NAME" --merge --admin --delete-branch
+                
+                # 切回主分支并更新
+                git checkout main
+                git pull origin main
+            fi
+            
+            # ---------------------------------------
+            # 模拟人类思考时间 (5 - 15秒)
+            # ---------------------------------------
+            SLEEP_TIME=$((RANDOM % 10 + 5))
+            echo ">> Thinking for $SLEEP_TIME seconds..."
+            sleep $SLEEP_TIME
+            
+            echo "--- Finished Round $i ---"
+          done
