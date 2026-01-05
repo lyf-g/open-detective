@@ -2,6 +2,9 @@ import os
 import sqlite3
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, APIRouter, Request
+from pydantic import BaseModel
+from typing import List, Dict, Any
+from src.backend.services.sql_engine import mock_text_to_sql
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
