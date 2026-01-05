@@ -11,6 +11,7 @@ services:
       - SQL_ENGINE_TYPE=sqlbot
       - SQLBOT_ENDPOINT=http://sqlbot:8000
       - DATABASE_PATH=/app/db_shared/open_detective.db
+      - SQLBOT_API_KEY=${SQLBOT_API_KEY}
     depends_on:
       - sqlbot
 
