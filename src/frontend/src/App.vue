@@ -1,61 +1,94 @@
 <template>
-  <div class="container">
-    <header>
-      <h1>🕵️‍♂️ Open-Detective</h1>
-      <p class="subtitle">Don't just query. Investigate.</p>
+  <div class="app-layout">
+    <!-- Sidebar / Header Area -->
+    <header class="top-bar">
+      <div class="brand">
+        <span class="logo-icon">🕵️‍♂️</span>
+        <div class="brand-text">
+          <h1>Open-Detective</h1>
+          <span class="status-badge" :class="{ online: backendConnected }">
+            {{ backendConnected ? 'SYSTEM ONLINE' : 'OFFLINE' }}
+          </span>
+        </div>
+      </div>
+      <div class="subtitle">Open Source Intelligence Bureau</div>
     </header>
 
-    <main>
-      <div class="chat-window">
+    <main class="main-terminal">
+      <div class="chat-interface">
         <!-- Messages Area -->
-        <div class="messages" ref="messagesRef">
-          <div v-for="(msg, index) in history" :key="index" :class="['message', msg.role]">
-            <div class="content">
-              <p>{{ msg.text }}</p>
-              
-              <!-- Display SQL if available (for assistant) -->
-              <div v-if="msg.sql" class="sql-box">
-                <strong>🔍 Executed SQL:</strong>
-                <pre>{{ msg.sql }}</pre>
+        <div class="messages-scroll" ref="messagesRef">
+          <div v-for="(msg, index) in history" :key="index" :class="['message-row', msg.role]">
+            
+            <!-- Avatar -->
+            <div class="avatar">
+              {{ msg.role === 'assistant' ? '🤖' : '👤' }}
+            </div>
+
+            <!-- Bubble -->
+            <div class="message-content">
+              <div class="bubble">
+                <p>{{ msg.text }}</p>
               </div>
 
-              <!-- Display Chart if data is suitable -->
-              <div v-if="msg.data && msg.data.length > 0" class="chart-wrapper">
-                <ResultChart :data="msg.data" />
+              <!-- Evidence: SQL -->
+              <div v-if="msg.sql" class="evidence-block">
+                <div class="evidence-header">🔍 EXECUTED QUERY</div>
+                <pre class="code-block">{{ msg.sql }}</pre>
               </div>
 
-              <!-- Display Data Table if available -->
-              <div v-if="msg.data && msg.data.length > 0" class="data-table-wrapper">
-                <table>
-                  <thead>
-                    <tr>
-                      <th v-for="key in Object.keys(msg.data[0])" :key="key">{{ key }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(row, i) in msg.data" :key="i">
-                      <td v-for="val in row" :key="val">{{ val }}</td>
-                    </tr>
-                  </tbody>
-                </table>
+              <!-- Evidence: Chart -->
+              <div v-if="msg.data && msg.data.length > 0" class="evidence-block">
+                <div class="evidence-header">📊 VISUAL ANALYSIS</div>
+                <ResultChart :data="msg.data" theme="dark" />
+              </div>
+
+              <!-- Evidence: Table -->
+              <div v-if="msg.data && msg.data.length > 0" class="evidence-block">
+                <div class="evidence-header">💾 RAW DATA</div>
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th v-for="key in Object.keys(msg.data[0])" :key="key">{{ key }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(row, i) in msg.data" :key="i">
+                        <td v-for="val in row" :key="val">{{ val }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
-          
-          <div v-if="loading" class="message assistant">
-            <div class="content">Thinking...</div>
+
+          <!-- Typing Indicator -->
+          <div v-if="loading" class="message-row assistant">
+            <div class="avatar">🤖</div>
+            <div class="message-content">
+              <div class="bubble typing">
+                <span>.</span><span>.</span><span>.</span>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Input Area -->
-        <div class="input-area">
-          <input 
-            v-model="inputMessage" 
-            @keyup.enter="sendMessage"
-            placeholder="Ask e.g.: 'Show me stars for fastapi'..." 
-            :disabled="loading"
-          />
-          <button @click="sendMessage" :disabled="loading || !inputMessage.trim()">Send</button>
+        <div class="input-deck">
+          <div class="input-wrapper">
+            <input 
+              v-model="inputMessage" 
+              @keyup.enter="sendMessage"
+              placeholder="Enter investigation query..." 
+              :disabled="loading"
+              autofocus
+            />
+            <button @click="sendMessage" :disabled="loading || !inputMessage.trim()">
+              SEND >
+            </button>
+          </div>
         </div>
       </div>
     </main>
@@ -63,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
 import axios from 'axios'
 import ResultChart from './components/ResultChart.vue'
 
@@ -73,12 +106,12 @@ interface ChatMessage {
   sql?: string
   data?: any[]
 }
-// ... (rest of the script setup)
 
 const inputMessage = ref('')
 const loading = ref(false)
+const backendConnected = ref(false)
 const history = ref<ChatMessage[]>([
-  { role: 'assistant', text: 'Hello! I am Open-Detective. Ask me about repository metrics (e.g., "fastapi stars", "vue activity").' }
+  { role: 'assistant', text: 'Identity verified. Detective system initialized. Awaiting orders.' }
 ])
 const messagesRef = ref<HTMLElement | null>(null)
 
@@ -90,11 +123,19 @@ const scrollToBottom = () => {
   })
 }
 
+onMounted(async () => {
+  try {
+    const res = await axios.get('/api/health')
+    if(res.data.status === 'ok') backendConnected.value = true
+  } catch (e) {
+    backendConnected.value = false
+  }
+})
+
 const sendMessage = async () => {
   const text = inputMessage.value.trim()
   if (!text) return
 
-  // Add user message
   history.value.push({ role: 'user', text })
   inputMessage.value = ''
   loading.value = true
@@ -103,7 +144,6 @@ const sendMessage = async () => {
   try {
     const res = await axios.post('/api/chat', { message: text })
     
-    // Add assistant response
     history.value.push({
       role: 'assistant',
       text: res.data.answer,
@@ -113,7 +153,7 @@ const sendMessage = async () => {
   } catch (err) {
     history.value.push({
       role: 'assistant',
-      text: 'Error: Failed to reach the detective backend.'
+      text: '⚠️ SYSTEM ERROR: Connection lost or query failed.'
     })
   } finally {
     loading.value = false
@@ -123,141 +163,247 @@ const sendMessage = async () => {
 </script>
 
 <style scoped>
-/* Basic Reset & Layout */
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  height: 90vh;
+.app-layout {
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
 }
 
-header {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-h1 { margin: 0; color: #2c3e50; }
-.subtitle { color: #666; margin-top: 0.5rem; }
-
-/* Chat Window */
-.chat-window {
-  flex: 1;
+/* Header */
+.top-bar {
+  padding: 1rem 2rem;
+  background: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
-  flex-direction: column;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  background: #f9f9f9;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
+.brand {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 1rem;
 }
 
-.message {
+.logo-icon {
+  font-size: 2rem;
+}
+
+.brand-text h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.status-badge {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  background: #333;
+  color: #777;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.status-badge.online {
+  background: rgba(0, 255, 0, 0.1);
+  color: #00ff00;
+  border: 1px solid #00ff00;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-family: monospace;
+}
+
+/* Main Terminal */
+.main-terminal {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+.chat-interface {
+  width: 100%;
+  max-width: 1000px;
   display: flex;
   flex-direction: column;
-  max-width: 80%;
+  background: var(--bg-color);
 }
 
-.message.user {
+.messages-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Message Rows */
+.message-row {
+  display: flex;
+  gap: 1rem;
+  max-width: 85%;
+}
+
+.message-row.user {
   align-self: flex-end;
-  align-items: flex-end;
+  flex-direction: row-reverse;
 }
 
-.message.assistant {
-  align-self: flex-start;
-  align-items: flex-start;
+.avatar {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-color);
+  border-radius: 50%;
+  font-size: 1.2rem;
+  border: 1px solid var(--border-color);
 }
 
-.message .content {
-  padding: 0.8rem 1.2rem;
+.message-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bubble {
+  padding: 1rem 1.5rem;
   border-radius: 12px;
-  background: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  background: var(--surface-color);
+  line-height: 1.5;
+  border: 1px solid var(--border-color);
 }
 
-.message.user .content {
-  background: #007bff;
-  color: white;
-  border-bottom-right-radius: 2px;
+.message-row.user .bubble {
+  background: rgba(0, 188, 212, 0.15); /* Primary Cyan tint */
+  border-color: rgba(0, 188, 212, 0.3);
+  color: #fff;
 }
 
-.message.assistant .content {
-  background: #ffffff;
-  color: #333;
-  border-bottom-left-radius: 2px;
-}
-
-/* SQL & Data Styles */
-.sql-box {
+/* Evidence Blocks (SQL, Charts, Data) */
+.evidence-block {
+  background: #161616;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
   margin-top: 0.5rem;
-  font-size: 0.85rem;
-  background: #2d2d2d;
+}
+
+.evidence-header {
+  background: #252525;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  color: #888;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #333;
+}
+
+.code-block {
+  margin: 0;
+  padding: 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
   color: #aaccff;
-  padding: 0.5rem;
-  border-radius: 6px;
-  overflow-x: auto;
+  white-space: pre-wrap;
 }
 
-.data-table-wrapper {
-  margin-top: 0.5rem;
+.table-container {
   overflow-x: auto;
+  max-height: 300px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 th, td {
-  border: 1px solid #eee;
-  padding: 4px 8px;
+  padding: 8px 12px;
   text-align: left;
+  border-bottom: 1px solid #333;
 }
 
-th { background: #f1f1f1; font-weight: 600; }
+th {
+  background: #222;
+  color: #ccc;
+  position: sticky;
+  top: 0;
+}
 
-/* Input Area */
-.input-area {
-  padding: 1rem;
-  background: white;
-  border-top: 1px solid #eee;
+td {
+  color: #aaa;
+}
+
+/* Input Deck */
+.input-deck {
+  padding: 1.5rem;
+  background: var(--bg-color);
+  border-top: 1px solid var(--border-color);
+}
+
+.input-wrapper {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
+  background: var(--surface-color);
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
 }
 
 input {
   flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
   padding: 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1rem;
   outline: none;
 }
 
-input:focus { border-color: #007bff; }
-
 button {
-  padding: 0 1.5rem;
-  background: #007bff;
-  color: white;
+  background: var(--primary-color);
+  color: #000;
   border: none;
+  padding: 0 1.5rem;
   border-radius: 6px;
+  font-weight: bold;
   cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
+  transition: opacity 0.2s;
 }
 
-button:hover:not(:disabled) { background: #0056b3; }
-button:disabled { background: #ccc; cursor: not-allowed; }
+button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+button:disabled {
+  background: #444;
+  color: #777;
+  cursor: not-allowed;
+}
+
+/* Typing Animation */
+.typing span {
+  animation: blink 1.4s infinite both;
+  font-size: 1.5rem;
+  margin: 0 2px;
+}
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes blink {
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
 </style>

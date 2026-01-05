@@ -31,10 +31,15 @@ use([
 const props = defineProps<{
   data: any[];
   title?: string;
+  theme?: 'light' | 'dark';
 }>();
 
 const chartOption = computed(() => {
   if (!props.data || props.data.length === 0) return {};
+
+  const isDark = props.theme === 'dark';
+  const textColor = isDark ? '#ccc' : '#333';
+  const splitLineColor = isDark ? '#444' : '#eee';
 
   // Assumption: Data structure is [{ month: '2023-01', value: 123, ... }, ...]
   // We try to find the 'axis' key (usually time) and 'value' key.
@@ -52,10 +57,13 @@ const chartOption = computed(() => {
     title: {
       text: props.title || 'Trend Analysis',
       left: 'center',
-      textStyle: { fontSize: 14 }
+      textStyle: { fontSize: 14, color: textColor }
     },
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      backgroundColor: isDark ? 'rgba(50,50,50,0.9)' : '#fff',
+      textStyle: { color: isDark ? '#fff' : '#333' },
+      borderColor: isDark ? '#555' : '#ccc'
     },
     grid: {
       left: '3%',
@@ -66,10 +74,14 @@ const chartOption = computed(() => {
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: xAxisData
+      data: xAxisData,
+      axisLabel: { color: textColor },
+      axisLine: { lineStyle: { color: splitLineColor } }
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
+      axisLabel: { color: textColor },
+      splitLine: { lineStyle: { color: splitLineColor } }
     },
     series: [
       {
@@ -81,7 +93,7 @@ const chartOption = computed(() => {
           opacity: 0.3
         },
         itemStyle: {
-          color: '#5470C6'
+          color: '#00bcd4' // Cyan color matches the theme
         }
       }
     ]
@@ -92,12 +104,11 @@ const chartOption = computed(() => {
 <style scoped>
 .chart-container {
   width: 100%;
-  height: 300px; /* Fixed height for the chart */
-  margin-top: 1rem;
-  border: 1px solid #f0f0f0;
-  border-radius: 8px;
-  background: #fff;
-  padding: 10px;
+  height: 300px;
+  margin-top: 0; /* Handled by parent */
+  border: none;
+  background: transparent;
+  padding: 10px 0;
 }
 .chart {
   height: 100%;
