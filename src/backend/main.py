@@ -1,5 +1,6 @@
 import os
 import mysql.connector
+import time
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 
@@ -13,16 +14,36 @@ from src.backend.services.engine_factory import get_sql_engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Open MySQL connection
-    app.state.db = mysql.connector.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "open_detective")
-    )
+    # Startup: Open MySQL connection with retries
+    max_retries = 5
+    retry_delay = 5
+    
+    conn = None
+    for i in range(max_retries):
+        try:
+            print(f"📡 Attempting to connect to MySQL (Attempt {i+1}/{max_retries})...")
+            conn = mysql.connector.connect(
+                host=os.getenv("DB_HOST", "localhost"),
+                user=os.getenv("DB_USER", "root"),
+                password=os.getenv("DB_PASSWORD", ""),
+                database=os.getenv("DB_NAME", "open_detective")
+            )
+            if conn.is_connected():
+                print("✅ Successfully connected to MySQL.")
+                app.state.db = conn
+                break
+        except Exception as e:
+            print(f"⚠️ MySQL not ready yet: {e}")
+            if i < max_retries - 1:
+                time.sleep(retry_delay)
+            else:
+                print("❌ Max retries reached. Backend shutting down.")
+                raise e
+    
     yield
     # Shutdown: Close DB connection
-    app.state.db.close()
+    if conn and conn.is_connected():
+        app.state.db.close()
 
 app = FastAPI(
     title="Open-Detective API",
