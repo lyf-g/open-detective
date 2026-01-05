@@ -29,7 +29,7 @@ class SQLBotClient:
             return None
 
         headers = {
-            "X-SQLBOT-TOKEN": self.api_key,
+            "X-SQLBOT-TOKEN": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
 
