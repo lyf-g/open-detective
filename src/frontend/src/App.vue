@@ -137,6 +137,7 @@ onMounted(async () => {
 })
 
 const sendMessage = async () => {
+  if (loading.value) return
   const text = inputMessage.value.trim()
   if (!text) return
 
