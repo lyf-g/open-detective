@@ -131,10 +131,99 @@ const messagesRef = ref<HTMLElement | null>(null)
 const copiedIndex = ref<number | null>(null)
 
 const scrollToBottom = () => {
-// ...
+  nextTick(() => {
+    if (messagesRef.value) {
+      messagesRef.value.scrollTop = messagesRef.value.scrollHeight
+    }
   })
 }
-// ...
+
+onMounted(async () => {
+  try {
+    const res = await axios.get('/api/v1/health')
+    if(res.data.status === 'ok') backendConnected.value = true
+  } catch (e) {
+    backendConnected.value = false
+  }
+})
+
+const sendMessage = async () => {
+  if (loading.value) return
+  const text = inputMessage.value.trim()
+  if (!text) return
+
+  history.value.push({ role: 'user', text })
+  inputMessage.value = ''
+  loading.value = true
+  scrollToBottom()
+
+  try {
+    const res = await axios.post('/api/v1/chat', { message: text })
+    
+    history.value.push({
+      role: 'assistant',
+      text: res.data.answer,
+      sql: res.data.sql_query,
+      data: res.data.data
+    })
+  } catch (err) {
+    history.value.push({
+      role: 'assistant',
+      text: '⚠️ SYSTEM ERROR: Connection lost or query failed.'
+    })
+  } finally {
+    loading.value = false
+    scrollToBottom()
+  }
+}
+
+const exportToMarkdown = () => {
+  let mdContent = `# 🕵️‍♂️ Open-Detective: Case File\n`
+  mdContent += `**Date:** ${new Date().toLocaleString()}\n`
+  mdContent += `**Status:** ${backendConnected.value ? 'ONLINE' : 'OFFLINE'}\n\n`
+  mdContent += `---\n\n`
+
+  history.value.forEach((msg, index) => {
+    const role = msg.role === 'user' ? '👤 DETECTIVE' : '🤖 SYSTEM'
+    mdContent += `### ${role}:\n${msg.text}\n\n`
+    
+    if (msg.sql) {
+      mdContent += `**🔍 Query:** 
+${msg.sql}
+
+`
+    }
+
+    if (msg.data && msg.data.length > 0) {
+      mdContent += `**📊 Evidence Data (Top 10 rows):**\n\n`
+      // Create Markdown Table
+      const headers = Object.keys(msg.data[0])
+      mdContent += `| ${headers.join(' | ')} |\n`
+      mdContent += `| ${headers.map(() => '---').join(' | ')} |\n`
+      
+      msg.data.slice(0, 10).forEach((row: any) => {
+        mdContent += `| ${Object.values(row).join(' | ')} |\n`
+      })
+      if (msg.data.length > 10) {
+        mdContent += `\n*(...and ${msg.data.length - 10} more records)*\n`
+      }
+      mdContent += `\n`
+    }
+    mdContent += `---\n\n`
+  })
+
+  // Trigger Download
+  const blob = new Blob([mdContent], { type: 'text/markdown' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `case-report-${new Date().toISOString().slice(0,10)}.md`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
 const copyToClipboard = async (text: string, index: number) => {
   try {
     await navigator.clipboard.writeText(text)
