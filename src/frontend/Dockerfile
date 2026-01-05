@@ -4,7 +4,7 @@ WORKDIR /app
 COPY src/frontend/package*.json ./
 RUN npm install
 COPY src/frontend/ .
-RUN npm run build
+RUN npx vite build
 
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
