@@ -7,7 +7,3 @@ __pycache__/
 .DS_Store
 .prompt
 .env
-data/postgresql/
-data/sqlbot/
-open_detective.db
-

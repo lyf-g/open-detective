@@ -18,8 +18,12 @@
         <input type="color" v-model="accentColor" @input="applyAccentColor" />
       </div>
       <div class="setting-group admin-section">
-        <label>Intelligence Engine</label>
-        <a href="http://localhost:8001" target="_blank" class="admin-link">Launch SQLBot Admin ↗</a>
+        <label>Intelligence Engine (SQLBot)</label>
+        <div class="admin-links">
+          <a href="http://localhost:8000" target="_blank" class="admin-link">Primary UI (8000) ↗</a>
+          <a href="http://localhost:8001" target="_blank" class="admin-link">Admin Port (8001) ↗</a>
+        </div>
+        <p class="admin-hint">Requires <code>docker-compose up</code> to be running.</p>
       </div>
       <button class="close-btn" @click="isOpen = false">Close</button>
     </div>
@@ -128,6 +132,12 @@ select, input[type="color"] {
   padding-top: 1rem;
 }
 
+.admin-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .admin-link {
   display: block;
   text-decoration: none;
@@ -135,13 +145,20 @@ select, input[type="color"] {
   font-size: 0.75rem;
   font-weight: bold;
   text-align: center;
-  padding: 4px;
-  border: 1px dashed var(--primary-color);
+  padding: 6px;
+  border: 1px solid var(--primary-color);
   border-radius: 4px;
 }
 
 .admin-link:hover {
   background: var(--primary-color);
   color: var(--bg-color);
+}
+
+.admin-hint {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+  font-style: italic;
 }
 </style>
