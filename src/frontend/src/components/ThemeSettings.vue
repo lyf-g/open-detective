@@ -32,6 +32,7 @@ const accentColor = ref(localStorage.getItem('accentColor') || '#00bcd4')
 const applyTheme = () => {
   document.documentElement.setAttribute('data-theme', currentTheme.value)
   localStorage.setItem('theme', currentTheme.value)
+  window.dispatchEvent(new CustomEvent('theme-changed', { detail: currentTheme.value }))
 }
 
 const applyAccentColor = () => {

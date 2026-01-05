@@ -52,7 +52,7 @@
               <!-- Evidence: Chart -->
               <div v-if="msg.data && msg.data.length > 0" class="evidence-block">
                 <div class="evidence-header">📊 VISUAL ANALYSIS</div>
-                <ResultChart :data="msg.data" theme="dark" />
+                <ResultChart :data="msg.data" :theme="currentTheme === 'minimalist' ? 'light' : 'dark'" />
               </div>
 
               <!-- Evidence: Table -->
@@ -131,6 +131,13 @@ const history = ref<ChatMessage[]>([
 ])
 const messagesRef = ref<HTMLElement | null>(null)
 const copiedIndex = ref<number | null>(null)
+const currentTheme = ref(localStorage.getItem('theme') || 'default')
+
+// Monitor theme changes from the settings component (simple poll or event would be better, but let's check localStorage for simplicity if it was reactive, which it isn't. Better: use a simple interval or a shared state if we had one. For now, let's just make it react to the settings change if we can.)
+// Actually, let's just use a simple computed based on a body class or similar.
+const isDark = () => {
+  return currentTheme.value !== 'minimalist'
+}
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -141,6 +148,9 @@ const scrollToBottom = () => {
 }
 
 onMounted(async () => {
+  window.addEventListener('theme-changed', (e: any) => {
+    currentTheme.value = e.detail
+  })
   try {
     const res = await axios.get('/api/v1/health')
     if(res.data.status === 'ok') backendConnected.value = true
@@ -275,7 +285,13 @@ const copyToClipboard = async (text: string, index: number) => {
   font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: 1px;
-  color: #fff;
+  color: var(--text-primary);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .action-btn {
@@ -288,18 +304,20 @@ const copyToClipboard = async (text: string, index: number) => {
   font-family: inherit;
   font-size: 0.8rem;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .action-btn:hover {
-  background: rgba(0, 188, 212, 0.1);
-  box-shadow: 0 0 8px rgba(0, 188, 212, 0.4);
+  background: var(--surface-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px var(--primary-color);
 }
 
 .status-badge {
   font-size: 0.7rem;
   padding: 2px 6px;
-  background: #333;
-  color: #777;
+  background: var(--border-color);
+  color: var(--text-secondary);
   border-radius: 4px;
   font-weight: bold;
 }
@@ -383,7 +401,7 @@ const copyToClipboard = async (text: string, index: number) => {
 .message-row.user .bubble {
   background: var(--primary-color);
   border-color: var(--primary-color);
-  color: #000;
+  color: var(--bg-color);
 }
 
 /* Evidence Blocks (SQL, Charts, Data) */
@@ -497,7 +515,7 @@ input {
 
 button {
   background: var(--primary-color);
-  color: #000;
+  color: var(--bg-color);
   border: none;
   padding: 0 1.5rem;
   border-radius: 6px;
