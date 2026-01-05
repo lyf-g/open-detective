@@ -42,6 +42,10 @@ class ChatResponse(BaseModel):
     data: List[Dict[str, Any]]
     engine_source: str
 
+class HealthResponse(BaseModel):
+    status: str
+    version: str
+
 # ... (inside chat endpoint)
 @router_v1.post("/chat", response_model=ChatResponse)
 async def chat(request_request: Request, chat_request: ChatRequest):
