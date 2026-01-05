@@ -1,18 +1,50 @@
+import json
+import os
+
 def mock_text_to_sql(text: str) -> str:
     """
-    A very simple rule-based 'AI' for the MVP.
-    Real implementation will use LLM here.
+    A rule-based 'AI' that dynamically matches against supported repositories.
     """
     text = text.lower()
     
-    # improved detection logic
+    # Load supported repositories from config
+    config_path = os.path.join(os.path.dirname(__file__), '../../../data/repos.json')
+    try:
+        with open(config_path, 'r') as f:
+            repo_list = json.load(f)
+    except Exception:
+        repo_list = []
+
+    # Dynamic repository matching
     repo = None
-    if "vue" in text: repo = "vuejs/core"
-    elif "fastapi" in text: repo = "fastapi/fastapi"
-    elif "react" in text: repo = "facebook/react"
-    elif "tensorflow" in text: repo = "tensorflow/tensorflow"
-    elif "vscode" in text: repo = "microsoft/vscode"
-    elif "kubernetes" in text or "k8s" in text: repo = "kubernetes/kubernetes"
+    text_words = text.replace('/', ' ').replace('-', ' ').replace('_', ' ').split()
+    # Keywords to ignore when matching repositories
+    ignore_keywords = ['stars', 'activity', 'rank', 'openrank', 'bus', 'factor', 'risk', 'issue', 'issues', 'bug', 'bugs', 'closed', 'for', 'the', 'and', 'with', 'show', 'me', 'what', 'is', 'lang', 'core', 'git']
+    
+    # 1. Try exact full name match first
+    for r in repo_list:
+        if r.lower() in text:
+            repo = r
+            break
+            
+    if not repo:
+        for r in repo_list:
+            full_name_lower = r.lower()
+            segments = full_name_lower.replace('/', ' ').replace('-', ' ').replace('_', ' ').split()
+            
+            # 2. Try exact match of any unique segment
+            if any(word in segments for word in text_words if word not in ignore_keywords):
+                repo = r
+                break
+            
+            # 3. Try substring match (e.g. 'vue' matches 'vuejs')
+            if any(word in seg for seg in segments for word in text_words if word not in ignore_keywords and len(word) >= 3):
+                repo = r
+                break
+    
+    # Special aliases
+    if not repo:
+        if "k8s" in text: repo = "kubernetes/kubernetes"
     
     metric = "stars" # default
     if "activity" in text: metric = "activity"
