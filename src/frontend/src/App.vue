@@ -130,7 +130,7 @@ const scrollToBottom = () => {
 
 onMounted(async () => {
   try {
-    const res = await axios.get('/api/health')
+    const res = await axios.get('/api/v1/health')
     if(res.data.status === 'ok') backendConnected.value = true
   } catch (e) {
     backendConnected.value = false
@@ -148,7 +148,7 @@ const sendMessage = async () => {
   scrollToBottom()
 
   try {
-    const res = await axios.post('/api/chat', { message: text })
+    const res = await axios.post('/api/v1/chat', { message: text })
     
     history.value.push({
       role: 'assistant',
