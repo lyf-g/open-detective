@@ -40,16 +40,15 @@ class ChatResponse(BaseModel):
     answer: str
     sql_query: str
     data: List[Dict[str, Any]]
+    engine_source: str
 
-class HealthResponse(BaseModel):
-    status: str
-    version: str
-
+# ... (inside chat endpoint)
 @router_v1.post("/chat", response_model=ChatResponse)
 async def chat(request_request: Request, chat_request: ChatRequest):
     print(f"Received message: {chat_request.message}")
     
     # 1. Generate SQL via configured engine
+    engine_type = os.getenv("SQL_ENGINE_TYPE", "mock").lower()
     engine = get_sql_engine()
     sql_query = engine(chat_request.message)
     
@@ -57,7 +56,8 @@ async def chat(request_request: Request, chat_request: ChatRequest):
         return ChatResponse(
             answer="Sorry, I couldn't understand the repository name. Try asking about 'vue', 'fastapi', or 'react'.",
             sql_query="",
-            data=[]
+            data=[],
+            engine_source=engine_type
         )
 
     # 2. Execute SQL
@@ -79,7 +79,8 @@ async def chat(request_request: Request, chat_request: ChatRequest):
     return ChatResponse(
         answer=answer,
         sql_query=sql_query,
-        data=data
+        data=data,
+        engine_source=engine_type
     )
 
 @router_v1.get("/health", response_model=HealthResponse)

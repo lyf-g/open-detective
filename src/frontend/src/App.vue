@@ -37,7 +37,7 @@
               <!-- Evidence: SQL -->
               <div v-if="msg.sql" class="evidence-block">
                 <div class="evidence-header">
-                  <span>🔍 EXECUTED QUERY</span>
+                  <span>🔍 EXECUTED QUERY <small v-if="msg.engineSource">({{ msg.engineSource.toUpperCase() }} ENGINE)</small></span>
                   <button 
                     class="copy-btn" 
                     :class="{ copied: copiedIndex === index }"
@@ -121,6 +121,7 @@ interface ChatMessage {
   text: string
   sql?: string
   data?: any[]
+  engineSource?: string
 }
 
 const inputMessage = ref('')
@@ -176,7 +177,8 @@ const sendMessage = async () => {
       role: 'assistant',
       text: res.data.answer,
       sql: res.data.sql_query,
-      data: res.data.data
+      data: res.data.data,
+      engineSource: res.data.engine_source
     })
   } catch (err) {
     history.value.push({
