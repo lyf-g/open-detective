@@ -37,7 +37,13 @@
               <div v-if="msg.sql" class="evidence-block">
                 <div class="evidence-header">
                   <span>🔍 EXECUTED QUERY</span>
-                  <button class="copy-btn" @click="copyToClipboard(msg.sql)">COPY</button>
+                  <button 
+                    class="copy-btn" 
+                    :class="{ copied: copiedIndex === index }"
+                    @click="copyToClipboard(msg.sql, index)"
+                  >
+                    {{ copiedIndex === index ? 'COPIED!' : 'COPY' }}
+                  </button>
                 </div>
                 <pre class="code-block">{{ msg.sql }}</pre>
               </div>
@@ -122,63 +128,22 @@ const history = ref<ChatMessage[]>([
   { role: 'assistant', text: 'Identity verified. Detective system initialized. Awaiting orders.' }
 ])
 const messagesRef = ref<HTMLElement | null>(null)
+const copiedIndex = ref<number | null>(null)
 
 const scrollToBottom = () => {
-  nextTick(() => {
-    if (messagesRef.value) {
-      messagesRef.value.scrollTop = messagesRef.value.scrollHeight
-    }
+// ...
   })
 }
-
-onMounted(async () => {
-  try {
-    const res = await axios.get('/api/v1/health')
-    if(res.data.status === 'ok') backendConnected.value = true
-  } catch (e) {
-    backendConnected.value = false
-  }
-})
-
-const sendMessage = async () => {
-  if (loading.value) return
-  const text = inputMessage.value.trim()
-  if (!text) return
-
-  history.value.push({ role: 'user', text })
-  inputMessage.value = ''
-  loading.value = true
-  scrollToBottom()
-
-  try {
-    const res = await axios.post('/api/v1/chat', { message: text })
-    
-    history.value.push({
-      role: 'assistant',
-      text: res.data.answer,
-      sql: res.data.sql_query,
-      data: res.data.data
-    })
-  } catch (err) {
-    history.value.push({
-      role: 'assistant',
-      text: '⚠️ SYSTEM ERROR: Connection lost or query failed.'
-    })
-  } finally {
-    loading.value = false
-    scrollToBottom()
-  }
-}
-
-const exportToMarkdown = () => {
-// ... existing code ...
-  URL.revokeObjectURL(url)
-}
-
-const copyToClipboard = async (text: string) => {
+// ...
+const copyToClipboard = async (text: string, index: number) => {
   try {
     await navigator.clipboard.writeText(text)
-    alert('SQL copied to clipboard!')
+    copiedIndex.value = index
+    setTimeout(() => {
+      if (copiedIndex.value === index) {
+        copiedIndex.value = null
+      }
+    }, 2000)
   } catch (err) {
     console.error('Failed to copy: ', err)
   }
@@ -359,11 +324,19 @@ const copyToClipboard = async (text: string) => {
   padding: 2px 6px;
   border-radius: 3px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 50px;
 }
 
 .copy-btn:hover {
   color: var(--primary-color);
   border-color: var(--primary-color);
+}
+
+.copy-btn.copied {
+  color: #00ff00;
+  border-color: #00ff00;
+  background: rgba(0, 255, 0, 0.1);
 }
 
 .code-block {
