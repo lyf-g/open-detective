@@ -12,6 +12,7 @@
         </div>
       </div>
       <div class="actions">
+        <ThemeSettings />
         <button class="action-btn" @click="exportToMarkdown" title="Export Case File">
           📁 EXPORT CASE
         </button>
@@ -110,6 +111,7 @@
 import { ref, nextTick, onMounted } from 'vue'
 import axios from 'axios'
 import ResultChart from './components/ResultChart.vue'
+import ThemeSettings from './components/ThemeSettings.vue'
 import MarkdownIt from 'markdown-it'
 
 const md = new MarkdownIt()
@@ -375,31 +377,32 @@ const copyToClipboard = async (text: string, index: number) => {
   background: var(--surface-color);
   line-height: 1.5;
   border: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 .message-row.user .bubble {
-  background: rgba(0, 188, 212, 0.15); /* Primary Cyan tint */
-  border-color: rgba(0, 188, 212, 0.3);
-  color: #fff;
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #000;
 }
 
 /* Evidence Blocks (SQL, Charts, Data) */
 .evidence-block {
-  background: #161616;
-  border: 1px solid #333;
+  background: var(--code-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
   margin-top: 0.5rem;
 }
 
 .evidence-header {
-  background: #252525;
+  background: var(--header-bg);
   padding: 4px 10px;
   font-size: 0.7rem;
-  color: #888;
+  color: var(--text-secondary);
   font-weight: bold;
   letter-spacing: 1px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -407,8 +410,8 @@ const copyToClipboard = async (text: string, index: number) => {
 
 .copy-btn {
   background: transparent;
-  border: 1px solid #444;
-  color: #666;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   font-size: 0.6rem;
   padding: 2px 6px;
   border-radius: 3px;
@@ -423,8 +426,8 @@ const copyToClipboard = async (text: string, index: number) => {
 }
 
 .copy-btn.copied {
-  color: #00ff00;
-  border-color: #00ff00;
+  color: var(--accent-color);
+  border-color: var(--accent-color);
   background: rgba(0, 255, 0, 0.1);
 }
 
@@ -433,7 +436,7 @@ const copyToClipboard = async (text: string, index: number) => {
   padding: 1rem;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
-  color: #aaccff;
+  color: var(--primary-color);
   white-space: pre-wrap;
 }
 
@@ -451,18 +454,18 @@ table {
 th, td {
   padding: 8px 12px;
   text-align: left;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-color);
 }
 
 th {
-  background: #222;
-  color: #ccc;
+  background: var(--header-bg);
+  color: var(--text-primary);
   position: sticky;
   top: 0;
 }
 
 td {
-  color: #aaa;
+  color: var(--text-secondary);
 }
 
 /* Input Deck */
@@ -475,7 +478,7 @@ td {
 .input-wrapper {
   display: flex;
   gap: 1rem;
-  background: var(--surface-color);
+  background: var(--input-bg);
   padding: 0.5rem;
   border-radius: 8px;
   border: 1px solid var(--border-color);
@@ -485,7 +488,7 @@ input {
   flex: 1;
   background: transparent;
   border: none;
-  color: #fff;
+  color: var(--text-primary);
   padding: 0.8rem;
   font-family: inherit;
   font-size: 1rem;
