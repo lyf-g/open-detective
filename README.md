@@ -55,8 +55,8 @@ python3 data/etl_scripts/fetch_opendigger.py
 ### 2. 启动后端侦探服务 (Backend)
 ```bash
 # 确保还在虚拟环境中
-uvicorn src.backend.main:app --reload
-# 服务将运行在 http://localhost:8000
+uvicorn src.backend.main:app --reload --port 8081
+# 服务将运行在 http://localhost:8081
 ```
 
 ### 3. 启动前端指挥中心 (Frontend)
