@@ -1,14 +1,16 @@
-import sqlite3
-import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from pydantic import BaseModel
 from typing import List, Dict, Any
+from src.backend.services.sql_engine import mock_text_to_sql
 
 app = FastAPI(
     title="Open-Detective API",
     description="Backend for Open-Detective",
     version="0.1.0"
 )
+
+# Version 1 Router
+router_v1 = APIRouter(prefix="/api/v1")
 
 # Database Configuration
 DB_PATH = os.path.join(os.path.dirname(__file__), '../../open_detective.db')
@@ -21,14 +23,16 @@ class ChatResponse(BaseModel):
     sql_query: str
     data: List[Dict[str, Any]]
 
+class HealthResponse(BaseModel):
+    status: str
+    version: str
+
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row # Access columns by name
     return conn
 
-from src.backend.services.sql_engine import mock_text_to_sql
-
-@app.post("/api/chat", response_model=ChatResponse)
+@router_v1.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     print(f"Received message: {request.message}")
     
@@ -66,10 +70,13 @@ async def chat(request: ChatRequest):
         data=data
     )
 
-class HealthResponse(BaseModel):
-    status: str
-    version: str
-
-@app.get("/health", response_model=HealthResponse)
+@router_v1.get("/health", response_model=HealthResponse)
 def health_check():
     return {"status": "ok", "version": "0.1.0"}
+
+# Include Router
+app.include_router(router_v1)
+
+@app.get("/")
+def read_root():
+    return {"message": "Open-Detective Backend is running! Access v1 at /api/v1"}
