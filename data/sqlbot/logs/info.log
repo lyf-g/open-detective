@@ -1,78 +1,77 @@
-2026-01-05 21:40:40,823 - apps.db.db - INFO:40 - init oracle client success, use thick mode
-2026-01-05 21:40:40,823 - apps.db.db - INFO:40 - init oracle client success, use thick mode
-2026-01-05 21:40:41,038 - fastapi_mcp.server - INFO:297 - No auth config provided, skipping auth setup
-2026-01-05 21:40:41,037 - fastapi_mcp.server - INFO:297 - No auth config provided, skipping auth setup
-2026-01-05 21:40:41,038 - fastapi_mcp.server - INFO:368 - MCP server listening at /mcp
-2026-01-05 21:40:41,038 - fastapi_mcp.server - INFO:368 - MCP server listening at /mcp
-2026-01-05 21:40:41,158 - sqlbot_xpack.core - INFO:52 - XPack core initialized successfully.
-2026-01-05 21:40:41,158 - sqlbot_xpack.core - INFO:52 - XPack core initialized successfully.
-2026-01-05 21:40:41,171 - alembic.runtime.migration - INFO:211 - Context impl PostgresqlImpl.
-2026-01-05 21:40:41,171 - alembic.runtime.migration - INFO:214 - Will assume transactional DDL.
-2026-01-05 21:40:41,205 - alembic.runtime.migration - INFO:622 - Running upgrade  -> 5348b743b05f, 001_ddl
-2026-01-05 21:40:41,213 - alembic.runtime.migration - INFO:622 - Running upgrade 5348b743b05f -> 1c8bcc7e25c8, 002_ddl_autogenerate
-2026-01-05 21:40:41,218 - alembic.runtime.migration - INFO:622 - Running upgrade 1c8bcc7e25c8 -> d116056121c3, 003 add datasource
-2026-01-05 21:40:41,221 - alembic.runtime.migration - INFO:622 - Running upgrade d116056121c3 -> 8fe654655905, 004_add_aimodel_auto
-2026-01-05 21:40:41,226 - alembic.runtime.migration - INFO:622 - Running upgrade 8fe654655905 -> 0a6f11be9be4, 005_table_and_field
-2026-01-05 21:40:41,232 - alembic.runtime.migration - INFO:622 - Running upgrade 0a6f11be9be4 -> e6276ddab06e, 006_add_ds_field
-2026-01-05 21:40:41,233 - alembic.runtime.migration - INFO:622 - Running upgrade e6276ddab06e -> ff653d5df198, 006_add_chat
-2026-01-05 21:40:41,238 - alembic.runtime.migration - INFO:622 - Running upgrade ff653d5df198 -> 35d925df4568, 008_modify_field_type
-2026-01-05 21:40:41,243 - alembic.runtime.migration - INFO:622 - Running upgrade 35d925df4568 -> 1f077c30e476, 009_modify_chat
-2026-01-05 21:40:41,246 - alembic.runtime.migration - INFO:622 - Running upgrade 1f077c30e476 -> 804b08ac329d, core_dashboard
-2026-01-05 21:40:41,250 - alembic.runtime.migration - INFO:622 - Running upgrade 804b08ac329d -> 8dc3b1bdbfef, 010_upgrade_user_language
-2026-01-05 21:40:41,251 - alembic.runtime.migration - INFO:622 - Running upgrade 8dc3b1bdbfef -> 941e2355a94d, msg...
-2026-01-05 21:40:41,251 - alembic.runtime.migration - INFO:622 - Running upgrade 941e2355a94d -> a3af70d43e98, 011_license_ddl
-2026-01-05 21:40:41,255 - alembic.runtime.migration - INFO:622 - Running upgrade a3af70d43e98 -> bfa10ce83d73, 010_modify_chat
-2026-01-05 21:40:41,256 - alembic.runtime.migration - INFO:622 - Running upgrade bfa10ce83d73 -> fde8acca6143, modify_chat_record
-2026-01-05 21:40:41,257 - alembic.runtime.migration - INFO:622 - Running upgrade fde8acca6143 -> 02d84523a979, 015_modify_chat
-2026-01-05 21:40:41,257 - alembic.runtime.migration - INFO:622 - Running upgrade 02d84523a979 -> 031148da1d81, 016_modify_chat
-2026-01-05 21:40:41,260 - alembic.runtime.migration - INFO:622 - Running upgrade 031148da1d81 -> a0ba8268868d, 017_rsa_ddl
-2026-01-05 21:40:41,264 - alembic.runtime.migration - INFO:622 - Running upgrade a0ba8268868d -> 863105882eba, 018_modify_chat
-2026-01-05 21:40:41,278 - alembic.runtime.migration - INFO:622 - Running upgrade 863105882eba -> dcaecd481715, 019_upgrade_model
-2026-01-05 21:40:41,284 - alembic.runtime.migration - INFO:622 - Running upgrade dcaecd481715 -> a6b44114c17f, 020_workspace_ddl
-2026-01-05 21:40:41,287 - alembic.runtime.migration - INFO:622 - Running upgrade a6b44114c17f -> 440e9e41da3c, 021_user_ws_ddl
-2026-01-05 21:40:41,290 - alembic.runtime.migration - INFO:622 - Running upgrade 440e9e41da3c -> e6b20ae73606, 022_assistant_ddl
-2026-01-05 21:40:41,295 - alembic.runtime.migration - INFO:622 - Running upgrade e6b20ae73606 -> f535d09946f6, 023_modify_chat_record
-2026-01-05 21:40:41,310 - alembic.runtime.migration - INFO:622 - Running upgrade f535d09946f6 -> 806bc67ff45f, 024_modify_chat_record
-2026-01-05 21:40:41,311 - alembic.runtime.migration - INFO:622 - Running upgrade 806bc67ff45f -> 97dcdbedaaf3, 025_ds_num
-2026-01-05 21:40:41,312 - alembic.runtime.migration - INFO:622 - Running upgrade 97dcdbedaaf3 -> 4c6d18a18bd4, 026_row_column_permission
-2026-01-05 21:40:41,318 - alembic.runtime.migration - INFO:622 - Running upgrade 4c6d18a18bd4 -> b049c9f8ca5b, 027_modify_permission
-2026-01-05 21:40:41,319 - alembic.runtime.migration - INFO:622 - Running upgrade b049c9f8ca5b -> e96b16d3daab, 028_ds_oid
-2026-01-05 21:40:41,320 - alembic.runtime.migration - INFO:622 - Running upgrade e96b16d3daab -> 77d4c39ec22f, 029_modify_chat
-2026-01-05 21:40:41,327 - alembic.runtime.migration - INFO:622 - Running upgrade 77d4c39ec22f -> c1d7ac00b3a8, 030_permission_oid
-2026-01-05 21:40:41,331 - alembic.runtime.migration - INFO:622 - Running upgrade c1d7ac00b3a8 -> bd2ed188b5bd, 031_modify_chat_record
-2026-01-05 21:40:41,332 - alembic.runtime.migration - INFO:622 - Running upgrade bd2ed188b5bd -> 6549e47f9adc, 032_modify_assistant_ddl
-2026-01-05 21:40:41,332 - alembic.runtime.migration - INFO:622 - Running upgrade 6549e47f9adc -> 3cb5d6a54f2e, 033_chat_origin_ddl
-2026-01-05 21:40:41,333 - alembic.runtime.migration - INFO:622 - Running upgrade 3cb5d6a54f2e -> e8b470d2b150, 034_field_sort
-2026-01-05 21:40:41,334 - alembic.runtime.migration - INFO:622 - Running upgrade e8b470d2b150 -> 29559ee607af, 035_sys_arg_ddl
-2026-01-05 21:40:41,339 - alembic.runtime.migration - INFO:622 - Running upgrade 29559ee607af -> 646e7ca28e0e, 036_modify_assistant
-2026-01-05 21:40:41,340 - alembic.runtime.migration - INFO:622 - Running upgrade 646e7ca28e0e -> 68a06302cf70, 035_create_chat_log
-2026-01-05 21:40:41,347 - alembic.runtime.migration - INFO:622 - Running upgrade 68a06302cf70 -> fc23c4f3e755, 038_remove_chat_record_cloumns
-2026-01-05 21:40:41,348 - alembic.runtime.migration - INFO:622 - Running upgrade fc23c4f3e755 -> 25cbc85766fd, 039_create_terminology
-2026-01-05 21:40:41,374 - alembic.runtime.migration - INFO:622 - Running upgrade 25cbc85766fd -> 0fc14c2cfe41, 040_modify_ai_model
-2026-01-05 21:40:41,375 - alembic.runtime.migration - INFO:622 - Running upgrade 0fc14c2cfe41 -> c4c3c36b720d, 041_add_terminology_oid
-2026-01-05 21:40:41,375 - alembic.runtime.migration - INFO:622 - Running upgrade c4c3c36b720d -> a487d9c69341, 042_data_training
-2026-01-05 21:40:41,379 - alembic.runtime.migration - INFO:622 - Running upgrade a487d9c69341 -> dac062c1f7b1, 043_modify_ds_id_type
-2026-01-05 21:40:41,389 - alembic.runtime.migration - INFO:622 - Running upgrade dac062c1f7b1 -> 455b8ce69e80, 044_table_relation
-2026-01-05 21:40:41,390 - alembic.runtime.migration - INFO:622 - Running upgrade 455b8ce69e80 -> 45e7e52bf2b8, 045_modify_terminolog
-2026-01-05 21:40:41,390 - alembic.runtime.migration - INFO:622 - Running upgrade 45e7e52bf2b8 -> 8855aea2dd61, 046_add_custom_prompt
-2026-01-05 21:40:41,394 - alembic.runtime.migration - INFO:622 - Running upgrade 8855aea2dd61 -> c1b794a961ce, 047_table_embedding
-2026-01-05 21:40:41,394 - alembic.runtime.migration - INFO:622 - Running upgrade c1b794a961ce -> 073bf544b373, 048_authentication_ddl
-2026-01-05 21:40:41,398 - alembic.runtime.migration - INFO:622 - Running upgrade 073bf544b373 -> b58a71ca6ae3, 049_user_platform_ddl
-2026-01-05 21:40:41,401 - alembic.runtime.migration - INFO:622 - Running upgrade b58a71ca6ae3 -> 2785e54dc1c4, 050_modify_ddl.py
-2026-01-05 21:40:41,403 - alembic.runtime.migration - INFO:622 - Running upgrade 2785e54dc1c4 -> cb12c4238120, 051_modify_data_training_ddl
-2026-01-05 21:40:41,404 - alembic.runtime.migration - INFO:622 - Running upgrade cb12c4238120 -> e408f8766753, empty message
-2026-01-05 21:40:41,407 - alembic.runtime.migration - INFO:622 - Running upgrade e408f8766753 -> 5755c0b95839, empty message
-2026-01-05 21:40:41,408 - alembic.runtime.migration - INFO:622 - Running upgrade 5755c0b95839 -> 24e961f6326b, 054_update_chat_record_dll
-2026-01-05 21:40:41,409 - alembic.runtime.migration - INFO:622 - Running upgrade 24e961f6326b -> 3d4bd2d673dc, empty message
-2026-01-05 21:40:41,412 - alembic.runtime.migration - INFO:622 - Running upgrade 3d4bd2d673dc -> d9a5589fc00b, 056_api_key_ddl
-2026-01-05 21:40:41,416 - alembic.runtime.migration - INFO:622 - Running upgrade d9a5589fc00b -> c431a0bf478b, empty message
-2026-01-05 21:40:41,417 - alembic.runtime.migration - INFO:622 - Running upgrade c431a0bf478b -> fb2e8dd19158, empty message
-2026-01-05 21:40:41,419 - alembic.runtime.migration - INFO:622 - Running upgrade fb2e8dd19158 -> db1a95567cbb, empty message
-2026-01-05 21:40:41,454 - common.core.sqlbot_cache - INFO:131 - SQLBot 使用内存缓存, 仅支持单进程模式
-2026-01-05 21:40:41,460 - apps.datasource.crud.table - INFO:40 - get tables
-2026-01-05 21:40:41,460 - main - INFO:58 - ✅ SQLBot 初始化完成
-2026-01-05 21:40:41,462 - apps.datasource.crud.table - INFO:43 - table result: 0
-2026-01-05 21:40:41,462 - apps.datasource.crud.table - INFO:46 - get datasource
-2026-01-05 21:40:41,463 - apps.datasource.crud.table - INFO:49 - datasource result: 0
-2026-01-05 21:40:41,819 - sqlbot_xpack.config.rsa_manage - INFO:121 - XPack global rsa cache clean successfully.
-2026-01-05 21:41:37,574 - sqlbot_xpack.license.manage - INFO:145 - query license info without cache!
+2026-01-05 23:11:48,587 - apps.db.db - INFO:40 - init oracle client success, use thick mode
+2026-01-05 23:11:48,587 - apps.db.db - INFO:40 - init oracle client success, use thick mode
+2026-01-05 23:11:48,650 - fastapi_mcp.server - INFO:297 - No auth config provided, skipping auth setup
+2026-01-05 23:11:48,650 - fastapi_mcp.server - INFO:368 - MCP server listening at /mcp
+2026-01-05 23:11:48,650 - fastapi_mcp.server - INFO:297 - No auth config provided, skipping auth setup
+2026-01-05 23:11:48,654 - fastapi_mcp.server - INFO:368 - MCP server listening at /mcp
+2026-01-05 23:11:48,852 - sqlbot_xpack.core - INFO:52 - XPack core initialized successfully.
+2026-01-05 23:11:48,852 - sqlbot_xpack.core - INFO:52 - XPack core initialized successfully.
+2026-01-05 23:11:48,858 - alembic.runtime.migration - INFO:211 - Context impl PostgresqlImpl.
+2026-01-05 23:11:48,858 - alembic.runtime.migration - INFO:214 - Will assume transactional DDL.
+2026-01-05 23:11:48,877 - alembic.runtime.migration - INFO:622 - Running upgrade  -> 5348b743b05f, 001_ddl
+2026-01-05 23:11:48,884 - alembic.runtime.migration - INFO:622 - Running upgrade 5348b743b05f -> 1c8bcc7e25c8, 002_ddl_autogenerate
+2026-01-05 23:11:48,888 - alembic.runtime.migration - INFO:622 - Running upgrade 1c8bcc7e25c8 -> d116056121c3, 003 add datasource
+2026-01-05 23:11:48,891 - alembic.runtime.migration - INFO:622 - Running upgrade d116056121c3 -> 8fe654655905, 004_add_aimodel_auto
+2026-01-05 23:11:48,895 - alembic.runtime.migration - INFO:622 - Running upgrade 8fe654655905 -> 0a6f11be9be4, 005_table_and_field
+2026-01-05 23:11:48,901 - alembic.runtime.migration - INFO:622 - Running upgrade 0a6f11be9be4 -> e6276ddab06e, 006_add_ds_field
+2026-01-05 23:11:48,901 - alembic.runtime.migration - INFO:622 - Running upgrade e6276ddab06e -> ff653d5df198, 006_add_chat
+2026-01-05 23:11:48,906 - alembic.runtime.migration - INFO:622 - Running upgrade ff653d5df198 -> 35d925df4568, 008_modify_field_type
+2026-01-05 23:11:48,911 - alembic.runtime.migration - INFO:622 - Running upgrade 35d925df4568 -> 1f077c30e476, 009_modify_chat
+2026-01-05 23:11:48,914 - alembic.runtime.migration - INFO:622 - Running upgrade 1f077c30e476 -> 804b08ac329d, core_dashboard
+2026-01-05 23:11:48,917 - alembic.runtime.migration - INFO:622 - Running upgrade 804b08ac329d -> 8dc3b1bdbfef, 010_upgrade_user_language
+2026-01-05 23:11:48,918 - alembic.runtime.migration - INFO:622 - Running upgrade 8dc3b1bdbfef -> 941e2355a94d, msg...
+2026-01-05 23:11:48,918 - alembic.runtime.migration - INFO:622 - Running upgrade 941e2355a94d -> a3af70d43e98, 011_license_ddl
+2026-01-05 23:11:48,923 - alembic.runtime.migration - INFO:622 - Running upgrade a3af70d43e98 -> bfa10ce83d73, 010_modify_chat
+2026-01-05 23:11:48,932 - alembic.runtime.migration - INFO:622 - Running upgrade bfa10ce83d73 -> fde8acca6143, modify_chat_record
+2026-01-05 23:11:48,934 - alembic.runtime.migration - INFO:622 - Running upgrade fde8acca6143 -> 02d84523a979, 015_modify_chat
+2026-01-05 23:11:48,936 - alembic.runtime.migration - INFO:622 - Running upgrade 02d84523a979 -> 031148da1d81, 016_modify_chat
+2026-01-05 23:11:48,940 - alembic.runtime.migration - INFO:622 - Running upgrade 031148da1d81 -> a0ba8268868d, 017_rsa_ddl
+2026-01-05 23:11:48,949 - alembic.runtime.migration - INFO:622 - Running upgrade a0ba8268868d -> 863105882eba, 018_modify_chat
+2026-01-05 23:11:48,971 - alembic.runtime.migration - INFO:622 - Running upgrade 863105882eba -> dcaecd481715, 019_upgrade_model
+2026-01-05 23:11:48,977 - alembic.runtime.migration - INFO:622 - Running upgrade dcaecd481715 -> a6b44114c17f, 020_workspace_ddl
+2026-01-05 23:11:48,981 - alembic.runtime.migration - INFO:622 - Running upgrade a6b44114c17f -> 440e9e41da3c, 021_user_ws_ddl
+2026-01-05 23:11:48,984 - alembic.runtime.migration - INFO:622 - Running upgrade 440e9e41da3c -> e6b20ae73606, 022_assistant_ddl
+2026-01-05 23:11:48,988 - alembic.runtime.migration - INFO:622 - Running upgrade e6b20ae73606 -> f535d09946f6, 023_modify_chat_record
+2026-01-05 23:11:49,005 - alembic.runtime.migration - INFO:622 - Running upgrade f535d09946f6 -> 806bc67ff45f, 024_modify_chat_record
+2026-01-05 23:11:49,006 - alembic.runtime.migration - INFO:622 - Running upgrade 806bc67ff45f -> 97dcdbedaaf3, 025_ds_num
+2026-01-05 23:11:49,007 - alembic.runtime.migration - INFO:622 - Running upgrade 97dcdbedaaf3 -> 4c6d18a18bd4, 026_row_column_permission
+2026-01-05 23:11:49,014 - alembic.runtime.migration - INFO:622 - Running upgrade 4c6d18a18bd4 -> b049c9f8ca5b, 027_modify_permission
+2026-01-05 23:11:49,014 - alembic.runtime.migration - INFO:622 - Running upgrade b049c9f8ca5b -> e96b16d3daab, 028_ds_oid
+2026-01-05 23:11:49,016 - alembic.runtime.migration - INFO:622 - Running upgrade e96b16d3daab -> 77d4c39ec22f, 029_modify_chat
+2026-01-05 23:11:49,024 - alembic.runtime.migration - INFO:622 - Running upgrade 77d4c39ec22f -> c1d7ac00b3a8, 030_permission_oid
+2026-01-05 23:11:49,029 - alembic.runtime.migration - INFO:622 - Running upgrade c1d7ac00b3a8 -> bd2ed188b5bd, 031_modify_chat_record
+2026-01-05 23:11:49,029 - alembic.runtime.migration - INFO:622 - Running upgrade bd2ed188b5bd -> 6549e47f9adc, 032_modify_assistant_ddl
+2026-01-05 23:11:49,030 - alembic.runtime.migration - INFO:622 - Running upgrade 6549e47f9adc -> 3cb5d6a54f2e, 033_chat_origin_ddl
+2026-01-05 23:11:49,031 - alembic.runtime.migration - INFO:622 - Running upgrade 3cb5d6a54f2e -> e8b470d2b150, 034_field_sort
+2026-01-05 23:11:49,032 - alembic.runtime.migration - INFO:622 - Running upgrade e8b470d2b150 -> 29559ee607af, 035_sys_arg_ddl
+2026-01-05 23:11:49,037 - alembic.runtime.migration - INFO:622 - Running upgrade 29559ee607af -> 646e7ca28e0e, 036_modify_assistant
+2026-01-05 23:11:49,038 - alembic.runtime.migration - INFO:622 - Running upgrade 646e7ca28e0e -> 68a06302cf70, 035_create_chat_log
+2026-01-05 23:11:49,045 - alembic.runtime.migration - INFO:622 - Running upgrade 68a06302cf70 -> fc23c4f3e755, 038_remove_chat_record_cloumns
+2026-01-05 23:11:49,047 - alembic.runtime.migration - INFO:622 - Running upgrade fc23c4f3e755 -> 25cbc85766fd, 039_create_terminology
+2026-01-05 23:11:49,068 - alembic.runtime.migration - INFO:622 - Running upgrade 25cbc85766fd -> 0fc14c2cfe41, 040_modify_ai_model
+2026-01-05 23:11:49,069 - alembic.runtime.migration - INFO:622 - Running upgrade 0fc14c2cfe41 -> c4c3c36b720d, 041_add_terminology_oid
+2026-01-05 23:11:49,070 - alembic.runtime.migration - INFO:622 - Running upgrade c4c3c36b720d -> a487d9c69341, 042_data_training
+2026-01-05 23:11:49,073 - alembic.runtime.migration - INFO:622 - Running upgrade a487d9c69341 -> dac062c1f7b1, 043_modify_ds_id_type
+2026-01-05 23:11:49,087 - alembic.runtime.migration - INFO:622 - Running upgrade dac062c1f7b1 -> 455b8ce69e80, 044_table_relation
+2026-01-05 23:11:49,088 - alembic.runtime.migration - INFO:622 - Running upgrade 455b8ce69e80 -> 45e7e52bf2b8, 045_modify_terminolog
+2026-01-05 23:11:49,089 - alembic.runtime.migration - INFO:622 - Running upgrade 45e7e52bf2b8 -> 8855aea2dd61, 046_add_custom_prompt
+2026-01-05 23:11:49,093 - alembic.runtime.migration - INFO:622 - Running upgrade 8855aea2dd61 -> c1b794a961ce, 047_table_embedding
+2026-01-05 23:11:49,094 - alembic.runtime.migration - INFO:622 - Running upgrade c1b794a961ce -> 073bf544b373, 048_authentication_ddl
+2026-01-05 23:11:49,098 - alembic.runtime.migration - INFO:622 - Running upgrade 073bf544b373 -> b58a71ca6ae3, 049_user_platform_ddl
+2026-01-05 23:11:49,101 - alembic.runtime.migration - INFO:622 - Running upgrade b58a71ca6ae3 -> 2785e54dc1c4, 050_modify_ddl.py
+2026-01-05 23:11:49,103 - alembic.runtime.migration - INFO:622 - Running upgrade 2785e54dc1c4 -> cb12c4238120, 051_modify_data_training_ddl
+2026-01-05 23:11:49,103 - alembic.runtime.migration - INFO:622 - Running upgrade cb12c4238120 -> e408f8766753, empty message
+2026-01-05 23:11:49,107 - alembic.runtime.migration - INFO:622 - Running upgrade e408f8766753 -> 5755c0b95839, empty message
+2026-01-05 23:11:49,108 - alembic.runtime.migration - INFO:622 - Running upgrade 5755c0b95839 -> 24e961f6326b, 054_update_chat_record_dll
+2026-01-05 23:11:49,109 - alembic.runtime.migration - INFO:622 - Running upgrade 24e961f6326b -> 3d4bd2d673dc, empty message
+2026-01-05 23:11:49,112 - alembic.runtime.migration - INFO:622 - Running upgrade 3d4bd2d673dc -> d9a5589fc00b, 056_api_key_ddl
+2026-01-05 23:11:49,117 - alembic.runtime.migration - INFO:622 - Running upgrade d9a5589fc00b -> c431a0bf478b, empty message
+2026-01-05 23:11:49,117 - alembic.runtime.migration - INFO:622 - Running upgrade c431a0bf478b -> fb2e8dd19158, empty message
+2026-01-05 23:11:49,119 - alembic.runtime.migration - INFO:622 - Running upgrade fb2e8dd19158 -> db1a95567cbb, empty message
+2026-01-05 23:11:49,151 - common.core.sqlbot_cache - INFO:131 - SQLBot 使用内存缓存, 仅支持单进程模式
+2026-01-05 23:11:49,157 - apps.datasource.crud.table - INFO:40 - get tables
+2026-01-05 23:11:49,157 - main - INFO:58 - ✅ SQLBot 初始化完成
+2026-01-05 23:11:49,164 - apps.datasource.crud.table - INFO:43 - table result: 0
+2026-01-05 23:11:49,164 - apps.datasource.crud.table - INFO:46 - get datasource
+2026-01-05 23:11:49,172 - apps.datasource.crud.table - INFO:49 - datasource result: 0
+2026-01-05 23:11:49,330 - sqlbot_xpack.config.rsa_manage - INFO:121 - XPack global rsa cache clean successfully.
