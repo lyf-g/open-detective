@@ -14,9 +14,22 @@ class SQLBotClient:
         self.datasource_id = int(os.getenv("SQLBOT_DATASOURCE_ID", "1"))
 
     def _get_live_token(self) -> str:
-        """Reads the token directly from the .env file to support hot-updates."""
-        config = dotenv_values(".env")
-        return config.get("SQLBOT_API_KEY", "")
+        """
+        Reads the token directly from the .env file to support hot-updates.
+        Falls back to environment variables if file lookup fails.
+        """
+        env_path = os.path.join(os.getcwd(), ".env")
+        try:
+            if os.path.exists(env_path):
+                config = dotenv_values(env_path)
+                token = config.get("SQLBOT_API_KEY")
+                if token:
+                    return token
+        except Exception as e:
+            print(f"⚠️ Failed to read .env file dynamically: {e}")
+        
+        # Fallback to standard environment variable
+        return os.getenv("SQLBOT_API_KEY", "")
 
     def _extract_sql(self, text: str) -> str:
         if not text: return ""

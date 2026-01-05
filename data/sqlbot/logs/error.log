@@ -945,3 +945,247 @@ Traceback (most recent call last):
     return binascii.a2b_base64(s, strict_mode=validate)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 binascii.Error: Invalid base64-encoded string: number of data characters (5) cannot be 1 more than a multiple of 4
+2026-01-06 00:50:31,787 - apps.system.middleware.auth - ERROR:144 - Token validation error: Signature verification failed
+Traceback (most recent call last):
+  File "/opt/sqlbot/app/apps/system/middleware/auth.py", line 125, in validateToken
+    payload = jwt.decode(
+              ^^^^^^^^^^^
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/jwt/api_jwt.py", line 222, in decode
+    decoded = self.decode_complete(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/jwt/api_jwt.py", line 156, in decode_complete
+    decoded = api_jws.decode_complete(
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/jwt/api_jws.py", line 220, in decode_complete
+    self._verify_signature(signing_input, header, signature, key, algorithms)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/jwt/api_jws.py", line 328, in _verify_signature
+    raise InvalidSignatureError("Signature verification failed")
+jwt.exceptions.InvalidSignatureError: Signature verification failed
+2026-01-06 00:51:51,737 - common.core.response_middleware - ERROR:95 - Unhandled Exception: 尚未配置默认大语言模型
+  + Exception Group Traceback (most recent call last):
+  |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_utils.py", line 76, in collapse_excgroups
+  |     yield
+  |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 177, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 783, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 176, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |   File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    |     self.gen.throw(typ, value, traceback)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 178, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/sqlbot/app/common/audit/schemas/request_context.py", line 34, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 156, in call_next
+    |     raise app_exc
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 176, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |   File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    |     self.gen.throw(typ, value, traceback)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 178, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/sqlbot/app/apps/system/schemas/permission.py", line 123, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 156, in call_next
+    |     raise app_exc
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 176, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |   File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    |     self.gen.throw(typ, value, traceback)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 178, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/sqlbot/app/common/core/response_middleware.py", line 17, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 156, in call_next
+    |     raise app_exc
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 176, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |   File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    |     self.gen.throw(typ, value, traceback)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 178, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/sqlbot/app/apps/system/middleware/auth.py", line 66, in dispatch
+    |     return await call_next(request)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 156, in call_next
+    |     raise app_exc
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 141, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 714, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 734, in app
+    |     await route.handle(scope, receive, send)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 288, in handle
+    |     await self.app(scope, receive, send)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 76, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 73, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 301, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    |     return await dependant.call(**values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/opt/sqlbot/app/apps/system/api/aimodel.py", line 56, in check_default
+    |     raise Exception(trans('i18n_llm.miss_default'))
+    | Exception: 尚未配置默认大语言模型
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 176, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 178, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/common/audit/schemas/request_context.py", line 34, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 156, in call_next
+    raise app_exc
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 176, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 178, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/apps/system/schemas/permission.py", line 123, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 156, in call_next
+    raise app_exc
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 176, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 178, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/common/core/response_middleware.py", line 17, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 156, in call_next
+    raise app_exc
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 176, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 178, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/apps/system/middleware/auth.py", line 66, in dispatch
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 156, in call_next
+    raise app_exc
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/base.py", line 141, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 714, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 734, in app
+    await route.handle(scope, receive, send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/apps/system/api/aimodel.py", line 56, in check_default
+    raise Exception(trans('i18n_llm.miss_default'))
+Exception: 尚未配置默认大语言模型
+2026-01-06 00:53:14,822 - common.core.response_middleware - ERROR:86 - HTTP Exception: Not Found
+Traceback (most recent call last):
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 714, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 734, in app
+    await route.handle(scope, receive, send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 460, in handle
+    await self.app(scope, receive, send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/staticfiles.py", line 98, in __call__
+    response = await self.get_response(path, scope)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/staticfiles.py", line 149, in get_response
+    raise HTTPException(status_code=404)
+starlette.exceptions.HTTPException: 404: Not Found
