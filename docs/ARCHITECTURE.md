@@ -1,59 +1,60 @@
 # Open-Detective Architecture & Design
 
-## 1. Project Overview
-**Open-Detective** is an AI-powered Text-to-SQL application designed to investigate open source community health, focusing on fraud detection, contributor health, and compliance.
+## 1. System Overview
+Open-Detective is a **Text-to-SQL** application designed to lower the barrier for exploring OpenDigger data. It bridges the gap between natural language questions and structured OSS metrics.
 
-## 2. Technical Stack
+### Key Value Proposition
+- **For OSPO**: Detect risks (low bus factor, high issue backlog) without writing complex SQL.
+- **For Developers**: Quickly visualize trends of upstream dependencies.
 
-### Backend
-- **Framework**: FastAPI (Python)
-- **Reasoning**: Native async support for AI tasks, auto-generated Swagger UI for easy testing, high performance.
-- **Key Libraries**: `fastapi`, `uvicorn`, `pydantic`.
+## 2. Architecture Diagram
 
-### Frontend
-- **Framework**: Vue.js 3 + Vite
-- **Reasoning**: Fast development cycle, component-based architecture ideal for chat interfaces.
-
-### Data Layer
-- **Development Database**: SQLite
-- **Production Database**: MySQL 8.0
-- **Data Source**: OpenDigger (Issue/PR/Event logs)
-- **Visualization**: DataEase (Embedded) / Chart.js (Frontend fallback)
-
-### AI Engine
-- **Core**: SQLBot (Text-to-SQL)
-- **Integration**: Backend proxies requests to SQLBot API, handling context and schema linking.
-
-## 3. Directory Structure
-```
-open-detective/
-├── .github/workflows/         # Automation (CI/CD, simulation scripts)
-├── data/                      # Data Engineering
-│   ├── raw/                   # Raw OpenDigger data (JSON/CSV)
-│   ├── sql/                   # SQL schemas and views (schema.sql)
-│   └── etl_scripts/           # Python scripts for data cleaning
-├── src/                       # Source Code
-│   ├── backend/               # Python API Server
-│   │   ├── main.py            # Entry point
-│   │   ├── services/          # Business logic (SQLBot client)
-│   │   └── api/               # API Routers
-│   └── frontend/              # Vue.js Application
-├── docs/                      # Documentation
-│   └── ARCHITECTURE.md        # This file
-├── docker-compose.yml         # Container orchestration
-└── README.md                  # Project Entry
+```mermaid
+graph TD
+    User[User / Detective] -->|Natural Language| WebUI[Vue 3 Frontend]
+    WebUI -->|REST API /chat| Backend[FastAPI Server]
+    
+    subgraph "Intelligence Engine"
+        Backend -->|Prompt/Rule| SQLBot[Text-to-SQL Engine]
+        SQLBot -->|SQL Query| DB[(SQLite Database)]
+    end
+    
+    subgraph "Data Engineering (ETL)"
+        OD[OpenDigger OSS] -->|JSON Stream| ETL[fetch_opendigger.py]
+        ETL -->|Clean & Load| DB
+    end
+    
+    DB -->|Result Set| Backend
+    Backend -->|JSON Data| WebUI
+    WebUI -->|Render| Charts[ECharts Visualization]
 ```
 
-## 4. Modules Description
+## 3. Component Details
 
-### Backend
-- **`services/sqlbot_client.py`**: Handles communication with the SQLBot engine.
-- **`api/routes.py`**: Defines endpoints for the frontend (e.g., `/chat`, `/query`).
+### 3.1 Data Layer (The Foundation)
+- **Source**: [OpenDigger](https://github.com/X-lab2017/open-digger) static data via OSS CDN (`https://oss.x-lab.info/open_digger/github/...`).
+- **Storage**: SQLite (`open_detective.db`).
+- **Schema**: `open_digger_metrics` table containing:
+    - `repo_name`: e.g., 'vuejs/core'
+    - `metric_type`: 'stars', 'activity', 'openrank', 'bus_factor', 'issues_new', 'issues_closed'
+    - `month`: 'YYYY-MM'
+    - `value`: Numerical value
+- **ETL**: `data/etl_scripts/fetch_opendigger.py` handles fetching, validation, and upserting data.
 
-### Data
-- **ETL Pipeline**: Fetches data from OpenDigger -> Cleans/Normalizes -> Loads into DB.
+### 3.2 Backend Layer (The Brain)
+- **Framework**: FastAPI (Python).
+- **Core Logic**:
+    - **`mock_text_to_sql`**: Currently a rule-based engine mapping keywords (e.g., "risk", "bus") to SQL queries. *Future: Replace with LLM (Gemini/DeepSeek).*
+    - **API**: `/api/chat` endpoint handles the conversation lifecycle.
 
-## 5. Next Steps
-1. Implement basic OpenDigger data fetcher.
-2. Set up Vue.js frontend project.
-3. Integrate SQLBot API stub.
+### 3.3 Frontend Layer (The Face)
+- **Framework**: Vue 3 + TypeScript + Vite.
+- **UI Design**: Cyberpunk/Dark-themed "Detective Dashboard".
+- **Visualization**: `ResultChart.vue` dynamically selects Line/Bar charts based on data shape.
+- **Export**: Generates Markdown reports client-side for data portability.
+
+## 4. Future Roadmap
+1.  **LLM Integration**: Replace the rule-based `mock_text_to_sql` with a real LLM API to support complex queries (e.g., "Compare Vue and React growth in 2023").
+2.  **Schema Linking**: Feed table schema to LLM for higher SQL accuracy.
+3.  **Cross-Repo Analysis**: Enable queries that join data from multiple repositories.
+4.  **Anomaly Detection**: Auto-highlight data points that deviate significantly from the trend.
