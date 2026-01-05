@@ -66,6 +66,10 @@ async def chat(request: ChatRequest):
         data=data
     )
 
-@app.get("/health")
+class HealthResponse(BaseModel):
+    status: str
+    version: str
+
+@app.get("/health", response_model=HealthResponse)
 def health_check():
-    return {"status": "ok"}
+    return {"status": "ok", "version": "0.1.0"}
