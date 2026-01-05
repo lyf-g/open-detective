@@ -30,3 +30,12 @@ def test_sql_gen_vscode():
     sql = mock_text_to_sql("vscode issues")
     assert "repo_name = 'microsoft/vscode'" in sql
     assert "metric_type = 'issues_new'" in sql
+
+def test_sql_gen_ollama():
+    sql = mock_text_to_sql("stars for ollama")
+    assert "repo_name = 'ollama/ollama'" in sql
+
+def test_sql_gen_rust():
+    sql = mock_text_to_sql("activity of rust-lang/rust")
+    assert "repo_name = 'rust-lang/rust'" in sql
+

@@ -17,12 +17,30 @@ def mock_text_to_sql(text: str) -> str:
 
     # Dynamic repository matching
     repo = None
+    text_words = text.replace('/', ' ').replace('-', ' ').replace('_', ' ').split()
+    # Keywords to ignore when matching repositories
+    ignore_keywords = ['stars', 'activity', 'rank', 'openrank', 'bus', 'factor', 'risk', 'issue', 'issues', 'bug', 'bugs', 'closed', 'for', 'the', 'and', 'with', 'show', 'me', 'what', 'is', 'lang', 'core', 'git']
+    
+    # 1. Try exact full name match first
     for r in repo_list:
-        # Match if the short name (e.g. 'ollama') or full name is in the text
-        short_name = r.split('/')[-1].lower()
-        if short_name in text or r.lower() in text:
+        if r.lower() in text:
             repo = r
             break
+            
+    if not repo:
+        for r in repo_list:
+            full_name_lower = r.lower()
+            segments = full_name_lower.replace('/', ' ').replace('-', ' ').replace('_', ' ').split()
+            
+            # 2. Try exact match of any unique segment
+            if any(word in segments for word in text_words if word not in ignore_keywords):
+                repo = r
+                break
+            
+            # 3. Try substring match (e.g. 'vue' matches 'vuejs')
+            if any(word in seg for seg in segments for word in text_words if word not in ignore_keywords and len(word) >= 3):
+                repo = r
+                break
     
     # Special aliases
     if not repo:
