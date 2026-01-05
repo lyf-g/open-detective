@@ -1,0 +1,16 @@
+2026-01-05 21:41:37,583 - common.core.response_middleware - ERROR:86 - HTTP Exception: Not Found
+Traceback (most recent call last):
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 714, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 734, in app
+    await route.handle(scope, receive, send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/routing.py", line 460, in handle
+    await self.app(scope, receive, send)
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/staticfiles.py", line 98, in __call__
+    response = await self.get_response(path, scope)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/sqlbot/app/.venv/lib/python3.11/site-packages/starlette/staticfiles.py", line 149, in get_response
+    raise HTTPException(status_code=404)
+starlette.exceptions.HTTPException: 404: Not Found

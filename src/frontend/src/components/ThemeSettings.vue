@@ -20,10 +20,13 @@
       <div class="setting-group admin-section">
         <label>Intelligence Engine (SQLBot)</label>
         <div class="admin-links">
-          <a href="http://localhost:8000" target="_blank" class="admin-link">Primary UI (8000) ↗</a>
-          <a href="http://localhost:8001" target="_blank" class="admin-link">Admin Port (8001) ↗</a>
+          <a href="http://localhost:8000" target="_blank" class="admin-link">SQLBot UI (8000) ↗</a>
         </div>
-        <p class="admin-hint">Requires <code>docker-compose up</code> to be running.</p>
+        <p class="admin-hint">
+          User: <code>admin</code><br/>
+          Pass: <code>SQLBot@123456</code>
+        </p>
+        <p class="admin-hint">Requires <code>docker-compose up</code></p>
       </div>
       <button class="close-btn" @click="isOpen = false">Close</button>
     </div>

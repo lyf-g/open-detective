@@ -1,0 +1,74 @@
+2026-01-05 21:40:41,036 - mcp.server.lowlevel.server - DEBUG:162 - Initializing server 'SQLBot MCP Server'
+2026-01-05 21:40:41,036 - mcp.server.lowlevel.server - DEBUG:162 - Initializing server 'SQLBot MCP Server'
+2026-01-05 21:40:41,036 - mcp.server.lowlevel.server - DEBUG:432 - Registering handler for ListToolsRequest
+2026-01-05 21:40:41,036 - mcp.server.lowlevel.server - DEBUG:432 - Registering handler for ListToolsRequest
+2026-01-05 21:40:41,036 - fastapi_mcp.server - DEBUG:34 - Registering handler for CallToolRequest
+2026-01-05 21:40:41,037 - fastapi_mcp.server - DEBUG:34 - Registering handler for CallToolRequest
+2026-01-05 21:40:41,037 - mcp.server.sse - DEBUG:119 - SseServerTransport initialized with endpoint: /mcp/messages/
+2026-01-05 21:40:41,037 - mcp.server.sse - DEBUG:119 - SseServerTransport initialized with endpoint: /mcp/messages/
+2026-01-05 21:40:41,101 - mcp.server.lowlevel.server - DEBUG:162 - Initializing server 'SQLBot MCP Server'
+2026-01-05 21:40:41,102 - mcp.server.lowlevel.server - DEBUG:432 - Registering handler for ListToolsRequest
+2026-01-05 21:40:41,102 - fastapi_mcp.server - DEBUG:34 - Registering handler for CallToolRequest
+2026-01-05 21:40:41,103 - mcp.server.lowlevel.server - DEBUG:162 - Initializing server 'SQLBot MCP Server'
+2026-01-05 21:40:41,108 - mcp.server.lowlevel.server - DEBUG:432 - Registering handler for ListToolsRequest
+2026-01-05 21:40:41,109 - fastapi_mcp.server - DEBUG:34 - Registering handler for CallToolRequest
+2026-01-05 21:40:41,212 - alembic.runtime.migration - DEBUG:830 - new branch insert 5348b743b05f
+2026-01-05 21:40:41,216 - alembic.runtime.migration - DEBUG:865 - update 5348b743b05f to 1c8bcc7e25c8
+2026-01-05 21:40:41,221 - alembic.runtime.migration - DEBUG:865 - update 1c8bcc7e25c8 to d116056121c3
+2026-01-05 21:40:41,225 - alembic.runtime.migration - DEBUG:865 - update d116056121c3 to 8fe654655905
+2026-01-05 21:40:41,232 - alembic.runtime.migration - DEBUG:865 - update 8fe654655905 to 0a6f11be9be4
+2026-01-05 21:40:41,233 - alembic.runtime.migration - DEBUG:865 - update 0a6f11be9be4 to e6276ddab06e
+2026-01-05 21:40:41,237 - alembic.runtime.migration - DEBUG:865 - update e6276ddab06e to ff653d5df198
+2026-01-05 21:40:41,242 - alembic.runtime.migration - DEBUG:865 - update ff653d5df198 to 35d925df4568
+2026-01-05 21:40:41,246 - alembic.runtime.migration - DEBUG:865 - update 35d925df4568 to 1f077c30e476
+2026-01-05 21:40:41,249 - alembic.runtime.migration - DEBUG:865 - update 1f077c30e476 to 804b08ac329d
+2026-01-05 21:40:41,250 - alembic.runtime.migration - DEBUG:865 - update 804b08ac329d to 8dc3b1bdbfef
+2026-01-05 21:40:41,251 - alembic.runtime.migration - DEBUG:865 - update 8dc3b1bdbfef to 941e2355a94d
+2026-01-05 21:40:41,255 - alembic.runtime.migration - DEBUG:865 - update 941e2355a94d to a3af70d43e98
+2026-01-05 21:40:41,256 - alembic.runtime.migration - DEBUG:865 - update a3af70d43e98 to bfa10ce83d73
+2026-01-05 21:40:41,256 - alembic.runtime.migration - DEBUG:865 - update bfa10ce83d73 to fde8acca6143
+2026-01-05 21:40:41,257 - alembic.runtime.migration - DEBUG:865 - update fde8acca6143 to 02d84523a979
+2026-01-05 21:40:41,259 - alembic.runtime.migration - DEBUG:865 - update 02d84523a979 to 031148da1d81
+2026-01-05 21:40:41,264 - alembic.runtime.migration - DEBUG:865 - update 031148da1d81 to a0ba8268868d
+2026-01-05 21:40:41,278 - alembic.runtime.migration - DEBUG:865 - update a0ba8268868d to 863105882eba
+2026-01-05 21:40:41,284 - alembic.runtime.migration - DEBUG:865 - update 863105882eba to dcaecd481715
+2026-01-05 21:40:41,287 - alembic.runtime.migration - DEBUG:865 - update dcaecd481715 to a6b44114c17f
+2026-01-05 21:40:41,290 - alembic.runtime.migration - DEBUG:865 - update a6b44114c17f to 440e9e41da3c
+2026-01-05 21:40:41,294 - alembic.runtime.migration - DEBUG:865 - update 440e9e41da3c to e6b20ae73606
+2026-01-05 21:40:41,310 - alembic.runtime.migration - DEBUG:865 - update e6b20ae73606 to f535d09946f6
+2026-01-05 21:40:41,311 - alembic.runtime.migration - DEBUG:865 - update f535d09946f6 to 806bc67ff45f
+2026-01-05 21:40:41,312 - alembic.runtime.migration - DEBUG:865 - update 806bc67ff45f to 97dcdbedaaf3
+2026-01-05 21:40:41,318 - alembic.runtime.migration - DEBUG:865 - update 97dcdbedaaf3 to 4c6d18a18bd4
+2026-01-05 21:40:41,318 - alembic.runtime.migration - DEBUG:865 - update 4c6d18a18bd4 to b049c9f8ca5b
+2026-01-05 21:40:41,320 - alembic.runtime.migration - DEBUG:865 - update b049c9f8ca5b to e96b16d3daab
+2026-01-05 21:40:41,327 - alembic.runtime.migration - DEBUG:865 - update e96b16d3daab to 77d4c39ec22f
+2026-01-05 21:40:41,331 - alembic.runtime.migration - DEBUG:865 - update 77d4c39ec22f to c1d7ac00b3a8
+2026-01-05 21:40:41,332 - alembic.runtime.migration - DEBUG:865 - update c1d7ac00b3a8 to bd2ed188b5bd
+2026-01-05 21:40:41,332 - alembic.runtime.migration - DEBUG:865 - update bd2ed188b5bd to 6549e47f9adc
+2026-01-05 21:40:41,333 - alembic.runtime.migration - DEBUG:865 - update 6549e47f9adc to 3cb5d6a54f2e
+2026-01-05 21:40:41,334 - alembic.runtime.migration - DEBUG:865 - update 3cb5d6a54f2e to e8b470d2b150
+2026-01-05 21:40:41,338 - alembic.runtime.migration - DEBUG:865 - update e8b470d2b150 to 29559ee607af
+2026-01-05 21:40:41,339 - alembic.runtime.migration - DEBUG:865 - update 29559ee607af to 646e7ca28e0e
+2026-01-05 21:40:41,346 - alembic.runtime.migration - DEBUG:865 - update 646e7ca28e0e to 68a06302cf70
+2026-01-05 21:40:41,348 - alembic.runtime.migration - DEBUG:865 - update 68a06302cf70 to fc23c4f3e755
+2026-01-05 21:40:41,373 - alembic.runtime.migration - DEBUG:865 - update fc23c4f3e755 to 25cbc85766fd
+2026-01-05 21:40:41,374 - alembic.runtime.migration - DEBUG:865 - update 25cbc85766fd to 0fc14c2cfe41
+2026-01-05 21:40:41,375 - alembic.runtime.migration - DEBUG:865 - update 0fc14c2cfe41 to c4c3c36b720d
+2026-01-05 21:40:41,379 - alembic.runtime.migration - DEBUG:865 - update c4c3c36b720d to a487d9c69341
+2026-01-05 21:40:41,389 - alembic.runtime.migration - DEBUG:865 - update a487d9c69341 to dac062c1f7b1
+2026-01-05 21:40:41,389 - alembic.runtime.migration - DEBUG:865 - update dac062c1f7b1 to 455b8ce69e80
+2026-01-05 21:40:41,390 - alembic.runtime.migration - DEBUG:865 - update 455b8ce69e80 to 45e7e52bf2b8
+2026-01-05 21:40:41,393 - alembic.runtime.migration - DEBUG:865 - update 45e7e52bf2b8 to 8855aea2dd61
+2026-01-05 21:40:41,394 - alembic.runtime.migration - DEBUG:865 - update 8855aea2dd61 to c1b794a961ce
+2026-01-05 21:40:41,398 - alembic.runtime.migration - DEBUG:865 - update c1b794a961ce to 073bf544b373
+2026-01-05 21:40:41,401 - alembic.runtime.migration - DEBUG:865 - update 073bf544b373 to b58a71ca6ae3
+2026-01-05 21:40:41,402 - alembic.runtime.migration - DEBUG:865 - update b58a71ca6ae3 to 2785e54dc1c4
+2026-01-05 21:40:41,403 - alembic.runtime.migration - DEBUG:865 - update 2785e54dc1c4 to cb12c4238120
+2026-01-05 21:40:41,406 - alembic.runtime.migration - DEBUG:865 - update cb12c4238120 to e408f8766753
+2026-01-05 21:40:41,408 - alembic.runtime.migration - DEBUG:865 - update e408f8766753 to 5755c0b95839
+2026-01-05 21:40:41,408 - alembic.runtime.migration - DEBUG:865 - update 5755c0b95839 to 24e961f6326b
+2026-01-05 21:40:41,412 - alembic.runtime.migration - DEBUG:865 - update 24e961f6326b to 3d4bd2d673dc
+2026-01-05 21:40:41,416 - alembic.runtime.migration - DEBUG:865 - update 3d4bd2d673dc to d9a5589fc00b
+2026-01-05 21:40:41,417 - alembic.runtime.migration - DEBUG:865 - update d9a5589fc00b to c431a0bf478b
+2026-01-05 21:40:41,419 - alembic.runtime.migration - DEBUG:865 - update c431a0bf478b to fb2e8dd19158
+2026-01-05 21:40:41,422 - alembic.runtime.migration - DEBUG:865 - update fb2e8dd19158 to db1a95567cbb
