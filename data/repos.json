@@ -1,0 +1,10 @@
+[
+  "vuejs/core",
+  "facebook/react",
+  "fastapi/fastapi",
+  "tensorflow/tensorflow",
+  "microsoft/vscode",
+  "kubernetes/kubernetes",
+  "pytorch/pytorch",
+  "flutter/flutter"
+]
