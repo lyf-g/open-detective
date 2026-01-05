@@ -19,6 +19,11 @@
                 <pre>{{ msg.sql }}</pre>
               </div>
 
+              <!-- Display Chart if data is suitable -->
+              <div v-if="msg.data && msg.data.length > 0" class="chart-wrapper">
+                <ResultChart :data="msg.data" />
+              </div>
+
               <!-- Display Data Table if available -->
               <div v-if="msg.data && msg.data.length > 0" class="data-table-wrapper">
                 <table>
@@ -60,6 +65,7 @@
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
 import axios from 'axios'
+import ResultChart from './components/ResultChart.vue'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -67,6 +73,7 @@ interface ChatMessage {
   sql?: string
   data?: any[]
 }
+// ... (rest of the script setup)
 
 const inputMessage = ref('')
 const loading = ref(false)
