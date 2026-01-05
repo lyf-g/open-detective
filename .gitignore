@@ -1,3 +1,8 @@
 
+venv/
+src/frontend/node_modules/
+
+
+
 .prompt
 
