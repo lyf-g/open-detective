@@ -1,12 +1,46 @@
 :root {
+  /* Default Cyberpunk Theme */
   --bg-color: #121212;
   --surface-color: #1e1e1e;
-  --primary-color: #00bcd4; /* Cyan/Teal for that cyber feel */
+  --primary-color: #00bcd4;
   --secondary-color: #bb86fc;
   --text-primary: #e0e0e0;
   --text-secondary: #a0a0a0;
-  --code-bg: #2d2d2d;
+  --code-bg: #161616;
   --border-color: #333;
+  --header-bg: #1e1e1e;
+  --input-bg: #1e1e1e;
+  --accent-color: #00ff00;
+}
+
+/* Theme: Minimalist */
+[data-theme='minimalist'] {
+  --bg-color: #ffffff;
+  --surface-color: #f8f9fa;
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --code-bg: #ecf0f1;
+  --border-color: #dcdde1;
+  --header-bg: #ffffff;
+  --input-bg: #ffffff;
+  --accent-color: #e67e22;
+}
+
+/* Theme: Forest */
+[data-theme='forest'] {
+  --bg-color: #1b262c;
+  --surface-color: #0f4c75;
+  --primary-color: #bbe1fa;
+  --secondary-color: #3282b8;
+  --text-primary: #bbe1fa;
+  --text-secondary: #3282b8;
+  --code-bg: #0f4c75;
+  --border-color: #3282b8;
+  --header-bg: #1b262c;
+  --input-bg: #0f4c75;
+  --accent-color: #88d8b0;
 }
 
 body {
@@ -16,6 +50,7 @@ body {
   color: var(--text-primary);
   font-family: 'Inter', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Scrollbar styling */
@@ -26,9 +61,9 @@ body {
   background: var(--bg-color); 
 }
 ::-webkit-scrollbar-thumb {
-  background: #444; 
+  background: var(--border-color); 
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+  background: var(--text-secondary); 
 }
