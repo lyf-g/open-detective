@@ -393,7 +393,7 @@ const copyToClipboard = async (text: string, index: number) => {
 
 .bubble {
   padding: 1rem 1.5rem;
-  border-radius: 12px;
+  border-radius: 18px;
   background: var(--surface-color);
   line-height: 1.5;
   border: 1px solid var(--border-color);
