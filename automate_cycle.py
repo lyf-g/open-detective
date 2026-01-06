@@ -11,25 +11,17 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Fix: Aggressive JSON Sanitization and Anomaly Report Purity"
+ISSUE_TITLE = "Feat: Real-time DB Health Check"
 ISSUE_BODY = """
-Investigation Log:
-1. Backend: Implemented surgical sanitization to strip persistent JSON artifacts from SQLBot.
-2. Logic: Forced repo_name in SELECT clause to fix 'None' values in anomaly detection.
-3. Persona: Standardized Open-Detective naming and removed AI meta-talk.
-4. Frontend: Added UI-level regex filtering for zero-noise rendering.
+Improvement Log:
+1. Backend: Enhanced `/health` endpoint to return `db_connected` status.
+2. Ops: Allowed load balancers to detect Zombie DB connections.
 """
 
-COMMIT_MSG = """feat: total UI/UX evolution and brute-force sanitization
+COMMIT_MSG = "feat: expose real-time db connection status in health check"
 
-- Re-engineered SQLBotClient with surgical text stripping
-- Mandated repo_name in SQL prompt to fix Anomaly Detection None-errors
-- Fully integrated Element Plus with Thought Chain loading animations
-- Enforced Open-Detective brand identity across all tiers
-"""
-
-PR_TITLE = "Major Evolution: Clean AI Interpretation and Integrated Insights"
-PR_BODY = f"Closes #178. This PR finalizes the professional transformation of Open-Detective."
+PR_TITLE = "Enhanced Health Monitoring"
+PR_BODY = "Adds real-time DB connection validation to the health check endpoint."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
