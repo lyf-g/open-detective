@@ -73,7 +73,10 @@ router_v1 = APIRouter(prefix="/api/v1")
 def detect_anomalies(data: list) -> list:
     """Scans data for significant spikes or drops."""
     if len(data) < 3: return []
+    
+    threshold = float(os.getenv("ANOMALY_THRESHOLD", "0.5"))
     anomalies = []
+    
     for i in range(1, len(data)):
         # Handle both possible column names
         prev = float(data[i-1].get('value') or data[i-1].get('metric_value') or 0)
@@ -83,7 +86,7 @@ def detect_anomalies(data: list) -> list:
         if prev == 0: continue
         
         change = (curr - prev) / prev
-        if abs(change) > 0.5:
+        if abs(change) > threshold:
             type_label = "SPIKE" if change > 0 else "DROP"
             anomalies.append({
                 "month": data[i].get('month'),
