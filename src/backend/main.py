@@ -12,6 +12,7 @@ from fastapi import FastAPI, HTTPException, APIRouter, Request
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from src.backend.services.engine_factory import get_sql_engine
+from src.backend.services.logger import configure_logger, logger
 
 def check_system_integrity():
     """Ensures critical configuration files exist."""
@@ -22,17 +23,20 @@ def check_system_integrity():
     os.makedirs(data_dir, exist_ok=True)
     repo_path = os.path.join(data_dir, 'repos.json')
     if not os.path.exists(repo_path):
-        print("⚠️ repos.json not found. Creating default configuration.")
+        logger.warning("repos.json not found. Creating default configuration.")
         with open(repo_path, 'w') as f:
             json.dump(["vuejs/core", "facebook/react", "fastapi/fastapi"], f, indent=2)
             
     # 2. Check .env
     env_path = os.path.join(base_dir, '.env')
     if not os.path.exists(env_path):
-        print("⚠️ .env not found. Please configure your environment variables.")
+        logger.warning(".env not found. Please configure your environment variables.")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Startup: Configure Logger
+    configure_logger()
+    
     # Startup: Integrity Check
     check_system_integrity()
 
@@ -43,7 +47,7 @@ async def lifespan(app: FastAPI):
     conn = None
     for i in range(max_retries):
         try:
-            print(f"📡 Attempting to connect to MySQL (Attempt {i+1}/{max_retries})...")
+            logger.info("Attempting to connect to MySQL", attempt=i+1, max_retries=max_retries)
             conn = mysql.connector.connect(
                 host=os.getenv("DB_HOST", "localhost"),
                 user=os.getenv("DB_USER", "root"),
@@ -51,15 +55,15 @@ async def lifespan(app: FastAPI):
                 database=os.getenv("DB_NAME", "open_detective")
             )
             if conn.is_connected():
-                print("✅ Successfully connected to MySQL.")
+                logger.info("Successfully connected to MySQL.")
                 app.state.db = conn
                 break
         except Exception as e:
-            print(f"⚠️ MySQL not ready yet: {e}")
+            logger.warning("MySQL not ready yet", error=str(e))
             if i < max_retries - 1:
                 time.sleep(retry_delay)
             else:
-                print("❌ Max retries reached. Backend shutting down.")
+                logger.error("Max retries reached. Backend shutting down.")
                 raise e
     
     yield
@@ -166,7 +170,7 @@ def get_session_messages(session_id: str, request: Request):
 
 @router_v1.post("/chat", response_model=ChatResponse)
 async def chat(request_request: Request, chat_request: ChatRequest):
-    print(f"Received message: {chat_request.message} (Session: {chat_request.session_id})")
+    logger.info("Received message", message=chat_request.message, session_id=chat_request.session_id)
     
     # 1. Save User Message
     if chat_request.session_id:
@@ -216,13 +220,13 @@ async def chat(request_request: Request, chat_request: ChatRequest):
     else:
         # 4. Execute SQL
         try:
-            print(f"🚀 Executing SQL: {sql_query}")
+            logger.info("Executing SQL", sql=sql_query)
             cursor = request_request.app.state.db.cursor(dictionary=True)
             cursor.execute(sql_query)
             data = cursor.fetchall()
             cursor.close()
         except Exception as e:
-            print(f"❌ SQL Execution Error: {str(e)}")
+            logger.error("SQL Execution Error", error=str(e), sql=sql_query)
             # Don't crash, just report error
             answer = f"数据库查询执行失败: {str(e)}"
 
