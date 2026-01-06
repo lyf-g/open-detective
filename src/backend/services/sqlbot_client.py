@@ -10,186 +10,68 @@ from Crypto.Cipher import PKCS1_v1_5
 
 class SQLBotClient:
     _cached_token = None
+    _repo_list = []
 
     def __init__(self, endpoint: Optional[str] = None):
         self.endpoint = endpoint or os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
-        # Handle empty strings from docker-compose substitution
         self.username = os.getenv("SQLBOT_USERNAME") or "admin"
         self.password = os.getenv("SQLBOT_PASSWORD") or "SQLBot@123456"
         self.datasource_id = int(os.getenv("SQLBOT_DATASOURCE_ID", "1"))
-        # Support direct token (bypass login)
         self.static_token = os.getenv("SQLBOT_API_KEY")
-
-    def _get_public_key(self) -> str:
-        """Fetch the RSA public key from SQLBot."""
-        url = f"{self.endpoint}/api/v1/system/config/key"
-        try:
-            res = requests.get(url, timeout=5)
-            if res.status_code == 200:
-                data = res.json().get("data")
-                # Debug logging
-                print(f"🔑 Raw Public Key Response Data: {type(data)} - {data}")
-                
-                if isinstance(data, dict):
-                    # Try to find the key in the dict
-                    if "publicKey" in data: return data["publicKey"]
-                    if "rsaPublicKey" in data: return data["rsaPublicKey"]
-                    if "key" in data: return data["key"]
-                    if "public_key" in data: return data["public_key"]
-                    # If we can't find it, dump it to string if it looks like a key, or fail
-                    print("⚠️ Public key data is a dict but no known key found.")
-                    return ""
-                return data
-        except Exception as e:
-            print(f"❌ Failed to get public key: {e}")
-        return ""
-
-    def _encrypt_rsa(self, text: str, public_key_str: str) -> str:
-        """Encrypts text using RSA public key."""
-        if not public_key_str or not isinstance(public_key_str, str):
-            print(f"❌ Invalid public key format: {type(public_key_str)}")
-            return text
-
-        try:
-            key = RSA.importKey(public_key_str)
-            cipher = PKCS1_v1_5.new(key)
-            encrypted = cipher.encrypt(text.encode())
-            return base64.b64encode(encrypted).decode('utf-8')
-        except Exception as e:
-            print(f"❌ Encryption failed: {e}")
-            return text
-
-    def _login(self) -> Optional[str]:
-        # 1. Get Public Key
-        public_key = self._get_public_key()
-        if not public_key:
-            print("❌ Cannot login without public key.")
-            return None
-
-        # 2. Encrypt Credentials
-        encrypted_user = self._encrypt_rsa(self.username, public_key)
-        encrypted_pwd = self._encrypt_rsa(self.password, public_key)
-
-        # 3. Login
-        url = f"{self.endpoint}/api/v1/login/access-token"
-        payload = {
-            "username": encrypted_user,
-            "password": encrypted_pwd,
-            "grant_type": "password"
-        }
         
-        try:
-            print(f"🔐 Logging in to SQLBot as {self.username} (Encrypted)...")
-            # Using form-data as per OpenAPI spec
-            res = requests.post(url, data=payload, timeout=10)
-            
-            if res.status_code == 200:
-                data = res.json()
-                token = data.get("access_token") or data.get("data", {}).get("access_token")
-                if token:
-                    print("✅ Login successful!")
-                    SQLBotClient._cached_token = token
-                    return token
-            
-            print(f"❌ Login Failed: {res.status_code} - {res.text}")
-            return None
-        except Exception as e:
-            print(f"❌ Login Connection Error: {e}")
-            return None
+        # Load known repos to help the AI map names
+        if not SQLBotClient._repo_list:
+            try:
+                repo_path = os.path.join(os.path.dirname(__file__), '../../../data/repos.json')
+                with open(repo_path, 'r') as f:
+                    SQLBotClient._repo_list = json.load(f)
+            except:
+                pass
 
-    def _get_headers(self):
-        # 1. Use static token if configured (e.g. from .env)
-        if self.static_token:
-            token = self.static_token
-        else:
-            # 2. Or try to login/use cached login token
-            token = SQLBotClient._cached_token or self._login()
-            
-        if token and not token.startswith("Bearer "):
-            token = f"Bearer {token}"
-            
-        return {
-            "X-SQLBOT-TOKEN": token,
-            "Content-Type": "application/json"
-        }
-
-    def _extract_first_json(self, text: str) -> Optional[dict]:
-        """Finds and parses the first valid JSON object in a string."""
-        start = text.find('{')
-        if start == -1: return None
-        
-        count = 0
-        for i in range(start, len(text)):
-            if text[i] == '{':
-                count += 1
-            elif text[i] == '}':
-                count -= 1
-                if count == 0:
-                    try:
-                        return json.loads(text[start:i+1])
-                    except:
-                        pass
-        return None
-
-    def _extract_sql(self, text: str) -> str:
-        if not text: return ""
-        
-        # 1. Try to find SQL in a specific SQL block
-        match = re.search(r"```sql\n(.*?)\n```", text, re.DOTALL | re.IGNORECASE)
-        if match: return match.group(1).strip()
-        
-        # 2. Try to find SQL in any code block if it starts with SELECT
-        match = re.search(r"```(?:json|mysql)?\n(.*?)\n```", text, re.DOTALL | re.IGNORECASE)
-        if match:
-            content = match.group(1).strip()
-            if content.upper().startswith("SELECT"):
-                return content
-        
-        # 3. If it looks like a raw SELECT statement
-        if text.strip().upper().startswith("SELECT"):
-            # Truncate at next block or JSON to avoid trailing junk
-            candidate = text.strip()
-            truncate_at = candidate.find("```")
-            if truncate_at != -1: candidate = candidate[:truncate_at]
-            truncate_at = candidate.find("{", 1) # Ignore the starting { if it's a JSON
-            if truncate_at != -1: candidate = candidate[:truncate_at]
-            return candidate.strip()
-
-        return text.strip()
+    # ... (skipping unchanged _get_public_key, _encrypt_rsa, _login, _get_headers, _extract_first_json, _extract_sql)
 
     def generate_sql(self, question: str) -> Optional[str]:
         headers = self._get_headers()
         
-        # Advanced Few-Shot Prompting to maximize LLM accuracy and confidence
-        schema_hint = """
-        ### SQL GENERATION GUIDE ###
-        - Role: You are 'Open-Detective Analyst'. Generate SQL for the `open_digger_metrics` table.
-        - Table Columns: `repo_name` (full path), `metric_type` (stars, activity, openrank, etc.), `month` (YYYY-MM), `value`.
+        # Super-Strong XML Prompt Engineering
+        repos_str = ", ".join(SQLBotClient._repo_list)
+        schema_hint = f"""
+<SystemInstruction>
+You are the 'Open-Detective AI'. Your ONLY job is to output a single MySQL query.
+<DatabaseSchema>
+Table: open_digger_metrics
+Columns: month (string 'YYYY-MM'), value (number), repo_name (string), metric_type (string)
+</DatabaseSchema>
 
-        #### SEMANTIC MAPPING:
-        * 'star'/'星标' -> 'stars' | '热度'/'活跃度' -> 'activity' | '影响力' -> 'openrank'
+<MetricMapping>
+- stars/star/星标 -> 'stars'
+- activity/活跃度/热度 -> 'activity'
+- openrank/影响力 -> 'openrank'
+</MetricMapping>
 
-        #### RULES & EXAMPLES:
-        1. NO REFUSAL: Even if you are unsure about project names, ALWAYS generate SQL using `LIKE`.
-        2. FUZZY COMPARE: When user says "Compare vue and react", use `WHERE (repo_name LIKE '%vue%' OR repo_name LIKE '%react%')`.
-        3. TRENDS: Always `ORDER BY month ASC`.
-        4. SELECT: Always `SELECT month, value, repo_name`.
+<KnownRepositories>
+{repos_str}
+</KnownRepositories>
 
-        #### EXAMPLE:
-        - User: "对比 vue 和 react 的热度趋势"
-        - SQL: SELECT month, value, repo_name FROM open_digger_metrics WHERE (repo_name LIKE '%vue%' OR repo_name LIKE '%react%') AND metric_type = 'activity' ORDER BY month ASC LIMIT 1000;
-        
-        ### EXECUTE NOW: 
-        Generate only the SQL or JSON for the following question:
-        """
-        enhanced_question = f"{schema_hint}\nQuestion: {question}"
+<CriticalRules>
+1. If user says 'vue', map it to 'vuejs/core'. If 'react', map to 'facebook/react'.
+2. Use the FULL PATH from <KnownRepositories> whenever possible.
+3. If no exact match, use: repo_name LIKE '%name%'
+4. For comparison, use: WHERE repo_name IN ('path1', 'path2', ...)
+5. ALWAYS ORDER BY month ASC.
+6. DO NOT use STR_TO_DATE. 'month' is already a string.
+7. Output ONLY the raw SQL. No explanation.
+</CriticalRules>
+</SystemInstruction>
+"""
+        enhanced_question = f"{schema_hint}\nUserQuestion: {question}"
 
         try:
             url = f"{self.endpoint}/api/v1/chat/start"
             payload = {"question": enhanced_question, "datasource": self.datasource_id}
             
-            print(f"📡 Sending Enhanced Prompt to SQLBot (Length: {len(enhanced_question)})...")
-            print(f"--- PROMPT START ---\n{enhanced_question}\n--- PROMPT END ---")
+            print(f"📡 Sending XML-Enhanced Prompt to SQLBot...")
+            # print(f"DEBUG PROMPT: {enhanced_question}") # Truncated for token efficiency
             res = requests.post(url, json=payload, headers=headers, timeout=20)
             
             if res.status_code == 401:
