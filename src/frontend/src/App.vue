@@ -27,14 +27,26 @@
             <el-button class="action-btn" type="primary" plain @click="exportCase" :disabled="chatHistory.length === 0">
               <el-icon><Download /></el-icon> Export Case File
             </el-button>
-            <el-button class="action-btn" @click="reloadPage">
+            <el-button class="action-btn" @click="createNewSession">
               <el-icon><Refresh /></el-icon> New Investigation
             </el-button>
           </div>
 
+          <div class="sidebar-sessions">
+            <div class="session-label">HISTORY LOGS</div>
+            <el-scrollbar>
+              <div v-for="sess in sessions" :key="sess.id" 
+                   :class="['session-item', { active: currentSessionId === sess.id }]"
+                   @click="loadSession(sess.id)">
+                <div class="session-title">{{ sess.title }}</div>
+                <div class="session-date">{{ new Date(sess.created_at).toLocaleDateString() }}</div>
+              </div>
+            </el-scrollbar>
+          </div>
+
           <div class="sidebar-footer">
             <div class="system-time">{{ currentTime }}</div>
-            <div class="copyright">v0.2.2 - CYBERNETIC DIV.</div>
+            <div class="copyright">v0.3.0 - CYBERNETIC DIV.</div>
           </div>
         </el-aside>
 
@@ -48,128 +60,12 @@
                     <template #image>
                       <div class="neon-circle">🔍</div>
                     </template>
-                    <p class="hint">Ask about repository trends, comparisons, or metric rankings.</p>
+                    <p class="hint">Select a session or start a new investigation.</p>
                   </el-empty>
                 </div>
 
                 <div v-for="(msg, index) in chatHistory" :key="msg.id || index" :class="['message-row', msg.role]">
-                  <div class="message-card">
-                    <div class="role-badge">
-                      <el-icon v-if="msg.role === 'user'"><User /></el-icon>
-                      <el-icon v-else><Monitor /></el-icon>
-                      {{ msg.role === 'user' ? 'AGENT' : 'OPEN-DETECTIVE' }}
-                      <el-tag v-if="msg.evidence" size="small" type="success" effect="dark" class="evidence-badge">
-                        EVIDENCE SECURED
-                      </el-tag>
-                    </div>
-                    
-                    <div class="content">
-                      <!-- Detect if the message is a system refusal or error and style it accordingly -->
-                      <div v-if="isRefusal(msg.content)" class="refusal-box">
-                        <el-alert
-                          :title="msg.content"
-                          type="warning"
-                          :closable="false"
-                          show-icon
-                        />
-                      </div>
-                      <div v-else v-html="renderMarkdown(msg.content)"></div>
-                    </div>
-
-                    <!-- Evidence Section -->
-                    <div v-if="msg.evidence" class="evidence-section">
-                      <el-divider content-position="left">INVESTIGATION LOGS</el-divider>
-                      
-                      <div class="evidence-content">
-                        <div class="evidence-box">
-                          <div class="evidence-header">
-                            <el-icon><DataLine /></el-icon> Visual Reconstruction
-                          </div>
-                          <!-- Use a unique key based on message index and data length to force re-render -->
-                          <ResultChart :key="`chart-${index}-${msg.evidence.data.length}`" :data="msg.evidence.data" :title="msg.evidence.brief" />
-                        </div>
-
-                        <el-collapse class="secondary-evidence" v-model="msg.activeDetails">
-                          <el-collapse-item title="Data Forensics (SQL & Raw)" name="details">
-                            <div class="sql-block">
-                              <span class="label">QUERY LOGIC:</span>
-                              <pre><code>{{ msg.evidence.sql }}</code></pre>
-                              <el-button size="small" circle @click="copyToClipboard(msg.evidence.sql)" class="copy-float">
-                                <el-icon><CopyDocument /></el-icon>
-                              </el-button>
-                            </div>
-                            
-                            <el-table :data="msg.evidence.data" size="small" border stripe class="mini-table" max-height="250">
-                              <el-table-column v-for="col in getTableColumns(msg.evidence.data)" 
-                                :key="col" :prop="col" :label="col.toUpperCase()" sortable />
-                            </el-table>
-                          </el-collapse-item>
-                        </el-collapse>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Local Loading Indicator with Thought Chain -->
-                <div v-if="loading" class="message-row assistant loading-state">
-                  <div class="message-card loading-card">
-                    <div class="role-badge">
-                      <el-icon class="is-loading"><Loading /></el-icon>
-                      OPEN-DETECTIVE
-                    </div>
-                    <div class="thought-chain">
-                      <div class="thought-step active">
-                        <el-icon><Search /></el-icon> Parsing investigation request...
-                      </div>
-                      <div class="thought-step">
-                        <el-icon><Connection /></el-icon> Accessing metric database...
-                      </div>
-                      <div class="thought-step">
-                        <el-icon><Cpu /></el-icon> Generating relational logic...
-                      </div>
-                    </div>
-                    <div class="loading-content">
-                      <div class="scanner-line"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </el-scrollbar>
-          </div>
-
-          <!-- Input Area -->
-          <div class="input-area">
-            <div class="input-wrapper">
-              <el-input
-                v-model="userInput"
-                placeholder="Enter project names or metric queries..."
-                @keyup.enter="sendMessage"
-                :disabled="loading"
-                size="large"
-                clearable
-              >
-                <template #prefix>
-                  <el-icon><Connection /></el-icon>
-                </template>
-                <template #suffix>
-                  <el-button 
-                    :loading="loading" 
-                    @click="sendMessage" 
-                    type="primary" 
-                    circle 
-                    :disabled="!userInput.trim()">
-                    <el-icon v-if="!loading"><Promotion /></el-icon>
-                  </el-button>
-                </template>
-              </el-input>
-            </div>
-          </div>
-        </el-main>
-      </el-container>
-    </div>
-  </el-config-provider>
-</template>
-
+<!-- ... (rest of template) ... -->
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 import axios from 'axios';
@@ -189,6 +85,10 @@ const scrollRef = ref<any>(null);
 const engineType = ref('sqlbot');
 const currentTime = ref('');
 
+// Session State
+const sessions = ref<any[]>([]);
+const currentSessionId = ref<string | null>(null);
+
 const API_BASE = '/api/v1';
 
 const reloadPage = () => window.location.reload();
@@ -198,9 +98,61 @@ const updateTime = () => {
   currentTime.value = now.toLocaleTimeString('en-US', { hour12: false });
 };
 
-onMounted(() => {
+const fetchSessions = async () => {
+  try {
+    const res = await axios.get(`${API_BASE}/sessions`);
+    sessions.value = res.data;
+  } catch (e) { console.error(e); }
+};
+
+const createNewSession = async () => {
+  try {
+    const res = await axios.post(`${API_BASE}/sessions`);
+    sessions.value.unshift(res.data);
+    loadSession(res.data.id);
+  } catch (e) { ElMessage.error("Failed to create session"); }
+};
+
+const loadSession = async (id: string) => {
+  if (loading.value) return;
+  currentSessionId.value = id;
+  loading.value = true;
+  chatHistory.value = []; // Clear current view
+  
+  try {
+    const res = await axios.get(`${API_BASE}/sessions/${id}/messages`);
+    // Map backend messages to frontend format
+    chatHistory.value = res.data.map((m: any, idx: number) => ({
+      id: idx,
+      role: m.role,
+      content: m.content,
+      activeDetails: [],
+      evidence: m.evidence_sql ? { 
+        sql: m.evidence_sql, 
+        data: m.evidence_data || [], 
+        brief: 'Historical Data' 
+      } : null
+    }));
+    
+    nextTick(() => {
+      if (scrollRef.value) scrollRef.value.setScrollTop(100000);
+    });
+  } catch (e) {
+    ElMessage.error("Failed to load history");
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(async () => {
   setInterval(updateTime, 1000);
   updateTime();
+  await fetchSessions();
+  if (sessions.value.length > 0) {
+    loadSession(sessions.value[0].id);
+  } else {
+    createNewSession();
+  }
 });
 
 const renderMarkdown = (content: string) => {
@@ -231,6 +183,10 @@ const sendMessage = async () => {
   const query = userInput.value.trim();
   if (!query || loading.value) return;
 
+  if (!currentSessionId.value) {
+    await createNewSession();
+  }
+
   chatHistory.value.push({ 
     id: Date.now(),
     role: 'user', 
@@ -245,16 +201,24 @@ const sendMessage = async () => {
   });
 
   try {
-    const res = await axios.post(`${API_BASE}/chat`, { message: query });
-    const { answer, sql, data, brief } = res.data;
+    const res = await axios.post(`${API_BASE}/chat`, { 
+      message: query,
+      session_id: currentSessionId.value 
+    });
+    const { answer, sql_query, data, brief } = res.data;
 
     chatHistory.value.push({
       id: Date.now() + 1,
       role: 'assistant',
       content: answer || 'Investigation concluded.',
       activeDetails: [], // Individual state for collapse
-      evidence: sql ? { sql, data: data || [], brief: brief || query } : null
+      evidence: sql_query ? { sql: sql_query, data: data || [], brief: brief || query } : null
     });
+    
+    // Refresh session list to update title if it was new
+    if (chatHistory.value.length <= 2) {
+      fetchSessions();
+    }
     
     nextTick(() => {
       if (scrollRef.value) scrollRef.value.setScrollTop(100000);
@@ -278,12 +242,22 @@ const exportCase = () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `investigation-file-${Date.now()}.md`;
+  a.download = `investigation-session-${currentSessionId.value}.md`;
   a.click();
 };
 </script>
 
 <style>
+/* ... keep existing styles ... */
+/* New Session List Styles */
+.sidebar-sessions { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; margin-top: 20px; border-top: 1px solid #222; padding-top: 15px; }
+.session-label { font-size: 0.65rem; color: #555; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; }
+.session-item { padding: 10px; margin-bottom: 8px; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+.session-item:hover { background: rgba(255,255,255,0.05); }
+.session-item.active { background: rgba(0, 188, 212, 0.1); border-color: rgba(0, 188, 212, 0.3); }
+.session-title { font-size: 0.8rem; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.session-date { font-size: 0.6rem; color: #666; margin-top: 4px; }
+
 :root {
   --sidebar-bg: #0d1117;
   --main-bg: #050505;

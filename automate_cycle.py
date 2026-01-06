@@ -11,15 +11,15 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Feat: Backend Session Persistence Infrastructure"
+ISSUE_TITLE = "Feat: Frontend Session Sidebar & Integration"
 ISSUE_BODY = """
-Implemented `sessions` and `messages` tables. Added API endpoints for CRUD operations.
+Added session list sidebar, active session tracking, and integrated with backend session APIs.
 """
 
-COMMIT_MSG = "feat: add session management tables and api endpoints"
+COMMIT_MSG = "feat: add frontend session sidebar and history loading"
 
-PR_TITLE = "Backend Session Support"
-PR_BODY = "Introduces persistent chat sessions backed by MySQL."
+PR_TITLE = "Frontend Session Management"
+PR_BODY = "Completes the full-stack session feature with UI support."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
