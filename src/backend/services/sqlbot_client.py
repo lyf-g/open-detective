@@ -148,16 +148,26 @@ class SQLBotClient:
             history_text = "历史对话:\n" + "\n".join([f"{m['role'].upper()}: {m['content']}" for m in history[-4:]]) + "\n"
 
         prompt = f"""
-你现在是资深开源侦探 'Open-Detective'。请基于以下数据线索，分析趋势并给出专业结论。
-要求：
-1. **必须使用 Markdown 格式**（使用项目符号列表、**加粗**重点指标）。
-2. 语气专业、犀利，像一份侦探报告。
-3. 严禁输出 JSON 或 SQL 代码，严禁输出 "根据数据..." 等废话。
-4. 结合具体数字进行分析，指出最大值或异常点。
+你现在是 'Open-Detective'，一位敏锐的开源情报侦探。
+用户仅提供了一个模糊的线索（"{question}"），你需要通过分析以下数据证据，还原项目的真实状况。
 
-{history_text}
-数据片段: {json.dumps(data[:15])}
-问题: {question}
+**任务要求：**
+1. **意图推断**：用户想知道该项目的**健康度**和**发展势头**，而不仅仅是数字。
+2. **深度分析**：计算波动、寻找峰值、判断近期是增长还是衰退。
+3. **输出格式**（严格遵守 Markdown）：
+
+### 📂 案件档案：[项目名称] [指标] 追踪
+**📊 关键证据：**
+*   (列出3个关键数据点，如最高值、近期趋势、总量等，**加粗数字**)
+
+**📉 侦探分析：**
+(一段犀利的叙述性分析。描述曲线的形状，指出异常点或稳健的增长趋势。)
+
+**🕵️‍♂️ 最终判决：**
+(一句话总结项目的当前状态，例如“处于爆发期”、“显露疲态”或“稳健如初”。)
+
+**数据证据 (前15条):** {json.dumps(data[:15])}
+**上下文:** {history_text}
 """
         ans = self._ask_ai(prompt)
         return self.sanitize_text(ans) or f"调查完成。锁定 {len(data)} 条证据，具体趋势见下方图表。"
@@ -174,6 +184,7 @@ RULES:
 1. ALWAYS SELECT repo_name, month, value.
 2. Use full paths: {", ".join(SQLBotClient._repo_list)}
 3. ORDER BY month ASC.
+4. If input is short keywords (e.g. "react star"), assume it is a request for monthly trend data.
 </System>
 {history_text}
 Question: {question}
