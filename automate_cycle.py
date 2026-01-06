@@ -11,17 +11,17 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Feat: Configurable Anomaly Detection Sensitivity"
+ISSUE_TITLE = "Feat: Cyberpunk UI Polish & Interaction Micro-effects"
 ISSUE_BODY = """
 Improvement Log:
-1. Backend: Replaced hardcoded `0.5` threshold with `ANOMALY_THRESHOLD` env var.
-2. Ops: Enabled fine-tuning of insight generation for volatile repositories.
+1. Frontend: Overrode default scrollbars with a custom dark/teal theme.
+2. UX: Added magnetic hover effects and glowing borders to message cards.
 """
 
-COMMIT_MSG = "feat: make anomaly detection threshold configurable via env var"
+COMMIT_MSG = "feat: add custom dark scrollbars and card hover physics"
 
-PR_TITLE = "Configurable Insight Sensitivity"
-PR_BODY = "Allows DevOps to tune the volatility threshold via ANOMALY_THRESHOLD."
+PR_TITLE = "Visual Polish: Scrollbars & Interactions"
+PR_BODY = "Enhances immersion with terminal-style scrollbars and reactive UI elements."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 

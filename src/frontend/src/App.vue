@@ -385,4 +385,27 @@ body {
 
 /* Empty state */
 .neon-circle { font-size: 3.5rem; filter: drop-shadow(0 0 15px var(--accent-color)); margin-bottom: 20px; text-align: center; }
+
+/* Global Scrollbar Styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--main-bg); }
+::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
+
+/* Interactive Elements */
+.message-card { 
+  max-width: 90%; 
+  background: var(--card-bg); 
+  border: 1px solid var(--border-color); 
+  border-radius: 8px; 
+  padding: 18px; 
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5); 
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.message-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 188, 212, 0.15);
+  border-color: rgba(0, 188, 212, 0.5);
+}
 </style>
