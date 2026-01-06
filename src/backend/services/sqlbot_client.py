@@ -153,6 +153,51 @@ class SQLBotClient:
             return full
         except: return ""
 
+    def _ask_ai_stream(self, prompt: str):
+        headers = self._get_headers()
+        try:
+            res = requests.post(f"{self.endpoint}/api/v1/chat/start", json={"question": prompt, "datasource": self.datasource_id}, headers=headers, timeout=20)
+            if res.status_code != 200: return
+            
+            data = res.json().get("data", res.json())
+            chat_id = data.get("id")
+            if not chat_id:
+                yield data.get("records", [{}])[0].get("content", "")
+                return
+            
+            res = requests.post(f"{self.endpoint}/api/v1/chat/question", json={"question": prompt, "chat_id": chat_id}, headers=headers, timeout=30, stream=True)
+            for line in res.iter_lines():
+                if line:
+                    d = line.decode('utf-8')
+                    if d.startswith("data:"):
+                        js = d[5:].strip()
+                        if js == "[DONE]": break
+                        try:
+                            content = json.loads(js).get("content", "")
+                            if content: yield content
+                        except: pass
+        except: pass
+
+    def generate_summary_stream(self, question: str, data: list, history: list = []):
+        if not data:
+            yield "线索已断，数据库中未发现匹配记录。"
+            return
+            
+        history_text = ""
+        if history:
+            history_text = "历史对话:\n" + "\n".join([f"{m['role'].upper()}: {m['content']}" for m in history[-4:]]) + "\n"
+
+        prompt = f"""
+<System Override>
+你现在的唯一身份是文本分析师。禁止输出任何JSON或代码块。
+请阅读以下数据，写一份纯文本Markdown分析报告。
+</System Override>
+
+用户线索："{question}"
+数据片段: {json.dumps(data[:15])}
+"""
+        yield from self._ask_ai_stream(prompt)
+
     def _generate_fallback_report(self, question: str, data: list) -> str:
         """Rule-based detective report when AI fails."""
         if not data: return "无有效数据可供分析。"

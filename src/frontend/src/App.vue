@@ -314,33 +314,67 @@ const sendMessage = async () => {
     if (scrollRef.value) scrollRef.value.setScrollTop(100000);
   });
 
-  try {
-    const res = await axios.post(`${API_BASE}/chat`, { 
-      message: query,
-      session_id: currentSessionId.value 
-    });
-    const { answer, sql_query, data, brief } = res.data;
+  let assistantMsg: any = null;
 
-    chatHistory.value.push({
-      id: Date.now() + 1,
-      role: 'assistant',
-      content: answer || 'Investigation concluded.',
-      activeDetails: [], // Individual state for collapse
-      evidence: sql_query ? { sql: sql_query, data: data || [], brief: brief || query } : null
+  try {
+    const response = await fetch(`${API_BASE}/chat/stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: query, session_id: currentSessionId.value })
     });
-    
-    // Refresh session list to update title if it was new
-    if (chatHistory.value.length <= 2) {
-      fetchSessions();
+
+    if (!response.body) throw new Error("No response body");
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const json = JSON.parse(line);
+          
+          if (json.type === 'meta') {
+             loading.value = false;
+             assistantMsg = {
+                id: Date.now() + 1,
+                role: 'assistant',
+                content: '',
+                activeDetails: [],
+                evidence: json.sql_query ? {
+                   sql: json.sql_query,
+                   data: json.data || [],
+                   brief: query
+                } : null
+             };
+             chatHistory.value.push(assistantMsg);
+             if (json.error) assistantMsg.content = `**Error:** ${json.error}\n`;
+          } 
+          else if (json.type === 'token') {
+             if (!assistantMsg) {
+                 loading.value = false;
+                 assistantMsg = { id: Date.now()+1, role: 'assistant', content: '', activeDetails: [], evidence: null };
+                 chatHistory.value.push(assistantMsg);
+             }
+             assistantMsg.content += json.content;
+             nextTick(() => { if (scrollRef.value) scrollRef.value.setScrollTop(100000); });
+          }
+        } catch (e) { console.error("Stream parse error", e); }
+      }
     }
     
-    nextTick(() => {
-      if (scrollRef.value) scrollRef.value.setScrollTop(100000);
-    });
+    if (chatHistory.value.length <= 2) fetchSessions();
+
   } catch (error: any) {
-    ElMessage.error(`System error during analysis: ${error.response?.data?.detail || 'Offline'}`);
-  } finally {
     loading.value = false;
+    ElMessage.error(`System error: ${error.message}`);
   }
 };
 
