@@ -11,18 +11,16 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Feat: Professional Analyst Persona & Markdown Reporting"
+ISSUE_TITLE = "Fix: SQL Metric Aliasing & Robustness"
 ISSUE_BODY = """
-Improvement Log:
-1. Backend: Unblocked Markdown formatting in `sanitize_text`.
-2. AI: Upgraded prompt to "Senior Open-Detective" persona.
-3. Output: Enforced structured analysis with bullet points and bold metrics.
+Root Cause: LLM generated "star" but DB expects "stars".
+Fix: Added metric aliasing layer in `repair_sql` (star->stars, issue->issues_new).
 """
 
-COMMIT_MSG = "feat: upgrade AI to Analyst Persona with Markdown support"
+COMMIT_MSG = "fix: auto-correct metric names in generated SQL (star->stars)"
 
-PR_TITLE = "Intelligent Reporting Upgrade"
-PR_BODY = "Transforms flat text responses into structured, professional Markdown analysis."
+PR_TITLE = "Robust SQL Generation: Metric Auto-correction"
+PR_BODY = "Fixes empty results caused by singular/plural metric mismatches."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
