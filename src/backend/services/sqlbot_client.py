@@ -30,11 +30,39 @@ class SQLBotClient:
 
     # ... (skipping unchanged _get_public_key, _encrypt_rsa, _login, _get_headers, _extract_first_json, _extract_sql)
 
+    def repair_sql(self, sql: str) -> str:
+        """
+        Post-processes the LLM output to fix common mistakes:
+        1. Strips SQL comments.
+        2. Replaces shorthand repo names with full paths from the known list.
+        """
+        if not sql: return ""
+        
+        # 1. Strip SQL comments (trailing and block)
+        sql = re.sub(r'--.*$', '', sql)
+        sql = re.sub(r'/\*.*?\*/', '', sql, flags=re.DOTALL)
+        
+        # 2. Auto-map shorthands to full paths
+        # We look for strings inside single quotes
+        def replace_repo(match):
+            val = match.group(1)
+            # Try to find a match in our known repo list
+            for full_path in SQLBotClient._repo_list:
+                # If the shorthand is part of the full path (e.g. 'vue' in 'vuejs/core')
+                # and the full path is unique enough
+                parts = full_path.lower().replace('/', ' ').replace('-', ' ').split()
+                if val.lower() in parts or val.lower() == full_path.lower():
+                    return f"'{full_path}'"
+            return f"'{val}'"
+
+        # Regex to find 'anything'
+        repaired_sql = re.sub(r"'(.*?)'", replace_repo, sql)
+        
+        return repaired_sql.strip()
+
     def generate_sql(self, question: str) -> Optional[str]:
         headers = self._get_headers()
-        
-        # Super-Strong XML Prompt Engineering
-        repos_str = ", ".join(SQLBotClient._repo_list)
+        # ... (rest of the logic remains, but we will wrap the return value)
         schema_hint = f"""
 <SystemInstruction>
 You are the 'Open-Detective AI'. Your ONLY job is to output a single MySQL query.
@@ -92,7 +120,7 @@ Columns: month (string 'YYYY-MM'), value (number), repo_name (string), metric_ty
 
             records = data.get("records", [])
             if records and records[0].get("sql"):
-                return self._extract_sql(records[0].get("sql"))
+                return self.repair_sql(self._extract_sql(records[0].get("sql")))
 
             chat_id = data.get("id")
             if chat_id:
@@ -131,17 +159,19 @@ Columns: month (string 'YYYY-MM'), value (number), repo_name (string), metric_ty
                                 print(f"❌ SQLBot Refused: {data.get('message')}")
                                 return ""
                             if data.get("sql"):
-                                return data["sql"]
+                                return self.repair_sql(data["sql"])
 
                         # B. Fallback to regex extraction from the whole text
-                        return self._extract_sql(full_content)
+                        return self.repair_sql(self._extract_sql(full_content))
                     else:
                         # Standard JSON response
                         try:
                             json_data = res.json()
                             # Handle wrapped 'data'
                             inner_data = json_data.get("data", {}) if "data" in json_data else json_data
-                            return self._extract_sql(inner_data.get("sql") or inner_data.get("content") or "")
+                            raw_sql = inner_data.get("sql") or inner_data.get("content") or ""
+                            return self.repair_sql(self._extract_sql(raw_sql))
+
                         except json.JSONDecodeError:
                              print(f"❌ JSON Decode Error. Body: {res.text[:500]}")
                              return None
