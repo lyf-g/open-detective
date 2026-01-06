@@ -7,30 +7,74 @@ from dotenv import dotenv_values
 
 class SQLBotClient:
     """
-    Simple Client for DataEase SQLBot using a static Session Token (Bearer JWT).
+    Client for DataEase SQLBot with Auto-Login using standard API.
     """
+    _cached_token = None
+
     def __init__(self, endpoint: Optional[str] = None):
         self.endpoint = endpoint or os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
+        # Credentials from environment or defaults
+        self.username = "admin"
+        self.password = "SQLBot@123456"
+        self.datasource_id = int(os.getenv("SQLBOT_DATASOURCE_ID", "1"))
 
-    def _get_live_token(self) -> str:
-        """Reads the raw token directly from the .env file."""
-        # Try to read from volume mounted .env first
+    def _login(self) -> Optional[str]:
+        """Fetches a JWT token using username/password."""
+        url = f"{self.endpoint}/api/v1/login/access-token"
+        
+        # Based on openapi.json, this endpoint often accepts form-data or JSON
+        # Let's try JSON first as it's cleaner
+        payload = {
+            "username": self.username,
+            "password": self.password,
+            "grant_type": "password"
+        }
+        
         try:
-            config = dotenv_values(".env")
-            token = config.get("SQLBOT_API_KEY")
-            if token:
-                return token
-        except Exception:
-            pass
-        # Fallback to env var
-        return os.getenv("SQLBOT_API_KEY", "")
+            print(f"🔐 Logging in to SQLBot as {self.username}...")
+            # Note: Many OAuth implementations require form-data for access-token
+            res = requests.post(url, json=payload, timeout=10)
+            
+            if res.status_code != 200:
+                # Fallback to form-data if JSON fails
+                res = requests.post(url, data=payload, timeout=10)
 
-    def _get_datasource_id(self) -> int:
-        try:
-            config = dotenv_values(".env")
-            return int(config.get("SQLBOT_DATASOURCE_ID", "1"))
-        except:
-            return 1
+            if res.status_code == 200:
+                data = res.json()
+                # Token response usually has 'access_token' or nested 'data'
+                token = data.get("access_token") or data.get("data", {}).get("access_token")
+                if token:
+                    print("✅ Login successful!")
+                    SQLBotClient._cached_token = token
+                    return token
+            
+            print(f"❌ Login Failed: {res.status_code} - {res.text}")
+            return None
+        except Exception as e:
+            print(f"❌ Login Connection Error: {e}")
+            return None
+
+    def _get_headers(self):
+        # Use cached token or login
+        token = SQLBotClient._cached_token
+        # If we have a hardcoded token in env (for debugging), prioritize it? 
+        # No, let's prioritize auto-login for UX.
+        
+        if not token:
+            token = self._login()
+            
+        if not token:
+            # Fallback to env var if login fails (legacy mode)
+            token = os.getenv("SQLBOT_API_KEY", "")
+
+        # Ensure Bearer prefix is present
+        if token and not token.startswith("Bearer "):
+            token = f"Bearer {token}"
+
+        return {
+            "X-SQLBOT-TOKEN": token,
+            "Content-Type": "application/json"
+        }
 
     def _extract_sql(self, text: str) -> str:
         if not text: return ""
@@ -41,48 +85,40 @@ class SQLBotClient:
         return text.strip()
 
     def generate_sql(self, question: str) -> Optional[str]:
-        token = self._get_live_token()
-        ds_id = self._get_datasource_id()
+        headers = self._get_headers()
         
-        if not token:
-            print("❌ SQLBOT_API_KEY is empty in .env")
-            return None
-
-        # Headers exactly as captured in browser
-        headers = {
-            "X-SQLBOT-TOKEN": token, # Expecting 'Bearer eyJ...'
-            "Content-Type": "application/json"
-        }
-
         try:
-            # Standard Chat Session Start
+            # 1. Start Chat Session
             url = f"{self.endpoint}/api/v1/chat/start"
-            payload = {
-                "question": question,
-                "datasource": ds_id
-            }
+            payload = {"question": question, "datasource": self.datasource_id}
             
-            print(f"📡 Requesting SQL from SQLBot (Static Token Mode)...")
+            print(f"📡 Requesting SQL from SQLBot...")
             res = requests.post(url, json=payload, headers=headers, timeout=20)
             
+            # Handle token expiration (401)
+            if res.status_code == 401:
+                print("🔄 Token expired, re-logging in...")
+                SQLBotClient._cached_token = None # Clear cache
+                headers = self._get_headers()     # Re-login
+                res = requests.post(url, json=payload, headers=headers, timeout=20)
+
             if res.status_code != 200:
                 print(f"❌ SQLBot Error: {res.status_code} - {res.text}")
                 return None
 
             data = res.json()
             records = data.get("records", [])
-            
             if records and records[0].get("sql"):
                 return self._extract_sql(records[0].get("sql"))
 
+            # 2. Poll for Answer
             chat_id = data.get("id")
             if chat_id:
                 ask_url = f"{self.endpoint}/api/v1/chat/question"
                 ask_payload = {"question": question, "chat_id": chat_id}
-                print(f"📡 Polling Chat #{chat_id}...")
-                ask_res = requests.post(ask_url, json=ask_payload, headers=headers, timeout=30)
-                if ask_res.status_code == 200:
-                    record = ask_res.json()
+                res = requests.post(ask_url, json=ask_payload, headers=headers, timeout=30)
+                if res.status_code == 200:
+                    record = res.json()
                     return self._extract_sql(record.get("sql") or record.get("content") or "")
 
             return None
