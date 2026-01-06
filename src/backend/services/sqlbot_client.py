@@ -2,46 +2,69 @@ import requests
 import os
 import json
 import re
+import base64
 from typing import Optional
 from dotenv import dotenv_values
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_v1_5
 
 class SQLBotClient:
-    """
-    Client for DataEase SQLBot with Auto-Login using standard API.
-    """
     _cached_token = None
 
     def __init__(self, endpoint: Optional[str] = None):
         self.endpoint = endpoint or os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
-        # Credentials from environment or defaults
         self.username = "admin"
         self.password = "SQLBot@123456"
         self.datasource_id = int(os.getenv("SQLBOT_DATASOURCE_ID", "1"))
 
+    def _get_public_key(self) -> str:
+        """Fetch the RSA public key from SQLBot."""
+        url = f"{self.endpoint}/api/v1/system/config/key"
+        try:
+            res = requests.get(url, timeout=5)
+            if res.status_code == 200:
+                # Assuming response is {"data": "public_key_string"} or just string
+                return res.json().get("data")
+        except Exception as e:
+            print(f"❌ Failed to get public key: {e}")
+        return ""
+
+    def _encrypt_password(self, password: str, public_key_str: str) -> str:
+        """Encrypts password using RSA public key."""
+        try:
+            key = RSA.importKey(public_key_str)
+            cipher = PKCS1_v1_5.new(key)
+            encrypted = cipher.encrypt(password.encode())
+            return base64.b64encode(encrypted).decode('utf-8')
+        except Exception as e:
+            print(f"❌ Encryption failed: {e}")
+            return password
+
     def _login(self) -> Optional[str]:
-        """Fetches a JWT token using username/password."""
+        # 1. Get Public Key
+        public_key = self._get_public_key()
+        if not public_key:
+            print("❌ Cannot login without public key.")
+            return None
+
+        # 2. Encrypt Password
+        encrypted_pwd = self._encrypt_password(self.password, public_key)
+
+        # 3. Login
         url = f"{self.endpoint}/api/v1/login/access-token"
-        
-        # Based on openapi.json, this endpoint often accepts form-data or JSON
-        # Let's try JSON first as it's cleaner
         payload = {
             "username": self.username,
-            "password": self.password,
+            "password": encrypted_pwd,
             "grant_type": "password"
         }
         
         try:
-            print(f"🔐 Logging in to SQLBot as {self.username}...")
-            # Note: Many OAuth implementations require form-data for access-token
-            res = requests.post(url, json=payload, timeout=10)
+            print(f"🔐 Logging in to SQLBot as {self.username} (Encrypted)...")
+            # Using form-data as per OpenAPI spec
+            res = requests.post(url, data=payload, timeout=10)
             
-            if res.status_code != 200:
-                # Fallback to form-data if JSON fails
-                res = requests.post(url, data=payload, timeout=10)
-
             if res.status_code == 200:
                 data = res.json()
-                # Token response usually has 'access_token' or nested 'data'
                 token = data.get("access_token") or data.get("data", {}).get("access_token")
                 if token:
                     print("✅ Login successful!")
@@ -55,22 +78,9 @@ class SQLBotClient:
             return None
 
     def _get_headers(self):
-        # Use cached token or login
-        token = SQLBotClient._cached_token
-        # If we have a hardcoded token in env (for debugging), prioritize it? 
-        # No, let's prioritize auto-login for UX.
-        
-        if not token:
-            token = self._login()
-            
-        if not token:
-            # Fallback to env var if login fails (legacy mode)
-            token = os.getenv("SQLBOT_API_KEY", "")
-
-        # Ensure Bearer prefix is present
+        token = SQLBotClient._cached_token or self._login()
         if token and not token.startswith("Bearer "):
             token = f"Bearer {token}"
-
         return {
             "X-SQLBOT-TOKEN": token,
             "Content-Type": "application/json"
@@ -88,18 +98,16 @@ class SQLBotClient:
         headers = self._get_headers()
         
         try:
-            # 1. Start Chat Session
             url = f"{self.endpoint}/api/v1/chat/start"
             payload = {"question": question, "datasource": self.datasource_id}
             
             print(f"📡 Requesting SQL from SQLBot...")
             res = requests.post(url, json=payload, headers=headers, timeout=20)
             
-            # Handle token expiration (401)
             if res.status_code == 401:
                 print("🔄 Token expired, re-logging in...")
-                SQLBotClient._cached_token = None # Clear cache
-                headers = self._get_headers()     # Re-login
+                SQLBotClient._cached_token = None
+                headers = self._get_headers()
                 res = requests.post(url, json=payload, headers=headers, timeout=20)
 
             if res.status_code != 200:
@@ -111,7 +119,6 @@ class SQLBotClient:
             if records and records[0].get("sql"):
                 return self._extract_sql(records[0].get("sql"))
 
-            # 2. Poll for Answer
             chat_id = data.get("id")
             if chat_id:
                 ask_url = f"{self.endpoint}/api/v1/chat/question"
