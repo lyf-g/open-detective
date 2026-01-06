@@ -19,6 +19,9 @@ load_dotenv()
 from fastapi import FastAPI, HTTPException, APIRouter, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from typing import List, Dict, Any, Optional
 from src.backend.services.engine_factory import get_sql_engine
 from src.backend.services.logger import configure_logger, logger
@@ -92,6 +95,10 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan
 )
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 import uuid
 from datetime import datetime
@@ -184,6 +191,7 @@ def get_session_messages(session_id: str, request: Request):
     return rows
 
 @router_v1.post("/chat", response_model=ChatResponse)
+@limiter.limit("10/minute")
 async def chat(request_request: Request, chat_request: ChatRequest):
     logger.info("Received message", message=chat_request.message, session_id=chat_request.session_id)
     
@@ -282,6 +290,7 @@ async def chat(request_request: Request, chat_request: ChatRequest):
     )
 
 @router_v1.post("/chat/stream")
+@limiter.limit("10/minute")
 async def chat_stream(request_request: Request, chat_request: ChatRequest):
     logger.info("Received stream message", message=chat_request.message, session_id=chat_request.session_id)
     

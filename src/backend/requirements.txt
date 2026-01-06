@@ -25,3 +25,4 @@ urllib3==2.6.2
 uvicorn==0.40.0
 pycryptodome
 apscheduler
+slowapi
