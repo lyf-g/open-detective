@@ -11,15 +11,15 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Fix: Backend Crash on Missing Config Files"
+ISSUE_TITLE = "Fix: Frontend Build Failure (Missing Tags)"
 ISSUE_BODY = """
-Backend would crash if `data/repos.json` was missing. Added self-healing integrity check on startup.
+Restored accidentally truncated template code in App.vue that caused Vite build errors.
 """
 
-COMMIT_MSG = "fix: add startup integrity check to create default repos.json if missing"
+COMMIT_MSG = "fix: restore truncated App.vue template"
 
-PR_TITLE = "Robust Startup: Auto-config Generation"
-PR_BODY = "Prevents FileNotFoundError crashes by generating default configuration files."
+PR_TITLE = "Emergency: Fix Frontend Build"
+PR_BODY = "Restores the missing UI components in the template."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
