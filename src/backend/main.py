@@ -65,6 +65,7 @@ class ChatResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     version: str
+    db_connected: bool
 
 # Version 1 Router
 router_v1 = APIRouter(prefix="/api/v1")
@@ -151,8 +152,13 @@ async def chat(request_request: Request, chat_request: ChatRequest):
     )
 
 @router_v1.get("/health", response_model=HealthResponse)
-def health_check():
-    return {"status": "ok", "version": "0.1.0"}
+def health_check(request: Request):
+    db_status = False
+    try:
+        db_status = request.app.state.db.is_connected()
+    except:
+        pass
+    return {"status": "ok", "version": "0.1.0", "db_connected": db_status}
 
 @router_v1.get("/sqlbot-health")
 async def sqlbot_health():
