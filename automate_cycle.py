@@ -11,15 +11,15 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Fix: Backend NameError (Missing Definitions)"
+ISSUE_TITLE = "Feat: Proactive Detective Persona & Intent Inference"
 ISSUE_BODY = """
-Restored `router_v1`, `ChatResponse`, and `detect_anomalies` which were accidentally overwritten in previous edits.
+Enhanced AI prompts to interpret vague keywords (e.g., 'react star') as deep trend analysis requests. Structured output as a 'Case File' with key findings and verdicts.
 """
 
-COMMIT_MSG = "fix: restore missing backend definitions causing startup crash"
+COMMIT_MSG = "feat: upgrade AI to proactive detective mode with structured case reports"
 
-PR_TITLE = "Emergency: Fix Backend Startup"
-PR_BODY = "Restores critical missing symbols."
+PR_TITLE = "AI Upgrade: Proactive Analysis"
+PR_BODY = "Transforms simple queries into rich, narrative detective reports with deep insights."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
