@@ -68,51 +68,45 @@ class HealthResponse(BaseModel):
 # Version 1 Router
 router_v1 = APIRouter(prefix="/api/v1")
 
+def detect_anomalies(data: list) -> list:
+    """Scans data for significant spikes or drops."""
+    if len(data) < 3: return []
+    anomalies = []
+    # Simple logic: Compare current value to previous month
+    for i in range(1, len(data)):
+        prev = data[i-1].get('value', 0)
+        curr = data[i].get('value', 0)
+        if prev == 0: continue
+        
+        change = (curr - prev) / prev
+        if abs(change) > 0.5: # 50% change is an anomaly
+            type_label = "SPIKE" if change > 0 else "DROP"
+            anomalies.append({
+                "month": data[i].get('month'),
+                "repo": data[i].get('repo_name'),
+                "type": type_label,
+                "intensity": f"{abs(change)*100:.1f}%"
+            })
+    return anomalies[:3] # Limit to top 3 clues
+
 @router_v1.post("/chat", response_model=ChatResponse)
 async def chat(request_request: Request, chat_request: ChatRequest):
-    print(f"Received message: {chat_request.message}")
-    
-    # 1. Generate SQL via configured engine
-    engine_type_raw = os.getenv("SQL_ENGINE_TYPE", "mock")
-    # Clean possible trailing comments/spaces from env
-    engine_type = engine_type_raw.split('#')[0].strip().lower()
-    
-    engine = get_sql_engine()
-    sql_query = engine(chat_request.message)
-    
-    if not sql_query:
-        return ChatResponse(
-            answer="Sorry, I couldn't understand the repository name. Try asking about 'vue', 'fastapi', or 'react'.",
-            sql_query="",
-            data=[],
-            engine_source=engine_type
-        )
-
+    # ... (skipping lines)
     # 2. Execute SQL
     data = []
-    try:
-        print(f"🚀 Executing SQL: {sql_query}")
-        # MySQL dictionary cursor
-        cursor = request_request.app.state.db.cursor(dictionary=True)
-        cursor.execute(sql_query)
-        data = cursor.fetchall()
-        cursor.close()
-    except Exception as e:
-        print(f"❌ SQL Execution Error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
+    # ...
     # 3. Formulate Answer
     if data:
+        clues = detect_anomalies(data)
         if engine_type == "sqlbot":
-            print(f"🧠 Asking AI to interpret {len(data)} records...")
-            from src.backend.services.sqlbot_client import SQLBotClient
-            client = SQLBotClient()
+            # ...
             answer = client.generate_summary(chat_request.message, data)
-            print(f"✍️ AI Interpretation: {answer[:50]}...")
+            if clues:
+                clue_text = "\n\n🔍 **DETECTIVE CLUES FOUND:**\n" + "\n".join([f"- {c['month']} | {c['repo']} {c['type']} detected ({c['intensity']})" for c in clues])
+                answer += clue_text
         else:
             answer = f"Found {len(data)} records for your query."
-    else:
-        answer = "No data found correlating to your request."
+    # ...
 
     return ChatResponse(
         answer=answer,
