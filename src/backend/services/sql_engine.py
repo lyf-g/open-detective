@@ -16,35 +16,45 @@ def mock_text_to_sql(text: str) -> str:
         repo_list = []
 
     # Dynamic repository matching
-    repo = None
-    text_words = text.replace('/', ' ').replace('-', ' ').replace('_', ' ').split()
+    found_repos = set()
+    # Clean text: remove common punctuation and split
+    cleaned_text = text.replace('/', ' ').replace('-', ' ').replace('_', ' ').replace(',', ' ').replace('.', ' ').replace('?', ' ').replace('!', ' ')
+    text_words = cleaned_text.split()
+    
     # Keywords to ignore when matching repositories
-    ignore_keywords = ['stars', 'activity', 'rank', 'openrank', 'bus', 'factor', 'risk', 'issue', 'issues', 'bug', 'bugs', 'closed', 'for', 'the', 'and', 'with', 'show', 'me', 'what', 'is', 'lang', 'core', 'git']
+    ignore_keywords = ['stars', 'activity', 'rank', 'openrank', 'bus', 'factor', 'risk', 'issue', 'issues', 'bug', 'bugs', 'closed', 'for', 'the', 'and', 'with', 'show', 'me', 'what', 'is', 'lang', 'core', 'git', 'compare', 'vs', 'versus', 'of']
     
-    # 1. Try exact full name match first
+    # Check for K8s alias explicitly
+    if "k8s" in text:
+        found_repos.add("kubernetes/kubernetes")
+
     for r in repo_list:
-        if r.lower() in text:
-            repo = r
-            break
+        full_name_lower = r.lower()
+        
+        # 1. Try exact full name match
+        if full_name_lower in text:
+            found_repos.add(r)
+            continue
+
+        segments = full_name_lower.replace('/', ' ').replace('-', ' ').replace('_', ' ').split()
+        
+        # 2. Try exact match of any unique segment OR substring match (starts with)
+        is_match = False
+        for word in text_words:
+            if word in ignore_keywords: continue
             
-    if not repo:
-        for r in repo_list:
-            full_name_lower = r.lower()
-            segments = full_name_lower.replace('/', ' ').replace('-', ' ').replace('_', ' ').split()
-            
-            # 2. Try exact match of any unique segment
-            if any(word in segments for word in text_words if word not in ignore_keywords):
-                repo = r
+            # Exact segment match
+            if word in segments:
+                is_match = True
                 break
             
-            # 3. Try substring match (e.g. 'vue' matches 'vuejs')
-            if any(word in seg for seg in segments for word in text_words if word not in ignore_keywords and len(word) >= 3):
-                repo = r
+            # Substring match (e.g. 'vue' matches 'vuejs') - Enforce startswith to avoid 'react' matching 'preact'
+            if len(word) >= 3 and any(seg.startswith(word) for seg in segments):
+                is_match = True
                 break
-    
-    # Special aliases
-    if not repo:
-        if "k8s" in text: repo = "kubernetes/kubernetes"
+        
+        if is_match:
+            found_repos.add(r)
     
     metric = "stars" # default
     if "activity" in text: metric = "activity"
@@ -53,7 +63,9 @@ def mock_text_to_sql(text: str) -> str:
     elif "closed" in text and "issue" in text: metric = "issues_closed"
     elif "issue" in text or "bug" in text: metric = "issues_new"
     
-    if repo:
-        return f"SELECT month, value FROM open_digger_metrics WHERE repo_name = '{repo}' AND metric_type = '{metric}' ORDER BY month ASC"
+    if found_repos:
+        repo_list_str = "', '".join(found_repos)
+        # Include repo_name in selection for frontend distinction
+        return f"SELECT month, value, repo_name FROM open_digger_metrics WHERE repo_name IN ('{repo_list_str}') AND metric_type = '{metric}' ORDER BY month ASC"
     
     return ""
