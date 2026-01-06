@@ -13,9 +13,11 @@ class SQLBotClient:
 
     def __init__(self, endpoint: Optional[str] = None):
         self.endpoint = endpoint or os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
-        self.username = "admin"
-        self.password = "SQLBot@123456"
+        self.username = os.getenv("SQLBOT_USERNAME", "admin")
+        self.password = os.getenv("SQLBOT_PASSWORD", "SQLBot@123456")
         self.datasource_id = int(os.getenv("SQLBOT_DATASOURCE_ID", "1"))
+        # Support direct token (bypass login)
+        self.static_token = os.getenv("SQLBOT_API_KEY")
 
     def _get_public_key(self) -> str:
         """Fetch the RSA public key from SQLBot."""
@@ -78,9 +80,16 @@ class SQLBotClient:
             return None
 
     def _get_headers(self):
-        token = SQLBotClient._cached_token or self._login()
+        # 1. Use static token if configured (e.g. from .env)
+        if self.static_token:
+            token = self.static_token
+        else:
+            # 2. Or try to login/use cached login token
+            token = SQLBotClient._cached_token or self._login()
+            
         if token and not token.startswith("Bearer "):
             token = f"Bearer {token}"
+            
         return {
             "X-SQLBOT-TOKEN": token,
             "Content-Type": "application/json"
