@@ -98,7 +98,7 @@
               autofocus
             />
             <button @click="sendMessage" :disabled="loading || !inputMessage.trim()">
-              SEND >
+              ➤
             </button>
           </div>
         </div>
