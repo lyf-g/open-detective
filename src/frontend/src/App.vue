@@ -2,7 +2,7 @@
   <div class="app-layout">
     <!-- Sidebar / Header Area -->
     <header class="top-bar">
-      <div class="brand">
+      <div class="brand" @click="reloadPage" style="cursor: pointer;">
         <span class="logo-icon">🕵️‍♂️</span>
         <div class="brand-text">
           <h1>Open-Detective</h1>

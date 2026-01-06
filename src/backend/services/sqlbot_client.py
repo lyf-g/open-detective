@@ -44,20 +44,20 @@ class SQLBotClient:
             print(f"❌ Failed to get public key: {e}")
         return ""
 
-    def _encrypt_password(self, password: str, public_key_str: str) -> str:
-        """Encrypts password using RSA public key."""
+    def _encrypt_rsa(self, text: str, public_key_str: str) -> str:
+        """Encrypts text using RSA public key."""
         if not public_key_str or not isinstance(public_key_str, str):
             print(f"❌ Invalid public key format: {type(public_key_str)}")
-            return password
+            return text
 
         try:
             key = RSA.importKey(public_key_str)
             cipher = PKCS1_v1_5.new(key)
-            encrypted = cipher.encrypt(password.encode())
+            encrypted = cipher.encrypt(text.encode())
             return base64.b64encode(encrypted).decode('utf-8')
         except Exception as e:
             print(f"❌ Encryption failed: {e}")
-            return password
+            return text
 
     def _login(self) -> Optional[str]:
         # 1. Get Public Key
@@ -66,13 +66,14 @@ class SQLBotClient:
             print("❌ Cannot login without public key.")
             return None
 
-        # 2. Encrypt Password
-        encrypted_pwd = self._encrypt_password(self.password, public_key)
+        # 2. Encrypt Credentials
+        encrypted_user = self._encrypt_rsa(self.username, public_key)
+        encrypted_pwd = self._encrypt_rsa(self.password, public_key)
 
         # 3. Login
         url = f"{self.endpoint}/api/v1/login/access-token"
         payload = {
-            "username": self.username,
+            "username": encrypted_user,
             "password": encrypted_pwd,
             "grant_type": "password"
         }
@@ -112,12 +113,48 @@ class SQLBotClient:
             "Content-Type": "application/json"
         }
 
+    def _extract_first_json(self, text: str) -> Optional[dict]:
+        """Finds and parses the first valid JSON object in a string."""
+        start = text.find('{')
+        if start == -1: return None
+        
+        count = 0
+        for i in range(start, len(text)):
+            if text[i] == '{':
+                count += 1
+            elif text[i] == '}':
+                count -= 1
+                if count == 0:
+                    try:
+                        return json.loads(text[start:i+1])
+                    except:
+                        pass
+        return None
+
     def _extract_sql(self, text: str) -> str:
         if not text: return ""
+        
+        # 1. Try to find SQL in a specific SQL block
         match = re.search(r"```sql\n(.*?)\n```", text, re.DOTALL | re.IGNORECASE)
         if match: return match.group(1).strip()
-        match = re.search(r"```\n(.*?)\n```", text, re.DOTALL)
-        if match: return match.group(1).strip()
+        
+        # 2. Try to find SQL in any code block if it starts with SELECT
+        match = re.search(r"```(?:json|mysql)?\n(.*?)\n```", text, re.DOTALL | re.IGNORECASE)
+        if match:
+            content = match.group(1).strip()
+            if content.upper().startswith("SELECT"):
+                return content
+        
+        # 3. If it looks like a raw SELECT statement
+        if text.strip().upper().startswith("SELECT"):
+            # Truncate at next block or JSON to avoid trailing junk
+            candidate = text.strip()
+            truncate_at = candidate.find("```")
+            if truncate_at != -1: candidate = candidate[:truncate_at]
+            truncate_at = candidate.find("{", 1) # Ignore the starting { if it's a JSON
+            if truncate_at != -1: candidate = candidate[:truncate_at]
+            return candidate.strip()
+
         return text.strip()
 
     def generate_sql(self, question: str) -> Optional[str]:
@@ -140,7 +177,12 @@ class SQLBotClient:
                 print(f"❌ SQLBot Error: {res.status_code} - {res.text}")
                 return None
 
-            data = res.json()
+            json_res = res.json()
+            print(f"🔍 SQLBot Response: {json.dumps(json_res, ensure_ascii=False)}")
+            
+            # Unwrap 'data' field if it exists (DataEase API wrapper)
+            data = json_res.get("data", {}) if "data" in json_res else json_res
+
             records = data.get("records", [])
             if records and records[0].get("sql"):
                 return self._extract_sql(records[0].get("sql"))
@@ -149,14 +191,61 @@ class SQLBotClient:
             if chat_id:
                 ask_url = f"{self.endpoint}/api/v1/chat/question"
                 ask_payload = {"question": question, "chat_id": chat_id}
-                res = requests.post(ask_url, json=ask_payload, headers=headers, timeout=30)
+                print(f"📡 Asking Question to chat_id {chat_id}...")
+                res = requests.post(ask_url, json=ask_payload, headers=headers, timeout=30, stream=True)
+                
+                print(f"🔍 Question Response Code: {res.status_code}")
+
                 if res.status_code == 200:
-                    record = res.json()
-                    return self._extract_sql(record.get("sql") or record.get("content") or "")
+                    content_type = res.headers.get("Content-Type", "")
+                    if "text/event-stream" in content_type:
+                        print("🌊 Detected SSE Stream. Parsing...")
+                        full_content = ""
+                        for line in res.iter_lines():
+                            if line:
+                                decoded_line = line.decode('utf-8')
+                                if decoded_line.startswith("data:"):
+                                    json_str = decoded_line[5:].strip()
+                                    if json_str == "[DONE]": break
+                                    try:
+                                        chunk = json.loads(json_str)
+                                        # Accumulate content
+                                        content = chunk.get("content") or chunk.get("sql") or ""
+                                        full_content += content
+                                    except json.JSONDecodeError:
+                                        pass
+                        
+                        print(f"🌊 Stream finished. Length: {len(full_content)}")
+                        
+                        # A. Try to find the first JSON and extract 'sql'
+                        data = self._extract_first_json(full_content)
+                        if data and isinstance(data, dict):
+                            if data.get("success") is False:
+                                print(f"❌ SQLBot Refused: {data.get('message')}")
+                                return ""
+                            if data.get("sql"):
+                                return data["sql"]
+
+                        # B. Fallback to regex extraction from the whole text
+                        return self._extract_sql(full_content)
+                    else:
+                        # Standard JSON response
+                        try:
+                            json_data = res.json()
+                            # Handle wrapped 'data'
+                            inner_data = json_data.get("data", {}) if "data" in json_data else json_data
+                            return self._extract_sql(inner_data.get("sql") or inner_data.get("content") or "")
+                        except json.JSONDecodeError:
+                             print(f"❌ JSON Decode Error. Body: {res.text[:500]}")
+                             return None
+                else:
+                    print(f"❌ Question Failed: {res.text}")
 
             return None
         except Exception as e:
             print(f"❌ Connection Error: {e}")
+            import traceback
+            traceback.print_exc()
             return None
 
 def sqlbot_text_to_sql(text: str) -> str:
