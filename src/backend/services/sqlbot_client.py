@@ -160,38 +160,36 @@ class SQLBotClient:
     def generate_sql(self, question: str) -> Optional[str]:
         headers = self._get_headers()
         
-        # Advanced System Knowledge Supplement to maximize LLM accuracy
+        # Advanced Few-Shot Prompting to maximize LLM accuracy and confidence
         schema_hint = """
-        ### SYSTEM KNOWLEDGE SUPPLEMENT ###
-        - Role: You are 'Open-Detective Analyst', an expert in GitHub collaboration metrics.
-        - Table: `open_digger_metrics`
-        - Columns: `repo_name` (e.g. 'vuejs/core'), `metric_type`, `month` (format 'YYYY-MM'), `value`.
+        ### SQL GENERATION GUIDE ###
+        - Role: You are 'Open-Detective Analyst'. Generate SQL for the `open_digger_metrics` table.
+        - Table Columns: `repo_name` (full path), `metric_type` (stars, activity, openrank, etc.), `month` (YYYY-MM), `value`.
 
-        #### METRIC MAPPING MATRIX:
-        * 'star', 'stars', '星标', '关注度', 'popularity' -> `metric_type` = 'stars'
-        * 'activity', '活跃度', '协作热度', '热度' -> `metric_type` = 'activity'
-        * 'openrank', '影响力', '影响力排名' -> `metric_type` = 'openrank'
-        * 'bus_factor', 'bus factor', '公交系数', '风险' -> `metric_type` = 'bus_factor'
-        * 'issues_new', '新问题', '新增issue' -> `metric_type` = 'issues_new'
-        * 'issues_closed', '关闭的问题', '解决的问题' -> `metric_type` = 'issues_closed'
+        #### SEMANTIC MAPPING:
+        * 'star'/'星标' -> 'stars' | '热度'/'活跃度' -> 'activity' | '影响力' -> 'openrank'
 
-        #### CRITICAL QUERY RULES:
-        1. TRENDS: If the user asks for 'trends', 'over time', or 'growth', use `ORDER BY month ASC`.
-        2. SHORT NAMES & SEARCH: Repository names in the DB are ALWAYS full paths (e.g. 'facebook/react'). 
-           - If the user says a short name without a slash (e.g. 'vue'), you MUST use `repo_name LIKE '%vue%'`.
-           - NEVER use `repo_name IN ('vue', 'react')` because it will return zero results.
-        3. COMPARISON LOGIC: For comparing multiple short names like 'A and B', the correct syntax is:
-           `WHERE (repo_name LIKE '%A%' OR repo_name LIKE '%B%') AND metric_type = '...'`
-        4. COLUMN ALIAS: Always use `SELECT month, value, repo_name` to ensure the dashboard can render correctly.
-        5. NO FILLER: Respond only with the JSON or SQL requested.
+        #### RULES & EXAMPLES:
+        1. NO REFUSAL: Even if you are unsure about project names, ALWAYS generate SQL using `LIKE`.
+        2. FUZZY COMPARE: When user says "Compare vue and react", use `WHERE (repo_name LIKE '%vue%' OR repo_name LIKE '%react%')`.
+        3. TRENDS: Always `ORDER BY month ASC`.
+        4. SELECT: Always `SELECT month, value, repo_name`.
+
+        #### EXAMPLE:
+        - User: "对比 vue 和 react 的热度趋势"
+        - SQL: SELECT month, value, repo_name FROM open_digger_metrics WHERE (repo_name LIKE '%vue%' OR repo_name LIKE '%react%') AND metric_type = 'activity' ORDER BY month ASC LIMIT 1000;
+        
+        ### EXECUTE NOW: 
+        Generate only the SQL or JSON for the following question:
         """
-        enhanced_question = f"{question}\n\n{schema_hint}"
+        enhanced_question = f"{schema_hint}\nQuestion: {question}"
 
         try:
             url = f"{self.endpoint}/api/v1/chat/start"
             payload = {"question": enhanced_question, "datasource": self.datasource_id}
             
-            print(f"📡 Requesting SQL from SQLBot with enhanced prompt...")
+            print(f"📡 Sending Enhanced Prompt to SQLBot (Length: {len(enhanced_question)})...")
+            print(f"--- PROMPT START ---\n{enhanced_question}\n--- PROMPT END ---")
             res = requests.post(url, json=payload, headers=headers, timeout=20)
             
             if res.status_code == 401:
