@@ -11,17 +11,18 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Feat: Cyberpunk UI Polish & Interaction Micro-effects"
+ISSUE_TITLE = "Feat: Professional Analyst Persona & Markdown Reporting"
 ISSUE_BODY = """
 Improvement Log:
-1. Frontend: Overrode default scrollbars with a custom dark/teal theme.
-2. UX: Added magnetic hover effects and glowing borders to message cards.
+1. Backend: Unblocked Markdown formatting in `sanitize_text`.
+2. AI: Upgraded prompt to "Senior Open-Detective" persona.
+3. Output: Enforced structured analysis with bullet points and bold metrics.
 """
 
-COMMIT_MSG = "feat: add custom dark scrollbars and card hover physics"
+COMMIT_MSG = "feat: upgrade AI to Analyst Persona with Markdown support"
 
-PR_TITLE = "Visual Polish: Scrollbars & Interactions"
-PR_BODY = "Enhances immersion with terminal-style scrollbars and reactive UI elements."
+PR_TITLE = "Intelligent Reporting Upgrade"
+PR_BODY = "Transforms flat text responses into structured, professional Markdown analysis."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
