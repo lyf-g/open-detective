@@ -13,8 +13,9 @@ class SQLBotClient:
 
     def __init__(self, endpoint: Optional[str] = None):
         self.endpoint = endpoint or os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
-        self.username = os.getenv("SQLBOT_USERNAME", "admin")
-        self.password = os.getenv("SQLBOT_PASSWORD", "SQLBot@123456")
+        # Handle empty strings from docker-compose substitution
+        self.username = os.getenv("SQLBOT_USERNAME") or "admin"
+        self.password = os.getenv("SQLBOT_PASSWORD") or "SQLBot@123456"
         self.datasource_id = int(os.getenv("SQLBOT_DATASOURCE_ID", "1"))
         # Support direct token (bypass login)
         self.static_token = os.getenv("SQLBOT_API_KEY")
@@ -25,14 +26,30 @@ class SQLBotClient:
         try:
             res = requests.get(url, timeout=5)
             if res.status_code == 200:
-                # Assuming response is {"data": "public_key_string"} or just string
-                return res.json().get("data")
+                data = res.json().get("data")
+                # Debug logging
+                print(f"🔑 Raw Public Key Response Data: {type(data)} - {data}")
+                
+                if isinstance(data, dict):
+                    # Try to find the key in the dict
+                    if "publicKey" in data: return data["publicKey"]
+                    if "rsaPublicKey" in data: return data["rsaPublicKey"]
+                    if "key" in data: return data["key"]
+                    if "public_key" in data: return data["public_key"]
+                    # If we can't find it, dump it to string if it looks like a key, or fail
+                    print("⚠️ Public key data is a dict but no known key found.")
+                    return ""
+                return data
         except Exception as e:
             print(f"❌ Failed to get public key: {e}")
         return ""
 
     def _encrypt_password(self, password: str, public_key_str: str) -> str:
         """Encrypts password using RSA public key."""
+        if not public_key_str or not isinstance(public_key_str, str):
+            print(f"❌ Invalid public key format: {type(public_key_str)}")
+            return password
+
         try:
             key = RSA.importKey(public_key_str)
             cipher = PKCS1_v1_5.new(key)
