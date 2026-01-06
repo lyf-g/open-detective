@@ -71,7 +71,7 @@ class SQLBotClient:
         }
         
         try:
-            print(f"🔐 Logging in to SQLBot as {self.username} (Encrypted)...")
+            print(f"🔐 Logging in to SQLBot as {self.username} (Encrypted) ...")
             res = requests.post(url, data=payload, timeout=10)
             if res.status_code == 200:
                 data = res.json()
@@ -110,20 +110,35 @@ class SQLBotClient:
 
     def _extract_sql(self, text: str) -> str:
         if not text: return ""
-        match = re.search(r"```sql\n(.*?)\n```", text, re.DOTALL | re.IGNORECASE)
+        
+        # 1. If it's a pure JSON block containing 'sql' field
+        try:
+            potential_json = self._extract_first_json(text)
+            if potential_json and isinstance(potential_json, dict) and potential_json.get("sql"):
+                return potential_json["sql"].strip()
+        except:
+            pass
+
+        # 2. Try to find SQL in a specific SQL block
+        match = re.search(r"```sql\n?(.*?)\n?```", text, re.DOTALL | re.IGNORECASE)
         if match: return match.group(1).strip()
-        match = re.search(r"```(?:json|mysql)?\n(.*?)\n```", text, re.DOTALL | re.IGNORECASE)
-        if match:
-            content = match.group(1).strip()
-            if content.upper().startswith("SELECT"): return content
-        if text.strip().upper().startswith("SELECT"):
-            candidate = text.strip()
-            truncate_at = candidate.find("```")
-            if truncate_at != -1: candidate = candidate[:truncate_at]
-            truncate_at = candidate.find("{ ", 1)
-            if truncate_at != -1: candidate = candidate[:truncate_at]
-            return candidate.strip()
-        return text.strip()
+        
+        # 3. If it contains a raw SELECT statement, find the core query
+        # We look for SELECT and try to stop before any conversational noise or JSON
+        select_match = re.search(r"(SELECT\s+.*?(?:LIMIT\s+\d+|;))", text, re.DOTALL | re.IGNORECASE)
+        if select_match:
+            sql = select_match.group(1).strip()
+            # Clean up trailing garbage common in some LLM responses
+            sql = sql.split("execute-success")[0].strip()
+            return sql
+
+        # 4. Fallback: Clean up raw text
+        candidate = text.strip()
+        # Truncate at common AI noise keywords
+        for stopper in ["execute-success", "```json", "Explanation:"]:
+            candidate = candidate.split(stopper)[0]
+        
+        return candidate.strip()
 
     def repair_sql(self, sql: str) -> str:
         if not sql: return ""
@@ -155,36 +170,47 @@ class SQLBotClient:
             
             # 1. Check if we already have the answer in 'records'
             records = data.get("records", [])
-            if records and (records[0].get("content") or records[0].get("sql")):
-                return records[0].get("content") or records[0].get("sql") or ""
-
-            # 2. If not, follow up with the chat_id
-            chat_id = data.get("id")
-            if not chat_id: return ""
-
-            ask_url = f"{self.endpoint}/api/v1/chat/question"
-            ask_payload = {"question": prompt, "chat_id": chat_id}
-            # We use stream=True because SQLBot usually streams text
-            res = requests.post(ask_url, json=ask_payload, headers=headers, timeout=30, stream=True)
-            
             full_content = ""
-            if "text/event-stream" in res.headers.get("Content-Type", ""):
-                for line in res.iter_lines():
-                    if line:
-                        decoded = line.decode('utf-8')
-                        if decoded.startswith("data:"):
-                            json_str = decoded[5:].strip()
-                            if json_str == "[DONE]": break
-                            try:
-                                chunk = json.loads(json_str)
-                                full_content += chunk.get("content") or chunk.get("sql") or ""
-                            except: pass
-            else:
-                try:
-                    inner = res.json().get("data", {})
-                    full_content = inner.get("content") or inner.get("sql") or ""
-                except: pass
+            if records and (records[0].get("content") or records[0].get("sql")):
+                full_content = records[0].get("content") or records[0].get("sql") or ""
             
+            # 2. If not, follow up with the chat_id
+            else:
+                chat_id = data.get("id")
+                if chat_id:
+                    ask_url = f"{self.endpoint}/api/v1/chat/question"
+                    ask_payload = {"question": prompt, "chat_id": chat_id}
+                    res = requests.post(ask_url, json=ask_payload, headers=headers, timeout=30, stream=True)
+                    
+                    if "text/event-stream" in res.headers.get("Content-Type", ""):
+                        for line in res.iter_lines():
+                            if line:
+                                decoded = line.decode('utf-8')
+                                if decoded.startswith("data:"):
+                                    json_str = decoded[5:].strip()
+                                    if json_str == "[DONE]": break
+                                    try:
+                                        chunk = json.loads(json_str)
+                                        full_content += chunk.get("content") or chunk.get("sql") or ""
+                                    except: pass
+                    else:
+                        try:
+                            inner = res.json().get("data", {})
+                            full_content = inner.get("content") or inner.get("sql") or ""
+                        except: pass
+            
+            # 3. Clean up the response (Extract message from JSON refusal objects)
+            try:
+                # If the AI returned a stringified JSON object
+                refusal_data = self._extract_first_json(full_content)
+                if refusal_data and isinstance(refusal_data, dict):
+                    if "message" in refusal_data:
+                        return refusal_data["message"]
+                    if "content" in refusal_data:
+                        return refusal_data["content"]
+            except:
+                pass
+
             return full_content
         except Exception as e:
             print(f"❌ AI Request Error: {e}")
@@ -223,7 +249,40 @@ class SQLBotClient:
         return f"报告 Agent，调查已完成。我们在数据库中锁定了 {len(data)} 条关键证据。通过初步视觉重建（见下图），该项目的演进轨迹已清晰可见。"
 
     def generate_sql(self, question: str) -> Optional[str]:
-        # ... (rest of the logic)
+        headers = self._get_headers()
+        repos_str = ", ".join(SQLBotClient._repo_list)
+        schema_hint = f"""
+<SystemInstruction>
+You are the 'Open-Detective AI'. Your ONLY job is to output a single MySQL query.
+<DatabaseSchema>
+Table: open_digger_metrics
+Columns: month (string 'YYYY-MM'), value (number), repo_name (string), metric_type (string)
+</DatabaseSchema>
+<MetricMapping>
+- stars/star/星标 -> 'stars'
+- activity/活跃度/热度 -> 'activity'
+- openrank/影响力 -> 'openrank'
+</MetricMapping>
+<KnownRepositories>
+{{repos_str}}
+</KnownRepositories>
+<CriticalRules>
+1. If user says 'vue', map it to 'vuejs/core'. If 'react', map to 'facebook/react'.
+2. Use the FULL PATH from <KnownRepositories> whenever possible.
+3. If no exact match, use: repo_name LIKE '%name%'
+4. For comparison, use: WHERE (repo_name LIKE '%A%' OR repo_name LIKE '%B%')
+5. ALWAYS ORDER BY month ASC.
+6. DO NOT use STR_TO_DATE. 'month' is already a string.
+7. Output ONLY the raw SQL. No explanation.
+</CriticalRules>
+</SystemInstruction>
+"""
+        # Ensure curly braces are correctly handled in f-string
+        schema_hint = schema_hint.replace("{repos_str}", repos_str)
+        enhanced_question = f"{schema_hint}\nUserQuestion: {question}"
+
+        sql = self._ask_ai(enhanced_question)
+        return self.repair_sql(self._extract_sql(sql))
 
 def sqlbot_text_to_sql(text: str) -> str:
     client = SQLBotClient()

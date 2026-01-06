@@ -57,7 +57,7 @@
                     <div class="role-badge">
                       <el-icon v-if="msg.role === 'user'"><User /></el-icon>
                       <el-icon v-else><Monitor /></el-icon>
-                      {{ msg.role === 'user' ? 'AGENT' : 'DETECTIVE AI' }}
+                      {{ msg.role === 'user' ? 'AGENT' : 'OPEN-DETECTIVE' }}
                       <el-tag v-if="msg.evidence" size="small" type="success" effect="dark" class="evidence-badge">
                         EVIDENCE SECURED
                       </el-tag>
@@ -104,7 +104,7 @@
                   <div class="message-card loading-card">
                     <div class="role-badge">
                       <el-icon class="is-loading"><Loading /></el-icon>
-                      DETECTIVE AI
+                      OPEN-DETECTIVE
                     </div>
                     <div class="thought-chain">
                       <div class="thought-step active">
