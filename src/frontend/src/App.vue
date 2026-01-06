@@ -99,13 +99,26 @@
                   </div>
                 </div>
 
-                <!-- Local Loading Indicator -->
+                <!-- Local Loading Indicator with Thought Chain -->
                 <div v-if="loading" class="message-row assistant loading-state">
                   <div class="message-card loading-card">
-                    <div class="role-badge">DETECTIVE AI</div>
+                    <div class="role-badge">
+                      <el-icon class="is-loading"><Loading /></el-icon>
+                      DETECTIVE AI
+                    </div>
+                    <div class="thought-chain">
+                      <div class="thought-step active">
+                        <el-icon><Search /></el-icon> Parsing investigation request...
+                      </div>
+                      <div class="thought-step">
+                        <el-icon><Connection /></el-icon> Accessing metric database...
+                      </div>
+                      <div class="thought-step">
+                        <el-icon><Cpu /></el-icon> Generating relational logic...
+                      </div>
+                    </div>
                     <div class="loading-content">
                       <div class="scanner-line"></div>
-                      <span class="loading-text">Analyzing neural data streams...</span>
                     </div>
                   </div>
                 </div>
@@ -311,6 +324,28 @@ body {
 
 .mini-table { --el-table-bg-color: transparent; --el-table-tr-bg-color: transparent; --el-table-header-bg-color: #111; font-size: 0.75rem; }
 .table-info { font-size: 0.65rem; color: #555; margin-top: 6px; text-align: right; font-style: italic; }
+
+/* Thought Chain */
+.thought-chain {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.thought-step {
+  font-size: 0.75rem;
+  color: #444;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.thought-step.active {
+  color: var(--accent-color);
+  font-weight: bold;
+}
+.is-loading {
+  margin-right: 5px;
+}
 
 /* Loading State */
 .loading-content { display: flex; flex-direction: column; gap: 8px; padding: 10px 0; }
