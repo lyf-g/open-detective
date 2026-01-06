@@ -1,6 +1,7 @@
 import os
 import mysql.connector
 import time
+import json
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 
@@ -9,7 +10,7 @@ load_dotenv()
 
 from fastapi import FastAPI, HTTPException, APIRouter, Request
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from src.backend.services.engine_factory import get_sql_engine
 
 @asynccontextmanager
@@ -72,14 +73,13 @@ def detect_anomalies(data: list) -> list:
     """Scans data for significant spikes or drops."""
     if len(data) < 3: return []
     anomalies = []
-    # Simple logic: Compare current value to previous month
     for i in range(1, len(data)):
-        prev = data[i-1].get('value', 0)
-        curr = data[i].get('value', 0)
+        prev = data[i-1].get('value') or data[i-1].get('metric_value') or 0
+        curr = data[i].get('value') or data[i].get('metric_value') or 0
         if prev == 0: continue
         
         change = (curr - prev) / prev
-        if abs(change) > 0.5: # 50% change is an anomaly
+        if abs(change) > 0.5:
             type_label = "SPIKE" if change > 0 else "DROP"
             anomalies.append({
                 "month": data[i].get('month'),
@@ -87,26 +87,58 @@ def detect_anomalies(data: list) -> list:
                 "type": type_label,
                 "intensity": f"{abs(change)*100:.1f}%"
             })
-    return anomalies[:3] # Limit to top 3 clues
+    return anomalies[:3]
 
 @router_v1.post("/chat", response_model=ChatResponse)
 async def chat(request_request: Request, chat_request: ChatRequest):
-    # ... (skipping lines)
-    # 2. Execute SQL
+    print(f"Received message: {chat_request.message}")
+    
+    # 1. Get Engine Type
+    engine_type_raw = os.getenv("SQL_ENGINE_TYPE", "mock")
+    engine_type = engine_type_raw.split('#')[0].strip().lower()
+    
+    # 2. Generate SQL
+    engine = get_sql_engine()
+    sql_query = engine(chat_request.message)
+    
+    if not sql_query:
+        return ChatResponse(
+            answer="报告 Agent，未能识别出有效的项目线索。请尝试输入具体项目名称（如 vue, react）。",
+            sql_query="",
+            data=[],
+            engine_source=engine_type
+        )
+
+    # 3. Execute SQL
     data = []
-    # ...
-    # 3. Formulate Answer
+    try:
+        print(f"🚀 Executing SQL: {sql_query}")
+        cursor = request_request.app.state.db.cursor(dictionary=True)
+        cursor.execute(sql_query)
+        data = cursor.fetchall()
+        cursor.close()
+    except Exception as e:
+        print(f"❌ SQL Execution Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+    # 4. Formulate Answer
+    answer = ""
     if data:
         clues = detect_anomalies(data)
         if engine_type == "sqlbot":
-            # ...
+            from src.backend.services.sqlbot_client import SQLBotClient
+            client = SQLBotClient()
             answer = client.generate_summary(chat_request.message, data)
             if clues:
                 clue_text = "\n\n🔍 **DETECTIVE CLUES FOUND:**\n" + "\n".join([f"- {c['month']} | {c['repo']} {c['type']} detected ({c['intensity']})" for c in clues])
                 answer += clue_text
         else:
-            answer = f"Found {len(data)} records for your query."
-    # ...
+            answer = f"报告 Agent，搜寻到 {len(data)} 条相关证据。具体趋势已在下方视觉重建。"
+            if clues:
+                clue_text = "\n\n🔍 **监测到异常波动:**\n" + "\n".join([f"- {c['month']} 发现 {c['intensity']} 的数据{c['type']}" for c in clues])
+                answer += clue_text
+    else:
+        answer = "报告 Agent，在当前数据库中未搜寻到相关线索。建议更换项目名称或指标再次尝试。"
 
     return ChatResponse(
         answer=answer,
@@ -121,19 +153,16 @@ def health_check():
 
 @router_v1.get("/sqlbot-health")
 async def sqlbot_health():
-    """Checks if the SQLBot service is reachable."""
     import requests
     endpoint = os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
     try:
-        # Just a simple ping to the root
         res = requests.get(endpoint, timeout=2)
         return {"status": "reachable", "code": res.status_code}
     except Exception as e:
         return {"status": "unreachable", "error": str(e)}
 
-# Include Router
 app.include_router(router_v1)
 
 @app.get("/")
 def read_root():
-    return {"message": "Open-Detective Backend is running! Access v1 at /api/v1"}
+    return {"message": "Open-Detective Backend is running!"}
