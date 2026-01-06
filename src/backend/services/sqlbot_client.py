@@ -160,11 +160,24 @@ class SQLBotClient:
     def generate_sql(self, question: str) -> Optional[str]:
         headers = self._get_headers()
         
+        # Add explicit mapping hint to bridge the semantic gap
+        schema_hint = """
+        ### DATABASE MAPPING RULES ###
+        1. When user says 'star' or '星标', ALWAYS use `metric_type` = 'stars' (plural).
+        2. When user says '活跃度' or 'activity', use `metric_type` = 'activity'.
+        3. When user says '影响力' or 'openrank', use `metric_type` = 'openrank'.
+        4. When user says '公交系数' or 'bus factor', use `metric_type` = 'bus_factor'.
+        5. Column `repo_name` contains project names like 'vuejs/core'.
+        6. Column `value` is the numeric metric value.
+        7. Column `month` is the time dimension (e.g. '2023-01').
+        """
+        enhanced_question = question + "\n" + schema_hint
+
         try:
             url = f"{self.endpoint}/api/v1/chat/start"
-            payload = {"question": question, "datasource": self.datasource_id}
+            payload = {"question": enhanced_question, "datasource": self.datasource_id}
             
-            print(f"📡 Requesting SQL from SQLBot...")
+            print(f"📡 Requesting SQL from SQLBot with enhanced prompt...")
             res = requests.post(url, json=payload, headers=headers, timeout=20)
             
             if res.status_code == 401:
@@ -190,8 +203,8 @@ class SQLBotClient:
             chat_id = data.get("id")
             if chat_id:
                 ask_url = f"{self.endpoint}/api/v1/chat/question"
-                ask_payload = {"question": question, "chat_id": chat_id}
-                print(f"📡 Asking Question to chat_id {chat_id}...")
+                ask_payload = {"question": enhanced_question, "chat_id": chat_id}
+                print(f"📡 Asking Question to chat_id {chat_id} with enhanced prompt...")
                 res = requests.post(ask_url, json=ask_payload, headers=headers, timeout=30, stream=True)
                 
                 print(f"🔍 Question Response Code: {res.status_code}")
