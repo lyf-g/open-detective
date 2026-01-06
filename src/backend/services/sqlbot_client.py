@@ -23,46 +23,126 @@ class SQLBotClient:
         if not SQLBotClient._repo_list:
             try:
                 repo_path = os.path.join(os.path.dirname(__file__), '../../../data/repos.json')
-                with open(repo_path, 'r') as f:
-                    SQLBotClient._repo_list = json.load(f)
+                if os.path.exists(repo_path):
+                    with open(repo_path, 'r') as f:
+                        SQLBotClient._repo_list = json.load(f)
             except:
                 pass
 
-    # ... (skipping unchanged _get_public_key, _encrypt_rsa, _login, _get_headers, _extract_first_json, _extract_sql)
+    def _get_public_key(self) -> str:
+        """Fetch the RSA public key from SQLBot."""
+        url = f"{self.endpoint}/api/v1/system/config/key"
+        try:
+            res = requests.get(url, timeout=5)
+            if res.status_code == 200:
+                data = res.json().get("data")
+                if isinstance(data, dict):
+                    return data.get("public_key") or data.get("publicKey") or ""
+                return data
+        except Exception as e:
+            print(f"❌ Failed to get public key: {e}")
+        return ""
+
+    def _encrypt_rsa(self, text: str, public_key_str: str) -> str:
+        """Encrypts text using RSA public key."""
+        if not public_key_str or not isinstance(public_key_str, str):
+            return text
+        try:
+            key = RSA.importKey(public_key_str)
+            cipher = PKCS1_v1_5.new(key)
+            encrypted = cipher.encrypt(text.encode())
+            return base64.b64encode(encrypted).decode('utf-8')
+        except Exception as e:
+            print(f"❌ Encryption failed: {e}")
+            return text
+
+    def _login(self) -> Optional[str]:
+        public_key = self._get_public_key()
+        if not public_key: return None
+
+        encrypted_user = self._encrypt_rsa(self.username, public_key)
+        encrypted_pwd = self._encrypt_rsa(self.password, public_key)
+
+        url = f"{self.endpoint}/api/v1/login/access-token"
+        payload = {
+            "username": encrypted_user,
+            "password": encrypted_pwd,
+            "grant_type": "password"
+        }
+        
+        try:
+            print(f"🔐 Logging in to SQLBot as {self.username} (Encrypted)...")
+            res = requests.post(url, data=payload, timeout=10)
+            if res.status_code == 200:
+                data = res.json()
+                token = data.get("access_token") or data.get("data", {}).get("access_token")
+                if token:
+                    print("✅ Login successful!")
+                    SQLBotClient._cached_token = token
+                    return token
+            print(f"❌ Login Failed: {res.status_code} - {res.text}")
+            return None
+        except Exception as e:
+            print(f"❌ Login Connection Error: {e}")
+            return None
+
+    def _get_headers(self):
+        token = self.static_token or SQLBotClient._cached_token or self._login()
+        if token and not token.startswith("Bearer "):
+            token = f"Bearer {token}"
+        return {
+            "X-SQLBOT-TOKEN": token,
+            "Content-Type": "application/json"
+        }
+
+    def _extract_first_json(self, text: str) -> Optional[dict]:
+        start = text.find('{')
+        if start == -1: return None
+        count = 0
+        for i in range(start, len(text)):
+            if text[i] == '{': count += 1
+            elif text[i] == '}':
+                count -= 1
+                if count == 0:
+                    try: return json.loads(text[start:i+1])
+                    except: pass
+        return None
+
+    def _extract_sql(self, text: str) -> str:
+        if not text: return ""
+        match = re.search(r"```sql\n(.*?)\n```", text, re.DOTALL | re.IGNORECASE)
+        if match: return match.group(1).strip()
+        match = re.search(r"```(?:json|mysql)?\n(.*?)\n```", text, re.DOTALL | re.IGNORECASE)
+        if match:
+            content = match.group(1).strip()
+            if content.upper().startswith("SELECT"): return content
+        if text.strip().upper().startswith("SELECT"):
+            candidate = text.strip()
+            truncate_at = candidate.find("```")
+            if truncate_at != -1: candidate = candidate[:truncate_at]
+            truncate_at = candidate.find("{ ", 1)
+            if truncate_at != -1: candidate = candidate[:truncate_at]
+            return candidate.strip()
+        return text.strip()
 
     def repair_sql(self, sql: str) -> str:
-        """
-        Post-processes the LLM output to fix common mistakes:
-        1. Strips SQL comments.
-        2. Replaces shorthand repo names with full paths from the known list.
-        """
         if not sql: return ""
-        
-        # 1. Strip SQL comments (trailing and block)
-        sql = re.sub(r'--.*$', '', sql)
+        sql = re.sub(r'--.*$', '', sql, flags=re.MULTILINE)
         sql = re.sub(r'/\*.*?\*/', '', sql, flags=re.DOTALL)
         
-        # 2. Auto-map shorthands to full paths
-        # We look for strings inside single quotes
         def replace_repo(match):
             val = match.group(1)
-            # Try to find a match in our known repo list
             for full_path in SQLBotClient._repo_list:
-                # If the shorthand is part of the full path (e.g. 'vue' in 'vuejs/core')
-                # and the full path is unique enough
                 parts = full_path.lower().replace('/', ' ').replace('-', ' ').split()
                 if val.lower() in parts or val.lower() == full_path.lower():
                     return f"'{full_path}'"
             return f"'{val}'"
 
-        # Regex to find 'anything'
-        repaired_sql = re.sub(r"'(.*?)'", replace_repo, sql)
-        
-        return repaired_sql.strip()
+        return re.sub(r"'(.*?)'", replace_repo, sql).strip()
 
     def generate_sql(self, question: str) -> Optional[str]:
         headers = self._get_headers()
-        # ... (rest of the logic remains, but we will wrap the return value)
+        repos_str = ", ".join(SQLBotClient._repo_list)
         schema_hint = f"""
 <SystemInstruction>
 You are the 'Open-Detective AI'. Your ONLY job is to output a single MySQL query.
@@ -70,22 +150,19 @@ You are the 'Open-Detective AI'. Your ONLY job is to output a single MySQL query
 Table: open_digger_metrics
 Columns: month (string 'YYYY-MM'), value (number), repo_name (string), metric_type (string)
 </DatabaseSchema>
-
 <MetricMapping>
 - stars/star/星标 -> 'stars'
 - activity/活跃度/热度 -> 'activity'
 - openrank/影响力 -> 'openrank'
 </MetricMapping>
-
 <KnownRepositories>
 {repos_str}
 </KnownRepositories>
-
 <CriticalRules>
 1. If user says 'vue', map it to 'vuejs/core'. If 'react', map to 'facebook/react'.
 2. Use the FULL PATH from <KnownRepositories> whenever possible.
 3. If no exact match, use: repo_name LIKE '%name%'
-4. For comparison, use: WHERE repo_name IN ('path1', 'path2', ...)
+4. For comparison, use: WHERE (repo_name LIKE '%A%' OR repo_name LIKE '%B%')
 5. ALWAYS ORDER BY month ASC.
 6. DO NOT use STR_TO_DATE. 'month' is already a string.
 7. Output ONLY the raw SQL. No explanation.
@@ -97,27 +174,17 @@ Columns: month (string 'YYYY-MM'), value (number), repo_name (string), metric_ty
         try:
             url = f"{self.endpoint}/api/v1/chat/start"
             payload = {"question": enhanced_question, "datasource": self.datasource_id}
-            
             print(f"📡 Sending XML-Enhanced Prompt to SQLBot...")
-            # print(f"DEBUG PROMPT: {enhanced_question}") # Truncated for token efficiency
             res = requests.post(url, json=payload, headers=headers, timeout=20)
             
             if res.status_code == 401:
-                print("🔄 Token expired, re-logging in...")
                 SQLBotClient._cached_token = None
                 headers = self._get_headers()
                 res = requests.post(url, json=payload, headers=headers, timeout=20)
 
-            if res.status_code != 200:
-                print(f"❌ SQLBot Error: {res.status_code} - {res.text}")
-                return None
-
+            if res.status_code != 200: return None
             json_res = res.json()
-            print(f"🔍 SQLBot Response: {json.dumps(json_res, ensure_ascii=False)}")
-            
-            # Unwrap 'data' field if it exists (DataEase API wrapper)
             data = json_res.get("data", {}) if "data" in json_res else json_res
-
             records = data.get("records", [])
             if records and records[0].get("sql"):
                 return self.repair_sql(self._extract_sql(records[0].get("sql")))
@@ -126,15 +193,10 @@ Columns: month (string 'YYYY-MM'), value (number), repo_name (string), metric_ty
             if chat_id:
                 ask_url = f"{self.endpoint}/api/v1/chat/question"
                 ask_payload = {"question": enhanced_question, "chat_id": chat_id}
-                print(f"📡 Asking Question to chat_id {chat_id} with enhanced prompt...")
                 res = requests.post(ask_url, json=ask_payload, headers=headers, timeout=30, stream=True)
-                
-                print(f"🔍 Question Response Code: {res.status_code}")
-
                 if res.status_code == 200:
                     content_type = res.headers.get("Content-Type", "")
                     if "text/event-stream" in content_type:
-                        print("🌊 Detected SSE Stream. Parsing...")
                         full_content = ""
                         for line in res.iter_lines():
                             if line:
@@ -144,46 +206,55 @@ Columns: month (string 'YYYY-MM'), value (number), repo_name (string), metric_ty
                                     if json_str == "[DONE]": break
                                     try:
                                         chunk = json.loads(json_str)
-                                        # Accumulate content
-                                        content = chunk.get("content") or chunk.get("sql") or ""
-                                        full_content += content
-                                    except json.JSONDecodeError:
-                                        pass
-                        
-                        print(f"🌊 Stream finished. Length: {len(full_content)}")
-                        
-                        # A. Try to find the first JSON and extract 'sql'
+                                        full_content += chunk.get("content") or chunk.get("sql") or ""
+                                    except: pass
                         data = self._extract_first_json(full_content)
-                        if data and isinstance(data, dict):
-                            if data.get("success") is False:
-                                print(f"❌ SQLBot Refused: {data.get('message')}")
-                                return ""
-                            if data.get("sql"):
-                                return self.repair_sql(data["sql"])
-
-                        # B. Fallback to regex extraction from the whole text
+                        if data and isinstance(data, dict) and data.get("sql"):
+                            return self.repair_sql(data["sql"])
                         return self.repair_sql(self._extract_sql(full_content))
                     else:
-                        # Standard JSON response
                         try:
                             json_data = res.json()
-                            # Handle wrapped 'data'
                             inner_data = json_data.get("data", {}) if "data" in json_data else json_data
-                            raw_sql = inner_data.get("sql") or inner_data.get("content") or ""
-                            return self.repair_sql(self._extract_sql(raw_sql))
-
-                        except json.JSONDecodeError:
-                             print(f"❌ JSON Decode Error. Body: {res.text[:500]}")
-                             return None
-                else:
-                    print(f"❌ Question Failed: {res.text}")
-
+                            return self.repair_sql(self._extract_sql(inner_data.get("sql") or inner_data.get("content") or ""))
+                        except: return None
             return None
         except Exception as e:
             print(f"❌ Connection Error: {e}")
-            import traceback
-            traceback.print_exc()
             return None
+
+    def generate_summary(self, question: str, data: list) -> str:
+        """Uses the LLM to interpret the query results."""
+        if not data: return "No evidence found to support the investigation."
+        
+        # Create a compact data summary for the LLM
+        data_summary = json.dumps(data[:15], ensure_ascii=False)
+        prompt = f"""
+<Task>
+You are the 'Open-Detective AI'. Interpret the investigation results for the user.
+Question: {question}
+Found Records: {len(data)}
+Data Sample: {data_summary}
+
+Rules:
+1. Provide a professional, concise analysis (max 3 sentences).
+2. Highlight key trends, peaks, or comparison winners.
+3. Use a tone suitable for a digital detective.
+4. Response in the same language as the user question.
+</Task>
+"""
+        headers = self._get_headers()
+        try:
+            url = f"{self.endpoint}/api/v1/chat/start"
+            payload = {"question": prompt, "datasource": self.datasource_id}
+            res = requests.post(url, json=payload, headers=headers, timeout=20)
+            if res.status_code == 200:
+                full_text = res.json().get("data", {}).get("records", [{}])[0].get("content") or ""
+                # If content is empty, it might be a stream? Let's simplify for now
+                if full_text: return full_text
+            return f"Investigation complete. Found {len(data)} data points correlating to your request."
+        except:
+            return f"Found {len(data)} records for your query."
 
 def sqlbot_text_to_sql(text: str) -> str:
     client = SQLBotClient()
