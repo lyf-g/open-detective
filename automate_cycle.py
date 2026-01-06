@@ -10,19 +10,40 @@ def run(cmd):
         print(result.stdout)
     return result
 
-print("🕵️‍♂️ Open-Detective Automated Workflow Starting...")
+# 定制化的元数据
+ISSUE_TITLE = "Fix: Aggressive JSON Sanitization and Anomaly Report Purity"
+ISSUE_BODY = """
+Investigation Log:
+1. Backend: Implemented surgical sanitization to strip persistent JSON artifacts from SQLBot.
+2. Logic: Forced repo_name in SELECT clause to fix 'None' values in anomaly detection.
+3. Persona: Standardized Open-Detective naming and removed AI meta-talk.
+4. Frontend: Added UI-level regex filtering for zero-noise rendering.
+"""
 
-# 1. Create GH Issue
-run('gh issue create --title "Feature: Extreme UI and AI Sanitization" --body "Integrated anomaly detection and brute-force JSON stripping."')
+COMMIT_MSG = """feat: total UI/UX evolution and brute-force sanitization
 
-# 2. Git Cycle
-run('git checkout -b feature/final-evolution')
+- Re-engineered SQLBotClient with surgical text stripping
+- Mandated repo_name in SQL prompt to fix Anomaly Detection None-errors
+- Fully integrated Element Plus with Thought Chain loading animations
+- Enforced Open-Detective brand identity across all tiers
+"""
+
+PR_TITLE = "Major Evolution: Clean AI Interpretation and Integrated Insights"
+PR_BODY = f"Closes #178. This PR finalizes the professional transformation of Open-Detective."
+
+print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
+
+# 1. 建立具有侦探深度的 Issue
+run(f'gh issue create --title "{ISSUE_TITLE}" --body "{ISSUE_BODY}"')
+
+# 2. 切换分支并强制抓取所有修改
+run('git checkout -B feature/detective-core-upgrade')
 run('git add .')
-run('git commit -m "feat: complete professional evolution - UI, Sanitization, and Anomaly Detection"')
-run('git push origin feature/final-evolution')
+run(f'git commit -m "{COMMIT_MSG}"')
+run('git push -f origin feature/detective-core-upgrade')
 
-# 3. Pull Request & Merge
-run('gh pr create --title "Final Professional Evolution" --body "Complete UI/UX and backend stability overhaul."')
+# 3. 创建 PR 并完成闭环
+run(f'gh pr create --title "{PR_TITLE}" --body "{PR_BODY}" --base main --head feature/detective-core-upgrade')
 run('gh pr merge --merge --delete-branch')
 
-print("✅ Automation Cycle Complete!")
+print("✅ Investigation Cycle Successfully Merged and Documented!")
