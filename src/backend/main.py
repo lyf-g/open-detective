@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI, HTTPException, APIRouter, Request
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from src.backend.services.engine_factory import get_sql_engine
@@ -265,6 +266,126 @@ async def chat(request_request: Request, chat_request: ChatRequest):
         data=data,
         engine_source=engine_type
     )
+
+@router_v1.post("/chat/stream")
+async def chat_stream(request_request: Request, chat_request: ChatRequest):
+    logger.info("Received stream message", message=chat_request.message, session_id=chat_request.session_id)
+    
+    # 1. Save User Message
+    if chat_request.session_id:
+        cursor = request_request.app.state.db.cursor()
+        cursor.execute(
+            "INSERT INTO messages (session_id, role, content) VALUES (%s, %s, %s)",
+            (chat_request.session_id, 'user', chat_request.message)
+        )
+        # Update title if first message
+        cursor.execute("SELECT count(*) FROM messages WHERE session_id = %s", (chat_request.session_id,))
+        count = cursor.fetchone()[0]
+        if count <= 1:
+            title = (chat_request.message[:30] + '..') if len(chat_request.message) > 30 else chat_request.message
+            cursor.execute("UPDATE sessions SET title = %s WHERE id = %s", (title, chat_request.session_id))
+        request_request.app.state.db.commit()
+        cursor.close()
+
+    # 2. Get Engine Type
+    engine_type_raw = os.getenv("SQL_ENGINE_TYPE", "mock")
+    engine_type = engine_type_raw.split('#')[0].strip().lower()
+
+    # 2.1 Fetch History
+    history = []
+    if chat_request.session_id:
+        try:
+            cursor = request_request.app.state.db.cursor(dictionary=True)
+            cursor.execute("SELECT role, content FROM messages WHERE session_id = %s ORDER BY id DESC LIMIT 5", (chat_request.session_id,))
+            history = list(reversed(cursor.fetchall()))
+            cursor.close()
+        except: pass
+    
+    # 3. Generate SQL
+    sql_query = ""
+    if engine_type == "sqlbot":
+        from src.backend.services.sqlbot_client import SQLBotClient
+        client = SQLBotClient()
+        sql_query = client.generate_sql(chat_request.message, history=history)
+    else:
+        engine = get_sql_engine()
+        sql_query = engine(chat_request.message)
+    
+    # 4. Execute SQL
+    data = []
+    error_msg = ""
+    if sql_query:
+        try:
+            logger.info("Executing SQL", sql=sql_query)
+            cursor = request_request.app.state.db.cursor(dictionary=True)
+            cursor.execute(sql_query)
+            data = cursor.fetchall()
+            cursor.close()
+        except Exception as e:
+            logger.error("SQL Execution Error", error=str(e), sql=sql_query)
+            error_msg = str(e)
+
+    async def event_generator():
+        # Send Meta
+        yield json.dumps({
+            "type": "meta", 
+            "sql_query": sql_query, 
+            "data": data, 
+            "engine_source": engine_type,
+            "error": error_msg
+        }) + "\n"
+
+        answer = ""
+        
+        if error_msg:
+            msg = f"数据库查询执行失败: {error_msg}"
+            yield json.dumps({"type": "token", "content": msg}) + "\n"
+            answer = msg
+        elif not sql_query:
+            msg = "报告 Agent，未能识别出有效的项目线索。请尝试输入具体项目名称（如 vue, react）。"
+            yield json.dumps({"type": "token", "content": msg}) + "\n"
+            answer = msg
+        elif not data:
+            msg = "报告 Agent，在当前数据库中未搜寻到相关线索。建议更换项目名称或指标再次尝试。"
+            yield json.dumps({"type": "token", "content": msg}) + "\n"
+            answer = msg
+        else:
+             # Generate Answer
+             if engine_type == "sqlbot":
+                from src.backend.services.sqlbot_client import SQLBotClient
+                client = SQLBotClient()
+                for chunk in client.generate_summary_stream(chat_request.message, data, history=history):
+                    yield json.dumps({"type": "token", "content": chunk}) + "\n"
+                    answer += chunk
+             else:
+                msg = f"报告 Agent，搜寻到 {len(data)} 条相关证据。具体趋势已在下方视觉重建。"
+                yield json.dumps({"type": "token", "content": msg}) + "\n"
+                answer = msg
+             
+             # Anomalies
+             clues = detect_anomalies(data)
+             if clues:
+                clue_text = "\n\n🔍 **DETECTIVE CLUES FOUND:**\n" + "\n".join([f"- {c['month']} | {c['repo']} {c['type']} detected ({c['intensity']})" for c in clues])
+                yield json.dumps({"type": "token", "content": clue_text}) + "\n"
+                answer += clue_text
+
+        # Save Assistant Message
+        if chat_request.session_id:
+            try:
+                cursor = request_request.app.state.db.cursor()
+                evidence_data_json = json.dumps(data) if data else None
+                cursor.execute(
+                    "INSERT INTO messages (session_id, role, content, evidence_sql, evidence_data) VALUES (%s, %s, %s, %s, %s)",
+                    (chat_request.session_id, 'assistant', answer, sql_query, evidence_data_json)
+                )
+                request_request.app.state.db.commit()
+                cursor.close()
+            except Exception as e:
+                logger.error("Failed to save message", error=str(e))
+        
+        yield json.dumps({"type": "done"}) + "\n"
+
+    return StreamingResponse(event_generator(), media_type="application/x-ndjson")
 
 @router_v1.get("/health", response_model=HealthResponse)
 def health_check(request: Request):
