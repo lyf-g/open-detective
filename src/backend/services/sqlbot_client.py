@@ -123,6 +123,28 @@ class SQLBotClient:
             except: pass
         return text.strip()
 
+    def _ask_ai(self, prompt: str) -> str:
+        headers = self._get_headers()
+        try:
+            res = requests.post(f"{self.endpoint}/api/v1/chat/start", json={"question": prompt, "datasource": self.datasource_id}, headers=headers, timeout=20)
+            if res.status_code != 200: return ""
+            data = res.json().get("data", res.json())
+            chat_id = data.get("id")
+            if not chat_id: return data.get("records", [{}])[0].get("content", "")
+            
+            res = requests.post(f"{self.endpoint}/api/v1/chat/question", json={"question": prompt, "chat_id": chat_id}, headers=headers, timeout=30, stream=True)
+            full = ""
+            for line in res.iter_lines():
+                if line:
+                    d = line.decode('utf-8')
+                    if d.startswith("data:"):
+                        js = d[5:].strip()
+                        if js == "[DONE]": break
+                        try: full += json.loads(js).get("content", "")
+                        except: pass
+            return full
+        except: return ""
+
     def generate_summary(self, question: str, data: list, history: list = []) -> str:
         if not data: return "线索已断，数据库中未发现匹配记录。"
         
