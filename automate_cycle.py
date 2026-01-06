@@ -11,15 +11,15 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Feat: Proactive Detective Persona & Intent Inference"
+ISSUE_TITLE = "Fix: AI Output Pollution (JSON Artifacts)"
 ISSUE_BODY = """
-Enhanced AI prompts to interpret vague keywords (e.g., 'react star') as deep trend analysis requests. Structured output as a 'Case File' with key findings and verdicts.
+AI was leaking JSON formatting data into the Markdown report. Refined prompt to strictly forbid JSON and updated sanitization logic.
 """
 
-COMMIT_MSG = "feat: upgrade AI to proactive detective mode with structured case reports"
+COMMIT_MSG = "fix: strictly forbid JSON in AI summary prompt and refine sanitization"
 
-PR_TITLE = "AI Upgrade: Proactive Analysis"
-PR_BODY = "Transforms simple queries into rich, narrative detective reports with deep insights."
+PR_TITLE = "Fix: Pure Detective Reports"
+PR_BODY = "Ensures the AI output is pure Markdown narrative, eliminating display glitches caused by JSON leakage."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 

@@ -108,37 +108,20 @@ class SQLBotClient:
         return re.sub(r"'(.*?)'", repl, sql).strip()
 
     def sanitize_text(self, text: str) -> str:
-        """Brute-force removal of any JSON, SQL artifacts, or AI meta-talk."""
+        """Lightweight cleanup of system artifacts."""
         if not text: return ""
-        # Remove any JSON blobs
-        text = re.sub(r'\{\"success\":.*?\}(?=\s|$)', '', text, flags=re.DOTALL)
-        # Remove raw SQL fragments
+        # Remove raw SQL fragments if any leaked
         text = re.sub(r'SELECT\s+.*?\s+LIMIT\s+\d+', '', text, flags=re.IGNORECASE | re.DOTALL)
         # Remove system words
         text = re.sub(r'execute-success|\[DONE\]|智能问数小助手|抱歉|无法', '', text, flags=re.IGNORECASE)
+        # Strip potential JSON wrappers if model hallucinates them despite instructions
+        if text.strip().startswith('{') and text.strip().endswith('}'):
+            try:
+                # If it's pure JSON, try to extract a 'message' or 'content' field, otherwise discard
+                js = json.loads(text)
+                return js.get('answer', js.get('message', ''))
+            except: pass
         return text.strip()
-
-    def _ask_ai(self, prompt: str) -> str:
-        headers = self._get_headers()
-        try:
-            res = requests.post(f"{self.endpoint}/api/v1/chat/start", json={"question": prompt, "datasource": self.datasource_id}, headers=headers, timeout=20)
-            if res.status_code != 200: return ""
-            data = res.json().get("data", res.json())
-            chat_id = data.get("id")
-            if not chat_id: return data.get("records", [{}])[0].get("content", "")
-            
-            res = requests.post(f"{self.endpoint}/api/v1/chat/question", json={"question": prompt, "chat_id": chat_id}, headers=headers, timeout=30, stream=True)
-            full = ""
-            for line in res.iter_lines():
-                if line:
-                    d = line.decode('utf-8')
-                    if d.startswith("data:"):
-                        js = d[5:].strip()
-                        if js == "[DONE]": break
-                        try: full += json.loads(js).get("content", "")
-                        except: pass
-            return full
-        except: return ""
 
     def generate_summary(self, question: str, data: list, history: list = []) -> str:
         if not data: return "线索已断，数据库中未发现匹配记录。"
@@ -151,20 +134,23 @@ class SQLBotClient:
 你现在是 'Open-Detective'，一位敏锐的开源情报侦探。
 用户仅提供了一个模糊的线索（"{question}"），你需要通过分析以下数据证据，还原项目的真实状况。
 
-**任务要求：**
-1. **意图推断**：用户想知道该项目的**健康度**和**发展势头**，而不仅仅是数字。
-2. **深度分析**：计算波动、寻找峰值、判断近期是增长还是衰退。
-3. **输出格式**（严格遵守 Markdown）：
+**绝对规则：**
+1. **只输出纯文本分析报告**（Markdown格式）。
+2. **严禁输出任何 JSON、代码块或图表配置**（前端已有图表，你只负责解说）。
+3. 语气专业、犀利、有洞察力。
 
-### 📂 案件档案：[项目名称] [指标] 追踪
+**报告结构：**
+
+### 📂 案件档案：[项目名称] [指标] 深度追踪
+
 **📊 关键证据：**
-*   (列出3个关键数据点，如最高值、近期趋势、总量等，**加粗数字**)
+*   (列出3个关键数据点，如峰值月、增长倍数、当前值，**加粗数字**)
 
 **📉 侦探分析：**
-(一段犀利的叙述性分析。描述曲线的形状，指出异常点或稳健的增长趋势。)
+(一段约100字的叙述性分析。描述曲线的起伏。例如：“该项目在202x年经历爆发式增长，随后...”)
 
 **🕵️‍♂️ 最终判决：**
-(一句话总结项目的当前状态，例如“处于爆发期”、“显露疲态”或“稳健如初”。)
+(一句话定性，例如“处于黄金爆发期”、“进入平稳成熟期”或“需警惕活跃度下滑”。)
 
 **数据证据 (前15条):** {json.dumps(data[:15])}
 **上下文:** {history_text}
