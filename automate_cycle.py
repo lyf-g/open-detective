@@ -11,16 +11,15 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Fix: SQL Metric Aliasing & Robustness"
+ISSUE_TITLE = "Feat: Backend Session Persistence Infrastructure"
 ISSUE_BODY = """
-Root Cause: LLM generated "star" but DB expects "stars".
-Fix: Added metric aliasing layer in `repair_sql` (star->stars, issue->issues_new).
+Implemented `sessions` and `messages` tables. Added API endpoints for CRUD operations.
 """
 
-COMMIT_MSG = "fix: auto-correct metric names in generated SQL (star->stars)"
+COMMIT_MSG = "feat: add session management tables and api endpoints"
 
-PR_TITLE = "Robust SQL Generation: Metric Auto-correction"
-PR_BODY = "Fixes empty results caused by singular/plural metric mismatches."
+PR_TITLE = "Backend Session Support"
+PR_BODY = "Introduces persistent chat sessions backed by MySQL."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
