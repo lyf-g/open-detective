@@ -92,6 +92,46 @@ class Message(BaseModel):
     evidence_sql: Optional[str] = None
     evidence_data: Optional[List[Dict]] = None
 
+class ChatResponse(BaseModel):
+    answer: str
+    sql_query: str
+    data: List[Dict[str, Any]]
+    engine_source: str
+
+class HealthResponse(BaseModel):
+    status: str
+    version: str
+    db_connected: bool
+
+# Version 1 Router
+router_v1 = APIRouter(prefix="/api/v1")
+
+def detect_anomalies(data: list) -> list:
+    """Scans data for significant spikes or drops."""
+    if len(data) < 3: return []
+    
+    threshold = float(os.getenv("ANOMALY_THRESHOLD", "0.5"))
+    anomalies = []
+    
+    for i in range(1, len(data)):
+        # Handle both possible column names
+        prev = float(data[i-1].get('value') or data[i-1].get('metric_value') or 0)
+        curr = float(data[i].get('value') or data[i].get('metric_value') or 0)
+        repo = data[i].get('repo_name') or "Unknown Repository"
+        
+        if prev == 0: continue
+        
+        change = (curr - prev) / prev
+        if abs(change) > threshold:
+            type_label = "SPIKE" if change > 0 else "DROP"
+            anomalies.append({
+                "month": data[i].get('month'),
+                "repo": repo,
+                "type": type_label,
+                "intensity": f"{abs(change)*100:.1f}%"
+            })
+    return anomalies[:3]
+
 @router_v1.post("/sessions", response_model=Session)
 def create_session(request: Request):
     session_id = str(uuid.uuid4())

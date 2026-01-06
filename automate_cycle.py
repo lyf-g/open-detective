@@ -11,15 +11,15 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Fix: Frontend Build Failure (Missing Tags)"
+ISSUE_TITLE = "Fix: Backend NameError (Missing Definitions)"
 ISSUE_BODY = """
-Restored accidentally truncated template code in App.vue that caused Vite build errors.
+Restored `router_v1`, `ChatResponse`, and `detect_anomalies` which were accidentally overwritten in previous edits.
 """
 
-COMMIT_MSG = "fix: restore truncated App.vue template"
+COMMIT_MSG = "fix: restore missing backend definitions causing startup crash"
 
-PR_TITLE = "Emergency: Fix Frontend Build"
-PR_BODY = "Restores the missing UI components in the template."
+PR_TITLE = "Emergency: Fix Backend Startup"
+PR_BODY = "Restores critical missing symbols."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
