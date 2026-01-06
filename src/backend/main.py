@@ -100,9 +100,14 @@ async def chat(request_request: Request, chat_request: ChatRequest):
 
     # 3. Formulate Answer
     if data:
-        answer = f"Found {len(data)} records for your query."
+        if engine_type == "sqlbot":
+            from src.backend.services.sqlbot_client import SQLBotClient
+            client = SQLBotClient()
+            answer = client.generate_summary(chat_request.message, data)
+        else:
+            answer = f"Found {len(data)} records for your query."
     else:
-        answer = "No data found."
+        answer = "No data found correlating to your request."
 
     return ChatResponse(
         answer=answer,
