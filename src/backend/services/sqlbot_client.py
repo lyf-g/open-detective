@@ -100,9 +100,6 @@ class SQLBotClient:
         if not text: return ""
         # Remove any JSON blobs
         text = re.sub(r'\{\"success\":.*?\}(?=\s|$)', '', text, flags=re.DOTALL)
-        text = re.sub(r'\{.*?\}', '', text, flags=re.DOTALL)
-        # Remove markdown blocks
-        text = re.sub(r'```.*?```', '', text, flags=re.DOTALL)
         # Remove raw SQL fragments
         text = re.sub(r'SELECT\s+.*?\s+LIMIT\s+\d+', '', text, flags=re.IGNORECASE | re.DOTALL)
         # Remove system words
@@ -133,9 +130,19 @@ class SQLBotClient:
 
     def generate_summary(self, question: str, data: list) -> str:
         if not data: return "线索已断，数据库中未发现匹配记录。"
-        prompt = f"你现在是资深开源侦探 'Open-Detective'。请基于以下线索给出简洁的中文调查结论（禁止输出SQL/JSON）：{json.dumps(data[:10])}\n问题: {question}"
+        prompt = f"""
+你现在是资深开源侦探 'Open-Detective'。请基于以下数据线索，分析趋势并给出专业结论。
+要求：
+1. **必须使用 Markdown 格式**（使用项目符号列表、**加粗**重点指标）。
+2. 语气专业、犀利，像一份侦探报告。
+3. 严禁输出 JSON 或 SQL 代码，严禁输出 "根据数据..." 等废话。
+4. 结合具体数字进行分析，指出最大值或异常点。
+
+数据片段: {json.dumps(data[:15])}
+问题: {question}
+"""
         ans = self._ask_ai(prompt)
-        return self.sanitize_text(ans) or f"调查完成。锁定 {len(data)} 条证据，具体趋势见下方。"
+        return self.sanitize_text(ans) or f"调查完成。锁定 {len(data)} 条证据，具体趋势见下方图表。"
 
     def generate_sql(self, question: str) -> Optional[str]:
         prompt = f"""
