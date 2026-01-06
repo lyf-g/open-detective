@@ -87,6 +87,18 @@ class SQLBotClient:
         if not sql: return ""
         sql = re.sub(r'--.*$', '', sql, flags=re.MULTILINE)
         sql = re.sub(r'/\*.*?\*/', '', sql, flags=re.DOTALL)
+        
+        # Metric Aliasing Map
+        metric_map = {
+            "'star'": "'stars'",
+            "'issue'": "'issues_new'",
+            "'issues'": "'issues_new'",
+            "'rank'": "'openrank'",
+            "'activity'": "'activity'"
+        }
+        for k, v in metric_map.items():
+            sql = sql.replace(k, v)
+
         def repl(m):
             v = m.group(1)
             for p in SQLBotClient._repo_list:
