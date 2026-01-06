@@ -88,12 +88,14 @@ async def chat(request_request: Request, chat_request: ChatRequest):
     # 2. Execute SQL
     data = []
     try:
+        print(f"🚀 Executing SQL: {sql_query}")
         # MySQL dictionary cursor
         cursor = request_request.app.state.db.cursor(dictionary=True)
         cursor.execute(sql_query)
         data = cursor.fetchall()
         cursor.close()
     except Exception as e:
+        print(f"❌ SQL Execution Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
     # 3. Formulate Answer
