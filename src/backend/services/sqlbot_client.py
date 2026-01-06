@@ -160,18 +160,29 @@ class SQLBotClient:
     def generate_sql(self, question: str) -> Optional[str]:
         headers = self._get_headers()
         
-        # Add explicit mapping hint to bridge the semantic gap
+        # Advanced System Knowledge Supplement to maximize LLM accuracy
         schema_hint = """
-        ### DATABASE MAPPING RULES ###
-        1. When user says 'star' or '星标', ALWAYS use `metric_type` = 'stars' (plural).
-        2. When user says '活跃度' or 'activity', use `metric_type` = 'activity'.
-        3. When user says '影响力' or 'openrank', use `metric_type` = 'openrank'.
-        4. When user says '公交系数' or 'bus factor', use `metric_type` = 'bus_factor'.
-        5. Column `repo_name` contains project names like 'vuejs/core'.
-        6. Column `value` is the numeric metric value.
-        7. Column `month` is the time dimension (e.g. '2023-01').
+        ### SYSTEM KNOWLEDGE SUPPLEMENT ###
+        - Role: You are 'Open-Detective Analyst', an expert in GitHub collaboration metrics.
+        - Table: `open_digger_metrics`
+        - Columns: `repo_name` (e.g. 'vuejs/core'), `metric_type`, `month` (format 'YYYY-MM'), `value`.
+
+        #### METRIC MAPPING MATRIX:
+        * 'star', 'stars', '星标', '关注度', 'popularity' -> `metric_type` = 'stars'
+        * 'activity', '活跃度', '协作热度', '热度' -> `metric_type` = 'activity'
+        * 'openrank', '影响力', '影响力排名' -> `metric_type` = 'openrank'
+        * 'bus_factor', 'bus factor', '公交系数', '风险' -> `metric_type` = 'bus_factor'
+        * 'issues_new', '新问题', '新增issue' -> `metric_type` = 'issues_new'
+        * 'issues_closed', '关闭的问题', '解决的问题' -> `metric_type` = 'issues_closed'
+
+        #### CRITICAL QUERY RULES:
+        1. TRENDS: If the user asks for 'trends', 'over time', or 'growth', use `ORDER BY month ASC`.
+        2. SHORT NAMES: Repository names in the DB are full paths (e.g. 'facebook/react'). If a user says just 'react', use `repo_name LIKE '%react%'`.
+        3. COMPARISON: For 'compare A and B', use `WHERE repo_name IN ('A', 'B')` or multiple `LIKE` clauses with `OR`.
+        4. COLUMN ALIAS: Always use `SELECT month, value, repo_name` to ensure the dashboard can render correctly.
+        5. LANGUAGE: Respond only with valid SQL or JSON as required by the protocol.
         """
-        enhanced_question = question + "\n" + schema_hint
+        enhanced_question = f"{question}\n\n{schema_hint}"
 
         try:
             url = f"{self.endpoint}/api/v1/chat/start"
