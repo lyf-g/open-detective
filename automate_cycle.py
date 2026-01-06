@@ -11,20 +11,21 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Feat: Context-Aware Conversation Logic"
+ISSUE_TITLE = "Fix: Ensure Automation Cycle Closes Issues"
 ISSUE_BODY = """
-Integrated chat history into SQL generation and Summary prompts. Backend now fetches and passes last 5 messages.
+The script was missing an explicit closure step, relying on manual cleanup. Added `gh issue close`.
 """
 
-COMMIT_MSG = "feat: pass chat history to AI for context-aware responses"
+COMMIT_MSG = "fix: update automate_cycle.py to explicitly close issues"
 
-PR_TITLE = "Contextual AI Memory"
-PR_BODY = "Enables the detective to remember previous questions (e.g. 'Compare with Vue')."
+PR_TITLE = "Fix: Auto-close Automation Issues"
+PR_BODY = "Ensures the DevOps loop is fully closed by closing the tracked issue."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
 # 1. 建立具有侦探深度的 Issue
-run(f'gh issue create --title "{ISSUE_TITLE}" --body "{ISSUE_BODY}"')
+issue_res = run(f'gh issue create --title "{ISSUE_TITLE}" --body "{ISSUE_BODY}"')
+issue_url = issue_res.stdout.strip()
 
 # 2. 切换分支并强制抓取所有修改
 run('git checkout -B feature/detective-core-upgrade')
@@ -35,5 +36,10 @@ run('git push -f origin feature/detective-core-upgrade')
 # 3. 创建 PR 并完成闭环
 run(f'gh pr create --title "{PR_TITLE}" --body "{PR_BODY}" --base main --head feature/detective-core-upgrade')
 run('gh pr merge --merge --delete-branch')
+
+# 4. 显式关闭 Issue
+if issue_url:
+    print(f"🔒 Closing Issue: {issue_url}")
+    run(f'gh issue close {issue_url}')
 
 print("✅ Investigation Cycle Successfully Merged and Documented!")
