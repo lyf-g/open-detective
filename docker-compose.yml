@@ -8,27 +8,20 @@ services:
     ports:
       - "8081:8081"
     volumes:
+      - ./data/mysql:/var/lib/mysql # This looks like it was in the wrong place or duplicated, let's fix the backend volumes
       - ./.env:/app/.env
     environment:
       - SQL_ENGINE_TYPE=sqlbot
       - SQLBOT_ENDPOINT=http://sqlbot:8000
-      - DB_HOST=mysql
-      - DB_USER=root
-      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - DB_NAME=open_detective
+      - DATABASE_PATH=/app/db_shared/open_detective.db
+      - SQLBOT_API_KEY=${SQLBOT_API_KEY}
+      - SQLBOT_SECRET_KEY=${SQLBOT_SECRET_KEY} # Shared system secret
     depends_on:
       - mysql
       - sqlbot
 
   frontend:
-    build:
-      context: .
-      dockerfile: src/frontend/Dockerfile
-    ports:
-      - "8082:80"
-    depends_on:
-      - backend
-
+# ...
   sqlbot:
     image: dataease/sqlbot
     restart: unless-stopped
@@ -36,14 +29,9 @@ services:
     ports:
       - "8000:8000"
       - "8001:8001"
+    environment:
+      - SECRET_KEY=${SQLBOT_SECRET_KEY} # Force SQLBot to use our key
     volumes:
-      - ./data/sqlbot/excel:/opt/sqlbot/data/excel
-      - ./data/sqlbot/file:/opt/sqlbot/data/file
-      - ./data/sqlbot/images:/opt/sqlbot/images
-      - ./data/sqlbot/logs:/opt/sqlbot/app/logs
-      - ./data/postgresql:/var/lib/postgresql/data
-    depends_on:
-      - mysql
 
   mysql:
     image: mysql:8.0
