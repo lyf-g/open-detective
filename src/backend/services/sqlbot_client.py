@@ -121,11 +121,37 @@ class SQLBotClient:
         # 3. Clean residual JSON brackets
         text = re.sub(r'^\s*\{.*?\}\s*$', '', text, flags=re.DOTALL)
         text = re.sub(r'[\[\]\{\}]', '', text) # Remove remaining brackets
+
+        # 4. Clean residual JSON artifacts (comma, quote, colon at end/start)
+        text = re.sub(r'[,":\s]+$', '', text)
+        text = re.sub(r'^[,":\s]+', '', text)
         
-        # 4. Remove system words
+        # 5. Remove system words
         text = re.sub(r'execute-success|\[DONE\]|智能问数小助手|抱歉|无法', '', text, flags=re.IGNORECASE)
         
         return text.strip()
+
+    def _ask_ai(self, prompt: str) -> str:
+        headers = self._get_headers()
+        try:
+            res = requests.post(f"{self.endpoint}/api/v1/chat/start", json={"question": prompt, "datasource": self.datasource_id}, headers=headers, timeout=20)
+            if res.status_code != 200: return ""
+            data = res.json().get("data", res.json())
+            chat_id = data.get("id")
+            if not chat_id: return data.get("records", [{}])[0].get("content", "")
+            
+            res = requests.post(f"{self.endpoint}/api/v1/chat/question", json={"question": prompt, "chat_id": chat_id}, headers=headers, timeout=30, stream=True)
+            full = ""
+            for line in res.iter_lines():
+                if line:
+                    d = line.decode('utf-8')
+                    if d.startswith("data:"):
+                        js = d[5:].strip()
+                        if js == "[DONE]": break
+                        try: full += json.loads(js).get("content", "")
+                        except: pass
+            return full
+        except: return ""
 
     def _generate_fallback_report(self, question: str, data: list) -> str:
         """Rule-based detective report when AI fails."""
