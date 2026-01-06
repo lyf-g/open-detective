@@ -11,15 +11,15 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Fix: Ensure Automation Cycle Closes Issues"
+ISSUE_TITLE = "Fix: Backend Crash on Missing Config Files"
 ISSUE_BODY = """
-The script was missing an explicit closure step, relying on manual cleanup. Added `gh issue close`.
+Backend would crash if `data/repos.json` was missing. Added self-healing integrity check on startup.
 """
 
-COMMIT_MSG = "fix: update automate_cycle.py to explicitly close issues"
+COMMIT_MSG = "fix: add startup integrity check to create default repos.json if missing"
 
-PR_TITLE = "Fix: Auto-close Automation Issues"
-PR_BODY = "Ensures the DevOps loop is fully closed by closing the tracked issue."
+PR_TITLE = "Robust Startup: Auto-config Generation"
+PR_BODY = "Prevents FileNotFoundError crashes by generating default configuration files."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
