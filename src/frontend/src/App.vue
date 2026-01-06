@@ -65,7 +65,121 @@
                 </div>
 
                 <div v-for="(msg, index) in chatHistory" :key="msg.id || index" :class="['message-row', msg.role]">
-<!-- ... (rest of template) ... -->
+                  <div class="message-card">
+                    <div class="role-badge">
+                      <el-icon v-if="msg.role === 'user'"><User /></el-icon>
+                      <el-icon v-else><Monitor /></el-icon>
+                      {{ msg.role === 'user' ? 'AGENT' : 'OPEN-DETECTIVE' }}
+                      <el-tag v-if="msg.evidence" size="small" type="success" effect="dark" class="evidence-badge">
+                        EVIDENCE SECURED
+                      </el-tag>
+                    </div>
+                    
+                    <div class="content">
+                      <div v-if="isRefusal(msg.content)" class="refusal-box">
+                        <el-alert
+                          :title="msg.content"
+                          type="warning"
+                          :closable="false"
+                          show-icon
+                        />
+                      </div>
+                      <div v-else v-html="renderMarkdown(msg.content)"></div>
+                    </div>
+
+                    <!-- Evidence Section -->
+                    <div v-if="msg.evidence" class="evidence-section">
+                      <el-divider content-position="left">INVESTIGATION LOGS</el-divider>
+                      
+                      <div class="evidence-content">
+                        <div class="evidence-box">
+                          <div class="evidence-header">
+                            <el-icon><DataLine /></el-icon> Visual Reconstruction
+                          </div>
+                          <ResultChart :key="`chart-${index}-${msg.evidence.data.length}`" :data="msg.evidence.data" :title="msg.evidence.brief" />
+                        </div>
+
+                        <el-collapse class="secondary-evidence" v-model="msg.activeDetails">
+                          <el-collapse-item title="Data Forensics (SQL & Raw)" name="details">
+                            <div class="sql-block">
+                              <span class="label">QUERY LOGIC:</span>
+                              <pre><code>{{ msg.evidence.sql }}</code></pre>
+                              <el-button size="small" circle @click="copyToClipboard(msg.evidence.sql)" class="copy-float">
+                                <el-icon><CopyDocument /></el-icon>
+                              </el-button>
+                            </div>
+                            
+                            <el-table :data="msg.evidence.data" size="small" border stripe class="mini-table" max-height="250">
+                              <el-table-column v-for="col in getTableColumns(msg.evidence.data)" 
+                                :key="col" :prop="col" :label="col.toUpperCase()" sortable />
+                            </el-table>
+                          </el-collapse-item>
+                        </el-collapse>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Local Loading Indicator with Thought Chain -->
+                <div v-if="loading" class="message-row assistant loading-state">
+                  <div class="message-card loading-card">
+                    <div class="role-badge">
+                      <el-icon class="is-loading"><Loading /></el-icon>
+                      OPEN-DETECTIVE
+                    </div>
+                    <div class="thought-chain">
+                      <div class="thought-step active">
+                        <el-icon><Search /></el-icon> Parsing investigation request...
+                      </div>
+                      <div class="thought-step">
+                        <el-icon><Connection /></el-icon> Accessing metric database...
+                      </div>
+                      <div class="thought-step">
+                        <el-icon><Cpu /></el-icon> Generating relational logic...
+                      </div>
+                    </div>
+                    <div class="loading-content">
+                      <div class="scanner-line"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </el-scrollbar>
+          </div>
+
+          <!-- Input Area -->
+          <div class="input-area">
+            <div class="input-wrapper">
+              <el-input
+                v-model="userInput"
+                placeholder="Enter project names or metric queries..."
+                @keyup.enter="sendMessage"
+                :disabled="loading"
+                size="large"
+                clearable
+              >
+                <template #prefix>
+                  <el-icon><Connection /></el-icon>
+                </template>
+                <template #suffix>
+                  <el-button 
+                    :loading="loading" 
+                    @click="sendMessage" 
+                    type="primary" 
+                    circle 
+                    :disabled="!userInput.trim()">
+                    <el-icon v-if="!loading"><Promotion /></el-icon>
+                  </el-button>
+                </template>
+              </el-input>
+            </div>
+          </div>
+        </el-main>
+      </el-container>
+    </div>
+  </el-config-provider>
+</template>
+
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 import axios from 'axios';
