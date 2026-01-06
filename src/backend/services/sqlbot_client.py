@@ -11,6 +11,7 @@ from Crypto.Cipher import PKCS1_v1_5
 class SQLBotClient:
     _cached_token = None
     _repo_list = []
+    _sql_cache = {}
 
     def __init__(self, endpoint: Optional[str] = None):
         self.endpoint = endpoint or os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
@@ -260,6 +261,11 @@ class SQLBotClient:
         return cleaned_ans
 
     def generate_sql(self, question: str, history: list = []) -> Optional[str]:
+        # Cache Check
+        cache_key = f"{question.strip().lower()}|{len(history)}"
+        if cache_key in SQLBotClient._sql_cache:
+            return SQLBotClient._sql_cache[cache_key]
+
         history_text = ""
         if history:
             history_text = "Conversation History:\n" + "\n".join([f"{m['role']}: {m['content']}" for m in history[-4:]]) + "\n"
@@ -294,7 +300,15 @@ Instructions:
 {history_text}
 Question: {question}
 """
-        return self.repair_sql(self._extract_sql(self._ask_ai(prompt)))
+        result = self.repair_sql(self._extract_sql(self._ask_ai(prompt)))
+        
+        # Cache Result
+        if result:
+            if len(SQLBotClient._sql_cache) > 200:
+                SQLBotClient._sql_cache.pop(next(iter(SQLBotClient._sql_cache)))
+            SQLBotClient._sql_cache[cache_key] = result
+            
+        return result
 
 def sqlbot_text_to_sql(text: str) -> str:
     return SQLBotClient().generate_sql(text)
