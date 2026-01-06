@@ -9,17 +9,20 @@ from src.backend.services.sql_engine import mock_text_to_sql
 
 def test_sql_gen_basic():
     sql = mock_text_to_sql("stars for vue")
-    assert "repo_name = 'vuejs/core'" in sql
+    assert "repo_name IN" in sql
+    assert "'vuejs/core'" in sql
     assert "metric_type = 'stars'" in sql
 
 def test_sql_gen_activity():
     sql = mock_text_to_sql("activity of react")
-    assert "repo_name = 'facebook/react'" in sql
+    assert "repo_name IN" in sql
+    assert "'facebook/react'" in sql
     assert "metric_type = 'activity'" in sql
 
 def test_sql_gen_bus_factor():
     sql = mock_text_to_sql("what is the bus factor of tensorflow")
-    assert "repo_name = 'tensorflow/tensorflow'" in sql
+    assert "repo_name IN" in sql
+    assert "'tensorflow/tensorflow'" in sql
     assert "metric_type = 'bus_factor'" in sql
 
 def test_sql_gen_unknown_repo():
@@ -28,14 +31,16 @@ def test_sql_gen_unknown_repo():
 
 def test_sql_gen_vscode():
     sql = mock_text_to_sql("vscode issues")
-    assert "repo_name = 'microsoft/vscode'" in sql
+    assert "repo_name IN" in sql
+    assert "'microsoft/vscode'" in sql
     assert "metric_type = 'issues_new'" in sql
 
 def test_sql_gen_ollama():
     sql = mock_text_to_sql("stars for ollama")
-    assert "repo_name = 'ollama/ollama'" in sql
+    assert "repo_name IN" in sql
+    assert "'ollama/ollama'" in sql
 
 def test_sql_gen_rust():
     sql = mock_text_to_sql("activity of rust-lang/rust")
-    assert "repo_name = 'rust-lang/rust'" in sql
-
+    assert "repo_name IN" in sql
+    assert "'rust-lang/rust'" in sql

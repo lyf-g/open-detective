@@ -42,11 +42,80 @@ const chartOption = computed(() => {
   const splitLineColor = isDark ? '#444' : '#eee';
 
   // Assumption: Data structure is [{ month: '2023-01', value: 123, ... }, ...]
-  // We try to find the 'axis' key (usually time) and 'value' key.
   const keys = Object.keys(props.data[0]);
   
   // Heuristic: Find a key that looks like a date/category for X-axis
   const xAxisKey = keys.find(k => ['month', 'date', 'year', 'day'].includes(k.toLowerCase())) || keys[0];
+
+  // Check if we have 'repo_name' for multi-series comparison
+  const hasRepoName = keys.includes('repo_name');
+
+  if (hasRepoName) {
+    // Multi-series logic
+    const repos = [...new Set(props.data.map(d => d.repo_name))];
+    const valKey = 'value'; // We enforce this from backend query
+
+    // Get all unique time points and sort them
+    const allTimePoints = [...new Set(props.data.map(d => d[xAxisKey]))].sort();
+    
+    const seriesList = repos.map((repo, idx) => {
+        const repoData = props.data.filter(d => d.repo_name === repo);
+        const dataPoints = allTimePoints.map(t => {
+            const found = repoData.find(d => d[xAxisKey] === t);
+            return found ? found[valKey] : null;
+        });
+        
+        return {
+            name: repo,
+            type: 'line',
+            data: dataPoints,
+            smooth: true,
+            areaStyle: { opacity: 0.1 }, // Less opacity for multiple series
+            // Auto color assignment by ECharts
+        };
+    });
+
+    return {
+      title: {
+        text: props.title || 'Comparison Analysis',
+        left: 'center',
+        textStyle: { fontSize: 14, color: textColor }
+      },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: isDark ? 'rgba(50,50,50,0.9)' : '#fff',
+        textStyle: { color: isDark ? '#fff' : '#333' },
+        borderColor: isDark ? '#555' : '#ccc'
+      },
+      legend: {
+        data: repos,
+        top: '30px',
+        textStyle: { color: textColor }
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true,
+        top: '80px' // More space for legend
+      },
+      xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        data: allTimePoints,
+        axisLabel: { color: textColor },
+        axisLine: { lineStyle: { color: splitLineColor } }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: { color: textColor },
+        splitLine: { lineStyle: { color: splitLineColor } }
+      },
+      series: seriesList
+    };
+  }
+
+  // Single Series Fallback (Existing Logic)
   // Heuristic: Find the numerical key for Y-axis
   const seriesKey = keys.find(k => k !== xAxisKey && typeof props.data[0][k] === 'number') || keys[1];
 
