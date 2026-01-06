@@ -52,44 +52,46 @@
                   </el-empty>
                 </div>
 
-                <div v-for="(msg, index) in chatHistory" :key="index" :class="['message-row', msg.role]">
+                <div v-for="(msg, index) in chatHistory" :key="msg.id || index" :class="['message-row', msg.role]">
                   <div class="message-card">
                     <div class="role-badge">
                       <el-icon v-if="msg.role === 'user'"><User /></el-icon>
                       <el-icon v-else><Monitor /></el-icon>
                       {{ msg.role === 'user' ? 'AGENT' : 'DETECTIVE AI' }}
+                      <el-tag v-if="msg.evidence" size="small" type="success" effect="dark" class="evidence-badge">
+                        EVIDENCE SECURED
+                      </el-tag>
                     </div>
                     
                     <div class="content" v-html="renderMarkdown(msg.content)"></div>
 
                     <!-- Evidence Section -->
                     <div v-if="msg.evidence" class="evidence-section">
-                      <el-divider content-position="left">INVESTIGATION EVIDENCE</el-divider>
+                      <el-divider content-position="left">INVESTIGATION LOGS</el-divider>
                       
                       <div class="evidence-content">
-                        <!-- We use explicit components here instead of a shared v-model to keep them open -->
                         <div class="evidence-box">
                           <div class="evidence-header">
                             <el-icon><DataLine /></el-icon> Visual Reconstruction
                           </div>
-                          <ResultChart :data="msg.evidence.data" :title="msg.evidence.brief" />
+                          <!-- Use a unique key based on message index and data length to force re-render -->
+                          <ResultChart :key="`chart-${index}-${msg.evidence.data.length}`" :data="msg.evidence.data" :title="msg.evidence.brief" />
                         </div>
 
-                        <el-collapse class="secondary-evidence">
-                          <el-collapse-item title="View Raw Records & Query Logic" name="details">
+                        <el-collapse class="secondary-evidence" v-model="msg.activeDetails">
+                          <el-collapse-item title="Data Forensics (SQL & Raw)" name="details">
                             <div class="sql-block">
-                              <span class="label">LOGIC:</span>
+                              <span class="label">QUERY LOGIC:</span>
                               <pre><code>{{ msg.evidence.sql }}</code></pre>
                               <el-button size="small" circle @click="copyToClipboard(msg.evidence.sql)" class="copy-float">
                                 <el-icon><CopyDocument /></el-icon>
                               </el-button>
                             </div>
                             
-                            <el-table :data="msg.evidence.data.slice(0, 5)" size="small" border stripe class="mini-table">
+                            <el-table :data="msg.evidence.data" size="small" border stripe class="mini-table" max-height="250">
                               <el-table-column v-for="col in getTableColumns(msg.evidence.data)" 
-                                :key="col" :prop="col" :label="col.toUpperCase()" />
+                                :key="col" :prop="col" :label="col.toUpperCase()" sortable />
                             </el-table>
-                            <div class="table-info">Sample of {{ msg.evidence.data.length }} data points found.</div>
                           </el-collapse-item>
                         </el-collapse>
                       </div>
@@ -193,7 +195,11 @@ const sendMessage = async () => {
   const query = userInput.value.trim();
   if (!query || loading.value) return;
 
-  chatHistory.value.push({ role: 'user', content: query });
+  chatHistory.value.push({ 
+    id: Date.now(),
+    role: 'user', 
+    content: query 
+  });
   userInput.value = '';
   loading.value = true;
 
@@ -207,8 +213,10 @@ const sendMessage = async () => {
     const { answer, sql, data, brief } = res.data;
 
     chatHistory.value.push({
+      id: Date.now() + 1,
       role: 'assistant',
       content: answer || 'Investigation concluded.',
+      activeDetails: [], // Individual state for collapse
       evidence: sql ? { sql, data: data || [], brief: brief || query } : null
     });
     
