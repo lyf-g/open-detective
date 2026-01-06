@@ -13,8 +13,29 @@ from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from src.backend.services.engine_factory import get_sql_engine
 
+def check_system_integrity():
+    """Ensures critical configuration files exist."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    
+    # 1. Check repos.json
+    data_dir = os.path.join(base_dir, 'data')
+    os.makedirs(data_dir, exist_ok=True)
+    repo_path = os.path.join(data_dir, 'repos.json')
+    if not os.path.exists(repo_path):
+        print("⚠️ repos.json not found. Creating default configuration.")
+        with open(repo_path, 'w') as f:
+            json.dump(["vuejs/core", "facebook/react", "fastapi/fastapi"], f, indent=2)
+            
+    # 2. Check .env
+    env_path = os.path.join(base_dir, '.env')
+    if not os.path.exists(env_path):
+        print("⚠️ .env not found. Please configure your environment variables.")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Startup: Integrity Check
+    check_system_integrity()
+
     # Startup: Open MySQL connection with retries
     max_retries = 5
     retry_delay = 5
