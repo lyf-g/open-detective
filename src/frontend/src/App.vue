@@ -93,7 +93,7 @@
             <input 
               v-model="inputMessage" 
               @keyup.enter="sendMessage"
-              placeholder="Enter investigation query..." 
+              placeholder="Ask me anything about open source projects..." 
               :disabled="loading"
               autofocus
             />
