@@ -140,8 +140,13 @@ class SQLBotClient:
             return full
         except: return ""
 
-    def generate_summary(self, question: str, data: list) -> str:
+    def generate_summary(self, question: str, data: list, history: list = []) -> str:
         if not data: return "线索已断，数据库中未发现匹配记录。"
+        
+        history_text = ""
+        if history:
+            history_text = "历史对话:\n" + "\n".join([f"{m['role'].upper()}: {m['content']}" for m in history[-4:]]) + "\n"
+
         prompt = f"""
 你现在是资深开源侦探 'Open-Detective'。请基于以下数据线索，分析趋势并给出专业结论。
 要求：
@@ -150,13 +155,18 @@ class SQLBotClient:
 3. 严禁输出 JSON 或 SQL 代码，严禁输出 "根据数据..." 等废话。
 4. 结合具体数字进行分析，指出最大值或异常点。
 
+{history_text}
 数据片段: {json.dumps(data[:15])}
 问题: {question}
 """
         ans = self._ask_ai(prompt)
         return self.sanitize_text(ans) or f"调查完成。锁定 {len(data)} 条证据，具体趋势见下方图表。"
 
-    def generate_sql(self, question: str) -> Optional[str]:
+    def generate_sql(self, question: str, history: list = []) -> Optional[str]:
+        history_text = ""
+        if history:
+            history_text = "Conversation History:\n" + "\n".join([f"{m['role']}: {m['content']}" for m in history[-4:]]) + "\n"
+
         prompt = f"""
 <System>
 You are 'Open-Detective'. Output ONLY raw MySQL.
@@ -165,6 +175,7 @@ RULES:
 2. Use full paths: {", ".join(SQLBotClient._repo_list)}
 3. ORDER BY month ASC.
 </System>
+{history_text}
 Question: {question}
 """
         return self.repair_sql(self._extract_sql(self._ask_ai(prompt)))

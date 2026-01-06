@@ -126,10 +126,26 @@ async def chat(request_request: Request, chat_request: ChatRequest):
     # 2. Get Engine Type
     engine_type_raw = os.getenv("SQL_ENGINE_TYPE", "mock")
     engine_type = engine_type_raw.split('#')[0].strip().lower()
+
+    # 2.1 Fetch History
+    history = []
+    if chat_request.session_id:
+        try:
+            cursor = request_request.app.state.db.cursor(dictionary=True)
+            cursor.execute("SELECT role, content FROM messages WHERE session_id = %s ORDER BY id DESC LIMIT 5", (chat_request.session_id,))
+            history = list(reversed(cursor.fetchall()))
+            cursor.close()
+        except: pass
     
-    # 3. Generate SQL (TODO: Pass context here)
-    engine = get_sql_engine()
-    sql_query = engine(chat_request.message)
+    # 3. Generate SQL
+    sql_query = ""
+    if engine_type == "sqlbot":
+        from src.backend.services.sqlbot_client import SQLBotClient
+        client = SQLBotClient()
+        sql_query = client.generate_sql(chat_request.message, history=history)
+    else:
+        engine = get_sql_engine()
+        sql_query = engine(chat_request.message)
     
     answer = ""
     data = []
@@ -155,7 +171,7 @@ async def chat(request_request: Request, chat_request: ChatRequest):
             if engine_type == "sqlbot":
                 from src.backend.services.sqlbot_client import SQLBotClient
                 client = SQLBotClient()
-                answer = client.generate_summary(chat_request.message, data)
+                answer = client.generate_summary(chat_request.message, data, history=history)
                 if clues:
                     clue_text = "\n\n🔍 **DETECTIVE CLUES FOUND:**\n" + "\n".join([f"- {c['month']} | {c['repo']} {c['type']} detected ({c['intensity']})" for c in clues])
                     answer += clue_text
