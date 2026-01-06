@@ -63,7 +63,18 @@
                       </el-tag>
                     </div>
                     
-                    <div class="content" v-html="renderMarkdown(msg.content)"></div>
+                    <div class="content">
+                      <!-- Detect if the message is a system refusal or error and style it accordingly -->
+                      <div v-if="isRefusal(msg.content)" class="refusal-box">
+                        <el-alert
+                          :title="msg.content"
+                          type="warning"
+                          :closable="false"
+                          show-icon
+                        />
+                      </div>
+                      <div v-else v-html="renderMarkdown(msg.content)"></div>
+                    </div>
 
                     <!-- Evidence Section -->
                     <div v-if="msg.evidence" class="evidence-section">
@@ -192,7 +203,19 @@ onMounted(() => {
   updateTime();
 });
 
-const renderMarkdown = (content: string) => md.render(content || '');
+const renderMarkdown = (content: string) => {
+  if (!content) return '';
+  // Brute force: Remove anything between { and } that looks like JSON
+  let sanitized = content.replace(/\{.*?\}/gs, '');
+  return md.render(sanitized.trim());
+};
+
+const isRefusal = (content: string) => {
+  if (!content) return false;
+  const keywords = ['无法', '抱歉', 'sorry', 'refuse', 'error', '未能识别', '没有发现'];
+  // Also check if it's very short and contains no spaces (typical of raw error objects)
+  return keywords.some(k => content.includes(k)) || (content.startsWith('{') && content.endsWith('}'));
+};
 
 const getTableColumns = (data: any[]) => {
   return data && data.length > 0 ? Object.keys(data[0]) : [];

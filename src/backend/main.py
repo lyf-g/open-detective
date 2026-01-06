@@ -74,8 +74,11 @@ def detect_anomalies(data: list) -> list:
     if len(data) < 3: return []
     anomalies = []
     for i in range(1, len(data)):
-        prev = data[i-1].get('value') or data[i-1].get('metric_value') or 0
-        curr = data[i].get('value') or data[i].get('metric_value') or 0
+        # Handle both possible column names
+        prev = float(data[i-1].get('value') or data[i-1].get('metric_value') or 0)
+        curr = float(data[i].get('value') or data[i].get('metric_value') or 0)
+        repo = data[i].get('repo_name') or "Unknown Repository"
+        
         if prev == 0: continue
         
         change = (curr - prev) / prev
@@ -83,7 +86,7 @@ def detect_anomalies(data: list) -> list:
             type_label = "SPIKE" if change > 0 else "DROP"
             anomalies.append({
                 "month": data[i].get('month'),
-                "repo": data[i].get('repo_name'),
+                "repo": repo,
                 "type": type_label,
                 "intensity": f"{abs(change)*100:.1f}%"
             })
