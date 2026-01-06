@@ -11,15 +11,15 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Fix: Backend Crash (Missing _ask_ai Method)"
+ISSUE_TITLE = "Fix: Persistent AI JSON Pollution"
 ISSUE_BODY = """
-Restored the `_ask_ai` method in `SQLBotClient` which was accidentally deleted in a previous refactor.
+Despite prompt engineering, SQLBot insists on outputting JSON. Implemented client-side filtering and a rule-based fallback report generator.
 """
 
-COMMIT_MSG = "fix: restore missing _ask_ai method in SQLBotClient"
+COMMIT_MSG = "fix: implement fallback report generator when AI outputs JSON"
 
-PR_TITLE = "Emergency: Fix SQLBot Client"
-PR_BODY = "Restores critical communication method with the LLM engine."
+PR_TITLE = "Robustness: Fallback Reporting"
+PR_BODY = "Prevents display of raw JSON by falling back to a generated summary."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
