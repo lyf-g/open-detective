@@ -11,17 +11,17 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Feat: Real-time DB Health Check"
+ISSUE_TITLE = "Feat: Configurable Anomaly Detection Sensitivity"
 ISSUE_BODY = """
 Improvement Log:
-1. Backend: Enhanced `/health` endpoint to return `db_connected` status.
-2. Ops: Allowed load balancers to detect Zombie DB connections.
+1. Backend: Replaced hardcoded `0.5` threshold with `ANOMALY_THRESHOLD` env var.
+2. Ops: Enabled fine-tuning of insight generation for volatile repositories.
 """
 
-COMMIT_MSG = "feat: expose real-time db connection status in health check"
+COMMIT_MSG = "feat: make anomaly detection threshold configurable via env var"
 
-PR_TITLE = "Enhanced Health Monitoring"
-PR_BODY = "Adds real-time DB connection validation to the health check endpoint."
+PR_TITLE = "Configurable Insight Sensitivity"
+PR_BODY = "Allows DevOps to tune the volatility threshold via ANOMALY_THRESHOLD."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
