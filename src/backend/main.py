@@ -73,7 +73,10 @@ async def chat(request_request: Request, chat_request: ChatRequest):
     print(f"Received message: {chat_request.message}")
     
     # 1. Generate SQL via configured engine
-    engine_type = os.getenv("SQL_ENGINE_TYPE", "mock").lower()
+    engine_type_raw = os.getenv("SQL_ENGINE_TYPE", "mock")
+    # Clean possible trailing comments/spaces from env
+    engine_type = engine_type_raw.split('#')[0].strip().lower()
+    
     engine = get_sql_engine()
     sql_query = engine(chat_request.message)
     
@@ -101,9 +104,11 @@ async def chat(request_request: Request, chat_request: ChatRequest):
     # 3. Formulate Answer
     if data:
         if engine_type == "sqlbot":
+            print(f"🧠 Asking AI to interpret {len(data)} records...")
             from src.backend.services.sqlbot_client import SQLBotClient
             client = SQLBotClient()
             answer = client.generate_summary(chat_request.message, data)
+            print(f"✍️ AI Interpretation: {answer[:50]}...")
         else:
             answer = f"Found {len(data)} records for your query."
     else:

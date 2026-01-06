@@ -34,12 +34,12 @@
 
           <div class="sidebar-footer">
             <div class="system-time">{{ currentTime }}</div>
-            <div class="copyright">v0.2.1 - CYBERNETIC DIV.</div>
+            <div class="copyright">v0.2.2 - CYBERNETIC DIV.</div>
           </div>
         </el-aside>
 
         <!-- Main Workspace -->
-        <el-main class="main-workspace" v-loading="loading" element-loading-background="rgba(0, 0, 0, 0.7)" element-loading-text="Analyzing Data Streams...">
+        <el-main class="main-workspace">
           <div class="case-log-container">
             <el-scrollbar ref="scrollRef">
               <div class="case-log">
@@ -64,34 +64,46 @@
 
                     <!-- Evidence Section -->
                     <div v-if="msg.evidence" class="evidence-section">
-                      <el-divider content-position="left">CASE EVIDENCE</el-divider>
+                      <el-divider content-position="left">INVESTIGATION EVIDENCE</el-divider>
                       
-                      <div class="evidence-tabs">
-                        <el-collapse v-model="activeEvidence">
-                          <el-collapse-item name="visual" title="Visual Reconstruction">
-                            <ResultChart :data="msg.evidence.data" :title="msg.evidence.brief" />
-                          </el-collapse-item>
-                          
-                          <el-collapse-item name="sql" title="Query Logic (SQL)">
-                            <div class="sql-code">
+                      <div class="evidence-content">
+                        <!-- We use explicit components here instead of a shared v-model to keep them open -->
+                        <div class="evidence-box">
+                          <div class="evidence-header">
+                            <el-icon><DataLine /></el-icon> Visual Reconstruction
+                          </div>
+                          <ResultChart :data="msg.evidence.data" :title="msg.evidence.brief" />
+                        </div>
+
+                        <el-collapse class="secondary-evidence">
+                          <el-collapse-item title="View Raw Records & Query Logic" name="details">
+                            <div class="sql-block">
+                              <span class="label">LOGIC:</span>
                               <pre><code>{{ msg.evidence.sql }}</code></pre>
-                              <el-button size="small" link class="copy-btn" @click="copyToClipboard(msg.evidence.sql)">
-                                <el-icon><CopyDocument /></el-icon> Copy
+                              <el-button size="small" circle @click="copyToClipboard(msg.evidence.sql)" class="copy-float">
+                                <el-icon><CopyDocument /></el-icon>
                               </el-button>
                             </div>
-                          </el-collapse-item>
-
-                          <el-collapse-item name="raw" title="Raw Data Records">
-                            <el-table :data="msg.evidence.data.slice(0, 10)" size="small" border stripe class="evidence-table">
+                            
+                            <el-table :data="msg.evidence.data.slice(0, 5)" size="small" border stripe class="mini-table">
                               <el-table-column v-for="col in getTableColumns(msg.evidence.data)" 
                                 :key="col" :prop="col" :label="col.toUpperCase()" />
                             </el-table>
-                            <div v-if="msg.evidence.data.length > 10" class="table-footer">
-                              Showing 10 of {{ msg.evidence.data.length }} records
-                            </div>
+                            <div class="table-info">Sample of {{ msg.evidence.data.length }} data points found.</div>
                           </el-collapse-item>
                         </el-collapse>
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Local Loading Indicator -->
+                <div v-if="loading" class="message-row assistant loading-state">
+                  <div class="message-card loading-card">
+                    <div class="role-badge">DETECTIVE AI</div>
+                    <div class="loading-content">
+                      <div class="scanner-line"></div>
+                      <span class="loading-text">Analyzing neural data streams...</span>
                     </div>
                   </div>
                 </div>
@@ -119,8 +131,7 @@
                     @click="sendMessage" 
                     type="primary" 
                     circle 
-                    :disabled="!userInput.trim()"
-                  >
+                    :disabled="!userInput.trim()">
                     <el-icon v-if="!loading"><Promotion /></el-icon>
                   </el-button>
                 </template>
@@ -146,10 +157,9 @@ import {
 
 const md = new MarkdownIt();
 const userInput = ref('');
-const loading = ref(false); // Fix: Initialized as boolean
+const loading = ref(false);
 const chatHistory = ref<any[]>([]);
 const scrollRef = ref<any>(null);
-const activeEvidence = ref(['visual']);
 const engineType = ref('sqlbot');
 const currentTime = ref('');
 
@@ -176,37 +186,37 @@ const getTableColumns = (data: any[]) => {
 const copyToClipboard = (text: string) => {
   if (!text) return;
   navigator.clipboard.writeText(text);
-  ElMessage.success('Copied to clipboard');
+  ElMessage.success({ message: 'Logic copied to clipboard', grouping: true });
 };
 
 const sendMessage = async () => {
   const query = userInput.value.trim();
   if (!query || loading.value) return;
 
-  console.log("🚀 Starting Investigation:", query);
   chatHistory.value.push({ role: 'user', content: query });
   userInput.value = '';
   loading.value = true;
 
+  // Auto-scroll to bottom
+  nextTick(() => {
+    if (scrollRef.value) scrollRef.value.setScrollTop(100000);
+  });
+
   try {
     const res = await axios.post(`${API_BASE}/chat`, { message: query });
-    console.log("✅ Received Response:", res.data);
     const { answer, sql, data, brief } = res.data;
 
     chatHistory.value.push({
       role: 'assistant',
-      content: answer || 'Analysis complete.',
+      content: answer || 'Investigation concluded.',
       evidence: sql ? { sql, data: data || [], brief: brief || query } : null
     });
     
     nextTick(() => {
-      if (scrollRef.value) {
-        scrollRef.value.setScrollTop(100000);
-      }
+      if (scrollRef.value) scrollRef.value.setScrollTop(100000);
     });
   } catch (error: any) {
-    console.error("❌ Investigation failed:", error);
-    ElMessage.error(`Investigation failed: ${error.response?.data?.detail || 'Network error'}`);
+    ElMessage.error(`System error during analysis: ${error.response?.data?.detail || 'Offline'}`);
   } finally {
     loading.value = false;
   }
@@ -224,16 +234,16 @@ const exportCase = () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `case-report-${Date.now()}.md`;
+  a.download = `investigation-file-${Date.now()}.md`;
   a.click();
 };
 </script>
 
 <style>
-/* Existing CSS remains same, ensuring high quality dark theme */
 :root {
   --sidebar-bg: #0d1117;
-  --main-bg: #0a0a0a;
+  --main-bg: #050505;
+  --card-bg: #161b22;
   --accent-color: #00bcd4;
   --text-primary: #e6edf3;
   --text-secondary: #8b949e;
@@ -243,7 +253,7 @@ const exportCase = () => {
 body {
   margin: 0;
   background-color: var(--main-bg);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text-primary);
   height: 100vh;
   overflow: hidden;
@@ -251,139 +261,62 @@ body {
 
 .full-height { height: 100vh; }
 
-/* Sidebar Styling */
-.sidebar {
-  background-color: var(--sidebar-bg);
-  border-right: 1px solid var(--border-color);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-}
+/* Sidebar */
+.sidebar { background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; }
+.sidebar-header { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; cursor: pointer; }
+.logo { font-size: 2.2rem; }
+.main-title { font-size: 1.1rem; font-weight: 800; margin: 0; color: #fff; letter-spacing: 1px; }
+.sub-title { font-size: 0.65rem; color: var(--accent-color); font-weight: bold; opacity: 0.8; }
+.stat-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.75rem; }
+.sidebar-actions { display: flex; flex-direction: column; gap: 10px; flex-grow: 1; }
+.action-btn { width: 100%; margin-left: 0 !important; font-size: 0.8rem; }
+.sidebar-footer { font-size: 0.7rem; border-top: 1px solid var(--border-color); padding-top: 20px; }
+.system-time { color: var(--accent-color); font-family: monospace; font-size: 1rem; margin-bottom: 4px; }
 
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 40px;
-  cursor: pointer;
-}
+/* Main Area */
+.main-workspace { padding: 0 !important; display: flex; flex-direction: column; background: radial-gradient(circle at center, #0a0a0a 0%, #050505 100%); }
+.case-log-container { flex-grow: 1; overflow: hidden; }
+.case-log { max-width: 850px; margin: 0 auto; padding: 40px 20px; }
 
-.logo { font-size: 2.5rem; }
-.main-title { font-size: 1.2rem; font-weight: 800; margin: 0; color: #fff; letter-spacing: 1px; }
-.sub-title { font-size: 0.7rem; color: var(--accent-color); font-weight: bold; }
-
-.sidebar-stats { margin-bottom: 30px; }
-.stat-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem; }
-.stat-item .label { color: var(--text-secondary); font-weight: bold; }
-
-.sidebar-actions { display: flex; flex-direction: column; gap: 12px; flex-grow: 1; }
-.action-btn { width: 100%; margin-left: 0 !important; }
-
-.sidebar-footer { font-size: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 20px; }
-.system-time { color: var(--accent-color); font-family: monospace; font-size: 1.1rem; margin-bottom: 5px; }
-.copyright { color: #444; }
-
-/* Workspace Styling */
-.main-workspace {
-  padding: 0 !important;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  background-color: var(--main-bg);
-}
-
-.case-log-container {
-  flex-grow: 1;
-  overflow: hidden;
-}
-
-.case-log {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 20px;
-}
-
-/* Message Rows */
-.message-row { display: flex; flex-direction: column; margin-bottom: 30px; }
+/* Messages */
+.message-row { display: flex; flex-direction: column; margin-bottom: 32px; animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .user { align-items: flex-end; }
-.assistant { align-items: flex-start; }
+.message-card { max-width: 90%; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); position: relative; }
+.user .message-card { background: #1c2533; border-color: #3b82f6; border-left: 4px solid #3b82f6; }
+.assistant .message-card { border-left: 4px solid var(--accent-color); }
+.role-badge { font-size: 0.65rem; font-weight: 900; color: var(--accent-color); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; letter-spacing: 1px; }
+.content { font-size: 0.95rem; color: #d1d5db; line-height: 1.6; }
 
-.message-card {
-  max-width: 85%;
-  background: #161b22;
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
+/* Evidence */
+.evidence-section { margin-top: 24px; padding-top: 10px; }
+.evidence-box { background: rgba(0,0,0,0.3); border-radius: 6px; padding: 12px; border: 1px solid #222; margin-bottom: 12px; }
+.evidence-header { font-size: 0.75rem; font-weight: 800; color: #666; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; text-transform: uppercase; }
+.secondary-evidence { background: transparent !important; border: none !important; }
+.el-collapse-item__header { background-color: transparent !important; color: var(--text-secondary) !important; font-size: 0.75rem !important; border-bottom: 1px solid #222 !important; }
+.el-collapse-item__wrap { background-color: transparent !important; border: none !important; }
 
-.user .message-card {
-  background: #1f2937;
-  border-color: #3b82f6;
-}
+.sql-block { position: relative; background: #000; padding: 12px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #333; }
+.sql-block .label { font-size: 0.6rem; color: #444; font-weight: bold; position: absolute; top: 5px; left: 10px; }
+.sql-block pre { margin: 15px 0 0 0; font-family: 'Fira Code', monospace; color: #a5d6ff; font-size: 0.8rem; overflow-x: auto; }
+.copy-float { position: absolute; top: 8px; right: 8px; background: #111 !important; border-color: #333 !important; }
 
-.role-badge {
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: var(--accent-color);
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  text-transform: uppercase;
-}
+.mini-table { --el-table-bg-color: transparent; --el-table-tr-bg-color: transparent; --el-table-header-bg-color: #111; font-size: 0.75rem; }
+.table-info { font-size: 0.65rem; color: #555; margin-top: 6px; text-align: right; font-style: italic; }
 
-.content { line-height: 1.6; font-size: 0.95rem; }
-.content p { margin: 0 0 10px 0; }
+/* Loading State */
+.loading-content { display: flex; flex-direction: column; gap: 8px; padding: 10px 0; }
+.loading-text { font-size: 0.75rem; color: var(--text-secondary); font-family: monospace; }
+.scanner-line { height: 2px; background: var(--accent-color); width: 100%; border-radius: 2px; position: relative; overflow: hidden; }
+.scanner-line::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, #fff, transparent); animation: scan 1.5s infinite; }
+@keyframes scan { from { left: -100%; } to { left: 100%; } }
 
-/* Evidence Styling */
-.evidence-section { margin-top: 20px; }
-.el-divider__text { background-color: transparent !important; color: #555 !important; font-size: 0.7rem; font-weight: bold; }
-
-.sql-code {
-  position: relative;
-  background: #000;
-  padding: 15px;
-  border-radius: 6px;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.85rem;
-}
-.sql-code pre { margin: 0; white-space: pre-wrap; color: #7ee787; }
-.copy-btn { position: absolute; top: 10px; right: 10px; }
-
-.evidence-table {
-  --el-table-bg-color: transparent;
-  --el-table-tr-bg-color: transparent;
-  --el-table-header-bg-color: #1a1a1a;
-  font-size: 0.8rem;
-}
-
-.table-footer { font-size: 0.75rem; color: #555; margin-top: 8px; text-align: center; }
-
-/* Input Area */
-.input-area {
-  padding: 20px 40px 40px;
-  background: linear-gradient(to top, var(--main-bg) 80%, transparent);
-}
-
-.input-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.el-input__wrapper {
-  background-color: #161b22 !important;
-  box-shadow: 0 0 0 1px var(--border-color) inset !important;
-}
-
+/* Input */
+.input-area { padding: 30px 40px 50px; background: linear-gradient(to top, var(--main-bg) 70%, transparent); }
+.input-wrapper { max-width: 850px; margin: 0 auto; }
+.el-input__wrapper { background-color: #161b22 !important; box-shadow: 0 0 0 0 1px #30363d inset !important; border-radius: 12px !important; }
 .el-input__inner { color: #fff !important; }
 
 /* Empty state */
-.neon-circle {
-  font-size: 4rem;
-  text-shadow: 0 0 20px var(--accent-color);
-  margin-bottom: 20px;
-  text-align: center;
-}
-.hint { color: var(--text-secondary); text-align: center; font-size: 0.9rem; }
+.neon-circle { font-size: 3.5rem; filter: drop-shadow(0 0 15px var(--accent-color)); margin-bottom: 20px; text-align: center; }
 </style>
