@@ -4,6 +4,14 @@ import time
 import json
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
+from apscheduler.schedulers.background import BackgroundScheduler
+import sys
+# Allow importing from data directory
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
+try:
+    from data.etl_scripts.fetch_opendigger import run_etl
+except ImportError:
+    run_etl = lambda: print("ETL Script import failed")
 
 # Load .env file
 load_dotenv()
@@ -41,6 +49,11 @@ async def lifespan(app: FastAPI):
     # Startup: Integrity Check
     check_system_integrity()
 
+    # Startup: Scheduler
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(run_etl, 'interval', hours=24)
+    scheduler.start()
+
     # Startup: Open MySQL connection with retries
     max_retries = 5
     retry_delay = 5
@@ -68,6 +81,7 @@ async def lifespan(app: FastAPI):
                 raise e
     
     yield
+    scheduler.shutdown()
     # Shutdown: Close DB connection
     if conn and conn.is_connected():
         app.state.db.close()
