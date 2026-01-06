@@ -1,552 +1,389 @@
 <template>
-  <div class="app-layout">
-    <!-- Sidebar / Header Area -->
-    <header class="top-bar">
-      <div class="brand" @click="reloadPage" style="cursor: pointer;">
-        <span class="logo-icon">🕵️‍♂️</span>
-        <div class="brand-text">
-          <h1>Open-Detective</h1>
-          <span class="status-badge" :class="{ online: backendConnected }">
-            {{ backendConnected ? 'SYSTEM ONLINE' : 'OFFLINE' }}
-          </span>
-        </div>
-      </div>
-      <div class="actions">
-        <ThemeSettings />
-        <button class="action-btn" @click="exportToMarkdown" title="Export Case File">
-          📁 EXPORT CASE
-        </button>
-      </div>
-    </header>
-
-    <main class="main-terminal">
-      <div class="chat-interface">
-        <!-- Messages Area -->
-        <div class="messages-scroll" ref="messagesRef">
-          <div v-for="(msg, index) in history" :key="index" :class="['message-row', msg.role]">
-            
-            <!-- Avatar -->
-            <div class="avatar">
-              {{ msg.role === 'assistant' ? '🤖' : '👤' }}
+  <el-config-provider :button="{ autoInsertSpace: true }">
+    <div class="detective-app">
+      <el-container class="full-height">
+        <!-- Sidebar -->
+        <el-aside width="280px" class="sidebar">
+          <div class="sidebar-header" @click="reloadPage">
+            <span class="logo">🕵️‍♂️</span>
+            <div class="title-group">
+              <h1 class="main-title">OPEN DETECTIVE</h1>
+              <span class="sub-title">Neural Evidence Tracker</span>
             </div>
+          </div>
 
-            <!-- Bubble -->
-            <div class="message-content">
-              <div class="bubble" v-html="md.render(msg.text)"></div>
+          <div class="sidebar-stats">
+            <div class="stat-item">
+              <span class="label">ENGINE:</span>
+              <el-tag size="small" :type="engineType === 'sqlbot' ? 'danger' : 'success'">{{ engineType.toUpperCase() }}</el-tag>
+            </div>
+            <div class="stat-item">
+              <span class="label">STATUS:</span>
+              <el-tag size="small" type="primary" effect="dark">CONNECTED</el-tag>
+            </div>
+          </div>
 
-              <!-- Evidence: SQL -->
-              <div v-if="msg.sql" class="evidence-block">
-                <div class="evidence-header">
-                  <span>🔍 EXECUTED QUERY <small v-if="msg.engineSource">({{ msg.engineSource.toUpperCase() }} ENGINE)</small></span>
-                  <button 
-                    class="copy-btn" 
-                    :class="{ copied: copiedIndex === index }"
-                    @click="copyToClipboard(msg.sql, index)"
-                  >
-                    {{ copiedIndex === index ? 'COPIED!' : 'COPY' }}
-                  </button>
+          <div class="sidebar-actions">
+            <el-button class="action-btn" type="primary" plain @click="exportCase" :disabled="chatHistory.length === 0">
+              <el-icon><Download /></el-icon> Export Case File
+            </el-button>
+            <el-button class="action-btn" @click="reloadPage">
+              <el-icon><Refresh /></el-icon> New Investigation
+            </el-button>
+          </div>
+
+          <div class="sidebar-footer">
+            <div class="system-time">{{ currentTime }}</div>
+            <div class="copyright">v0.2.0 - CYBERNETIC DIV.</div>
+          </div>
+        </el-aside>
+
+        <!-- Main Workspace -->
+        <el-main class="main-workspace">
+          <div class="case-log-container">
+            <el-scrollbar ref="scrollRef">
+              <div class="case-log">
+                <div v-if="chatHistory.length === 0" class="empty-state">
+                  <el-empty description="NO ACTIVE INVESTIGATION">
+                    <template #image>
+                      <div class="neon-circle">🔍</div>
+                    </template>
+                    <p class="hint">Ask about repository trends, comparisons, or metric rankings.</p>
+                  </el-empty>
                 </div>
-                <pre class="code-block">{{ msg.sql }}</pre>
-              </div>
 
-              <!-- Evidence: Chart -->
-              <div v-if="msg.data && msg.data.length > 0" class="evidence-block">
-                <div class="evidence-header">📊 VISUAL ANALYSIS</div>
-                <ResultChart :data="msg.data" :theme="currentTheme === 'minimalist' ? 'light' : 'dark'" />
-              </div>
+                <div v-for="(msg, index) in chatHistory" :key="index" :class="['message-row', msg.role]">
+                  <div class="message-card">
+                    <div class="role-badge">
+                      <el-icon v-if="msg.role === 'user'"><User /></el-icon>
+                      <el-icon v-else><Monitor /></el-icon>
+                      {{ msg.role === 'user' ? 'AGENT' : 'DETECTIVE AI' }}
+                    </div>
+                    
+                    <div class="content" v-html="renderMarkdown(msg.content)"></div>
 
-              <!-- Evidence: Table -->
-              <div v-if="msg.data && msg.data.length > 0" class="evidence-block">
-                <div class="evidence-header">💾 RAW DATA</div>
-                <div class="table-container">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th v-for="key in Object.keys(msg.data[0])" :key="key">{{ key }}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(row, i) in msg.data" :key="i">
-                        <td v-for="val in row" :key="val">{{ val }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                    <!-- Evidence Section -->
+                    <div v-if="msg.evidence" class="evidence-section">
+                      <el-divider content-position="left">CASE EVIDENCE</el-divider>
+                      
+                      <div class="evidence-tabs">
+                        <el-collapse v-model="activeEvidence">
+                          <el-collapse-item name="visual" title="Visual Reconstruction">
+                            <template #icon><el-icon><DataLine /></el-icon></template>
+                            <ResultChart :data="msg.evidence.data" :title="msg.evidence.brief" />
+                          </el-collapse-item>
+                          
+                          <el-collapse-item name="sql" title="Query Logic (SQL)">
+                            <div class="sql-code">
+                              <pre><code>{{ msg.evidence.sql }}</code></pre>
+                              <el-button size="small" link class="copy-btn" @click="copyToClipboard(msg.evidence.sql)">
+                                <el-icon><CopyDocument /></el-icon> Copy
+                              </el-button>
+                            </div>
+                          </el-collapse-item>
+
+                          <el-collapse-item name="raw" title="Raw Data Records">
+                            <el-table :data="msg.evidence.data.slice(0, 10)" size="small" border stripe class="evidence-table">
+                              <el-table-column v-for="col in getTableColumns(msg.evidence.data)" 
+                                :key="col" :prop="col" :label="col.toUpperCase()" />
+                            </el-table>
+                            <div v-if="msg.evidence.data.length > 10" class="table-footer">
+                              Showing 10 of {{ msg.evidence.data.length }} records
+                            </div>
+                          </el-collapse-item>
+                        </el-collapse>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="loading" class="message-row assistant">
+                  <div class="message-card loading-card">
+                    <div class="role-badge">DETECTIVE AI</div>
+                    <div class="loading-animation">
+                      <span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+                      ACCESSING NEURAL NETWORK
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            </el-scrollbar>
           </div>
 
-          <!-- Typing Indicator -->
-          <div v-if="loading" class="message-row assistant">
-            <div class="avatar">🤖</div>
-            <div class="message-content">
-              <div class="bubble typing">
-                <span>.</span><span>.</span><span>.</span>
-              </div>
+          <!-- Input Area -->
+          <div class="input-area">
+            <div class="input-wrapper">
+              <el-input
+                v-model="userInput"
+                placeholder="Enter project names or metric queries..."
+                @keyup.enter="sendMessage"
+                :disabled="loading"
+                size="large"
+              >
+                <template #prefix>
+                  <el-icon><Terminal /></el-icon>
+                </template>
+                <template #suffix>
+                  <el-button :loading="loading" @click="sendMessage" type="primary" circle>
+                    <el-icon><Promotion /></el-icon>
+                  </el-button>
+                </template>
+              </el-input>
             </div>
           </div>
-        </div>
-
-        <!-- Input Area -->
-        <div class="input-deck">
-          <div class="input-wrapper">
-            <input 
-              v-model="inputMessage" 
-              @keyup.enter="sendMessage"
-              placeholder="Ask me anything about open source projects..." 
-              :disabled="loading"
-              autofocus
-            />
-            <button @click="sendMessage" :disabled="loading || !inputMessage.trim()">
-              ➤
-            </button>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
+        </el-main>
+      </el-container>
+    </div>
+  </el-config-provider>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from 'vue'
-import axios from 'axios'
-import ResultChart from './components/ResultChart.vue'
-import ThemeSettings from './components/ThemeSettings.vue'
-import MarkdownIt from 'markdown-it'
+import { ref, onMounted, nextTick } from 'vue';
+import axios from 'axios';
+import MarkdownIt from 'markdown-it';
+import ResultChart from './components/ResultChart.vue';
+import { ElMessage } from 'element-plus';
 
-const md = new MarkdownIt()
+const md = new MarkdownIt();
+const userInput = ref('');
+const loading = ref('');
+const chatHistory = ref<any[]>([]);
+const scrollRef = ref<any>(null);
+const activeEvidence = ref(['visual']);
+const engineType = ref('sqlbot');
+const currentTime = ref('');
 
-interface ChatMessage {
-  role: 'user' | 'assistant'
-  text: string
-  sql?: string
-  data?: any[]
-  engineSource?: string
-}
+const API_BASE = '/api/v1';
 
-const inputMessage = ref('')
-const loading = ref(false)
-const backendConnected = ref(false)
-const history = ref<ChatMessage[]>([
-  { role: 'assistant', text: 'Identity verified. Detective system initialized. Awaiting orders.' }
-])
-const messagesRef = ref<HTMLElement | null>(null)
-const copiedIndex = ref<number | null>(null)
-const currentTheme = ref(localStorage.getItem('theme') || 'default')
+const reloadPage = () => window.location.reload();
 
-// Monitor theme changes from the settings component (simple poll or event would be better, but let's check localStorage for simplicity if it was reactive, which it isn't. Better: use a simple interval or a shared state if we had one. For now, let's just make it react to the settings change if we can.)
-// Actually, let's just use a simple computed based on a body class or similar.
-const isDark = () => {
-  return currentTheme.value !== 'minimalist'
-}
+const updateTime = () => {
+  const now = new Date();
+  currentTime.value = now.toLocaleTimeString('en-US', { hour12: false });
+};
 
-const scrollToBottom = () => {
-  nextTick(() => {
-    if (messagesRef.value) {
-      messagesRef.value.scrollTop = messagesRef.value.scrollHeight
-    }
-  })
-}
+onMounted(() => {
+  setInterval(updateTime, 1000);
+  updateTime();
+});
 
-onMounted(async () => {
-  window.addEventListener('theme-changed', (e: any) => {
-    currentTheme.value = e.detail
-  })
-  try {
-    const res = await axios.get('/api/v1/health')
-    if(res.data.status === 'ok') backendConnected.value = true
-  } catch (e) {
-    backendConnected.value = false
-  }
-})
+const renderMarkdown = (content: string) => md.render(content);
+
+const getTableColumns = (data: any[]) => {
+  return data.length > 0 ? Object.keys(data[0]) : [];
+};
+
+const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text);
+  ElMessage.success('Copied to clipboard');
+};
 
 const sendMessage = async () => {
-  if (loading.value) return
-  const text = inputMessage.value.trim()
-  if (!text) return
+  if (!userInput.value.trim() || loading.value) return;
 
-  history.value.push({ role: 'user', text })
-  inputMessage.value = ''
-  loading.value = true
-  scrollToBottom()
+  const query = userInput.value;
+  chatHistory.value.push({ role: 'user', content: query });
+  userInput.value = '';
+  loading.value = true;
 
   try {
-    const res = await axios.post('/api/v1/chat', { message: text })
+    const res = await axios.post(`${API_BASE}/chat`, { message: query });
+    const { answer, sql, data, brief } = res.data;
+
+    chatHistory.value.push({
+      role: 'assistant',
+      content: answer,
+      evidence: sql ? { sql, data, brief } : null
+    });
     
-    history.value.push({
-      role: 'assistant',
-      text: res.data.answer,
-      sql: res.data.sql_query,
-      data: res.data.data,
-      engineSource: res.data.engine_source
-    })
-  } catch (err) {
-    history.value.push({
-      role: 'assistant',
-      text: '⚠️ SYSTEM ERROR: Connection lost or query failed.'
-    })
+    nextTick(() => {
+      if (scrollRef.value) {
+        scrollRef.value.setScrollTop(100000);
+      }
+    });
+  } catch (error) {
+    ElMessage.error('Investigation failed: Network connection unstable');
   } finally {
-    loading.value = false
-    scrollToBottom()
+    loading.value = false;
   }
-}
+};
 
-const exportToMarkdown = () => {
-  let mdContent = `# 🕵️‍♂️ Open-Detective: Case File\n`
-  mdContent += `**Date:** ${new Date().toLocaleString()}\n`
-  mdContent += `**Status:** ${backendConnected.value ? 'ONLINE' : 'OFFLINE'}\n\n`
-  mdContent += `---\n\n`
-
-  history.value.forEach((msg, index) => {
-    const role = msg.role === 'user' ? '👤 DETECTIVE' : '🤖 SYSTEM'
-    mdContent += `### ${role}:\n${msg.text}\n\n`
-    
-    if (msg.sql) {
-      mdContent += `**🔍 Query:** 
-${msg.sql}
-
-`
+const exportCase = () => {
+  let content = "# Open-Detective Investigation Report\n\n";
+  chatHistory.value.forEach(m => {
+    content += `### ${m.role.toUpperCase()}\n${m.content}\n\n`;
+    if (m.evidence) {
+      content += "#### Evidence Logic (SQL)\n```sql\n" + m.evidence.sql + "\n```\n\n";
     }
-
-    if (msg.data && msg.data.length > 0) {
-      mdContent += `**📊 Evidence Data (Top 10 rows):**\n\n`
-      // Create Markdown Table
-      const headers = Object.keys(msg.data[0])
-      mdContent += `| ${headers.join(' | ')} |\n`
-      mdContent += `| ${headers.map(() => '---').join(' | ')} |\n`
-      
-      msg.data.slice(0, 10).forEach((row: any) => {
-        mdContent += `| ${Object.values(row).join(' | ')} |\n`
-      })
-      if (msg.data.length > 10) {
-        mdContent += `\n*(...and ${msg.data.length - 10} more records)*\n`
-      }
-      mdContent += `\n`
-    }
-    mdContent += `---\n\n`
-  })
-
-  // Trigger Download
-  const blob = new Blob([mdContent], { type: 'text/markdown' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `case-report-${new Date().toISOString().slice(0,10)}.md`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
-}
-
-const copyToClipboard = async (text: string, index: number) => {
-  try {
-    await navigator.clipboard.writeText(text)
-    copiedIndex.value = index
-    setTimeout(() => {
-      if (copiedIndex.value === index) {
-        copiedIndex.value = null
-      }
-    }, 2000)
-  } catch (err) {
-    console.error('Failed to copy: ', err)
-  }
-}
+  });
+  const blob = new Blob([content], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `case-report-${Date.now()}.md`;
+  a.click();
+};
 </script>
 
-<style scoped>
-.app-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: var(--bg-color);
-  color: var(--text-primary);
+<style>
+:root {
+  --sidebar-bg: #0d1117;
+  --main-bg: #0a0a0a;
+  --accent-color: #00bcd4;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --border-color: #30363d;
 }
 
-/* Header */
-.top-bar {
-  padding: 1rem 2rem;
-  background: var(--surface-color);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.logo-icon {
-  font-size: 2rem;
-}
-
-.brand-text h1 {
+body {
   margin: 0;
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 1px;
+  background-color: var(--main-bg);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   color: var(--text-primary);
+  height: 100vh;
+  overflow: hidden;
 }
 
-.actions {
+.full-height { height: 100vh; }
+
+/* Sidebar Styling */
+.sidebar {
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-}
-
-.action-btn {
-  background: transparent;
-  border: 1px solid var(--primary-color);
-  color: var(--primary-color);
-  padding: 6px 12px;
-  border-radius: 4px;
+  gap: 12px;
+  margin-bottom: 40px;
   cursor: pointer;
-  font-family: inherit;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-  white-space: nowrap;
 }
 
-.action-btn:hover {
-  background: var(--surface-color);
-  border-color: var(--primary-color);
-  box-shadow: 0 0 8px var(--primary-color);
+.logo { font-size: 2.5rem; }
+.main-title { font-size: 1.2rem; font-weight: 800; margin: 0; color: #fff; letter-spacing: 1px; }
+.sub-title { font-size: 0.7rem; color: var(--accent-color); font-weight: bold; }
+
+.sidebar-stats { margin-bottom: 30px; }
+.stat-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem; }
+.stat-item .label { color: var(--text-secondary); font-weight: bold; }
+
+.sidebar-actions { display: flex; flex-direction: column; gap: 12px; flex-grow: 1; }
+.action-btn { width: 100%; margin-left: 0 !important; }
+
+.sidebar-footer { font-size: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 20px; }
+.system-time { color: var(--accent-color); font-family: monospace; font-size: 1.1rem; margin-bottom: 5px; }
+.copyright { color: #444; }
+
+/* Workspace Styling */
+.main-workspace {
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
-.status-badge {
-  font-size: 0.7rem;
-  padding: 2px 6px;
-  background: var(--border-color);
-  color: var(--text-secondary);
-  border-radius: 4px;
-  font-weight: bold;
-}
-
-.status-badge.online {
-  background: rgba(0, 255, 0, 0.1);
-  color: #00ff00;
-  border: 1px solid #00ff00;
-}
-
-.subtitle {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  font-family: monospace;
-}
-
-/* Main Terminal */
-.main-terminal {
-  flex: 1;
+.case-log-container {
+  flex-grow: 1;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
 }
 
-.chat-interface {
-  width: 100%;
-  max-width: 1000px;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-color);
-}
-
-.messages-scroll {
-  flex: 1;
-  overflow-y: auto;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+.case-log {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
 }
 
 /* Message Rows */
-.message-row {
-  display: flex;
-  gap: 1rem;
+.message-row { display: flex; flex-direction: column; margin-bottom: 30px; }
+.user { align-items: flex-end; }
+.assistant { align-items: flex-start; }
+
+.message-card {
   max-width: 85%;
-}
-
-.message-row.user {
-  align-self: flex-end;
-  flex-direction: row-reverse;
-}
-
-.avatar {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--surface-color);
-  border-radius: 50%;
-  font-size: 1.2rem;
+  background: #161b22;
   border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
-.message-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.user .message-card {
+  background: #1f2937;
+  border-color: #3b82f6;
 }
 
-.bubble {
-  padding: 1rem 1.5rem;
-  border-radius: 18px;
-  background: var(--surface-color);
-  line-height: 1.5;
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-}
-
-.message-row.user .bubble {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
-  color: var(--bg-color);
-}
-
-/* Evidence Blocks (SQL, Charts, Data) */
-.evidence-block {
-  background: var(--code-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-top: 0.5rem;
-}
-
-.evidence-header {
-  background: var(--header-bg);
-  padding: 4px 10px;
+.role-badge {
   font-size: 0.7rem;
-  color: var(--text-secondary);
-  font-weight: bold;
-  letter-spacing: 1px;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.copy-btn {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  font-size: 0.6rem;
-  padding: 2px 6px;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 50px;
-}
-
-.copy-btn:hover {
-  color: var(--primary-color);
-  border-color: var(--primary-color);
-}
-
-.copy-btn.copied {
+  font-weight: 800;
   color: var(--accent-color);
-  border-color: var(--accent-color);
-  background: rgba(0, 255, 0, 0.1);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  text-transform: uppercase;
 }
 
-.code-block {
-  margin: 0;
-  padding: 1rem;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
-  color: var(--primary-color);
-  white-space: pre-wrap;
-}
+.content { line-height: 1.6; font-size: 0.95rem; }
+.content p { margin: 0 0 10px 0; }
 
-.table-container {
-  overflow-x: auto;
-  max-height: 300px;
-}
+/* Evidence Styling */
+.evidence-section { margin-top: 20px; }
+.el-divider__text { background-color: transparent !important; color: #555 !important; font-size: 0.7rem; font-weight: bold; }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+.sql-code {
+  position: relative;
+  background: #000;
+  padding: 15px;
+  border-radius: 6px;
+  font-family: 'Fira Code', monospace;
   font-size: 0.85rem;
 }
+.sql-code pre { margin: 0; white-space: pre-wrap; color: #7ee787; }
+.copy-btn { position: absolute; top: 10px; right: 10px; }
 
-th, td {
-  padding: 8px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
+.evidence-table {
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-header-bg-color: #1a1a1a;
+  font-size: 0.8rem;
 }
 
-th {
-  background: var(--header-bg);
-  color: var(--text-primary);
-  position: sticky;
-  top: 0;
-}
+.table-footer { font-size: 0.7rem; color: #555; margin-top: 8px; text-align: center; }
 
-td {
-  color: var(--text-secondary);
-}
-
-/* Input Deck */
-.input-deck {
-  padding: 1.5rem;
-  background: var(--bg-color);
-  border-top: 1px solid var(--border-color);
+/* Input Area */
+.input-area {
+  padding: 20px 40px 40px;
+  background: linear-gradient(to top, var(--main-bg) 80%, transparent);
 }
 
 .input-wrapper {
-  display: flex;
-  gap: 1rem;
-  background: var(--input-bg);
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  padding: 0.8rem;
-  font-family: inherit;
-  font-size: 1rem;
-  outline: none;
+.el-input__wrapper {
+  background-color: #161b22 !important;
+  box-shadow: 0 0 0 1px var(--border-color) inset !important;
 }
 
-button {
-  background: var(--primary-color);
-  color: var(--bg-color);
-  border: none;
-  padding: 0 1.5rem;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
+.el-input__inner { color: #fff !important; }
 
-button:hover:not(:disabled) {
-  opacity: 0.9;
-}
-button:disabled {
-  background: #444;
-  color: #777;
-  cursor: not-allowed;
-}
+/* Animations */
+.loading-card { background: rgba(0, 188, 212, 0.05); border-style: dashed; }
+.loading-animation { font-family: monospace; font-size: 0.8rem; color: var(--accent-color); }
+.dot { animation: blink 1.4s infinite; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
 
-/* Typing Animation */
-.typing span {
-  animation: blink 1.4s infinite both;
-  font-size: 1.5rem;
-  margin: 0 2px;
-}
-.typing span:nth-child(2) { animation-delay: 0.2s; }
-.typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
 
-@keyframes blink {
-  0% { opacity: 0.2; }
-  20% { opacity: 1; }
-  100% { opacity: 0.2; }
+.neon-circle {
+  font-size: 4rem;
+  text-shadow: 0 0 20px var(--accent-color);
+  margin-bottom: 20px;
 }
 </style>
