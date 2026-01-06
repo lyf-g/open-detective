@@ -11,15 +11,15 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Fix: AI Output Pollution (JSON Artifacts)"
+ISSUE_TITLE = "Fix: Backend Crash (Missing _ask_ai Method)"
 ISSUE_BODY = """
-AI was leaking JSON formatting data into the Markdown report. Refined prompt to strictly forbid JSON and updated sanitization logic.
+Restored the `_ask_ai` method in `SQLBotClient` which was accidentally deleted in a previous refactor.
 """
 
-COMMIT_MSG = "fix: strictly forbid JSON in AI summary prompt and refine sanitization"
+COMMIT_MSG = "fix: restore missing _ask_ai method in SQLBotClient"
 
-PR_TITLE = "Fix: Pure Detective Reports"
-PR_BODY = "Ensures the AI output is pure Markdown narrative, eliminating display glitches caused by JSON leakage."
+PR_TITLE = "Emergency: Fix SQLBot Client"
+PR_BODY = "Restores critical communication method with the LLM engine."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
