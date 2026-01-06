@@ -177,10 +177,13 @@ class SQLBotClient:
 
         #### CRITICAL QUERY RULES:
         1. TRENDS: If the user asks for 'trends', 'over time', or 'growth', use `ORDER BY month ASC`.
-        2. SHORT NAMES: Repository names in the DB are full paths (e.g. 'facebook/react'). If a user says just 'react', use `repo_name LIKE '%react%'`.
-        3. COMPARISON: For 'compare A and B', use `WHERE repo_name IN ('A', 'B')` or multiple `LIKE` clauses with `OR`.
+        2. SHORT NAMES & SEARCH: Repository names in the DB are ALWAYS full paths (e.g. 'facebook/react'). 
+           - If the user says a short name without a slash (e.g. 'vue'), you MUST use `repo_name LIKE '%vue%'`.
+           - NEVER use `repo_name IN ('vue', 'react')` because it will return zero results.
+        3. COMPARISON LOGIC: For comparing multiple short names like 'A and B', the correct syntax is:
+           `WHERE (repo_name LIKE '%A%' OR repo_name LIKE '%B%') AND metric_type = '...'`
         4. COLUMN ALIAS: Always use `SELECT month, value, repo_name` to ensure the dashboard can render correctly.
-        5. LANGUAGE: Respond only with valid SQL or JSON as required by the protocol.
+        5. NO FILLER: Respond only with the JSON or SQL requested.
         """
         enhanced_question = f"{question}\n\n{schema_hint}"
 
