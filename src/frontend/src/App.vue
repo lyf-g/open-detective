@@ -34,12 +34,12 @@
 
           <div class="sidebar-footer">
             <div class="system-time">{{ currentTime }}</div>
-            <div class="copyright">v0.2.0 - CYBERNETIC DIV.</div>
+            <div class="copyright">v0.2.1 - CYBERNETIC DIV.</div>
           </div>
         </el-aside>
 
         <!-- Main Workspace -->
-        <el-main class="main-workspace">
+        <el-main class="main-workspace" v-loading="loading" element-loading-background="rgba(0, 0, 0, 0.7)" element-loading-text="Analyzing Data Streams...">
           <div class="case-log-container">
             <el-scrollbar ref="scrollRef">
               <div class="case-log">
@@ -69,7 +69,6 @@
                       <div class="evidence-tabs">
                         <el-collapse v-model="activeEvidence">
                           <el-collapse-item name="visual" title="Visual Reconstruction">
-                            <template #icon><el-icon><DataLine /></el-icon></template>
                             <ResultChart :data="msg.evidence.data" :title="msg.evidence.brief" />
                           </el-collapse-item>
                           
@@ -96,16 +95,6 @@
                     </div>
                   </div>
                 </div>
-
-                <div v-if="loading" class="message-row assistant">
-                  <div class="message-card loading-card">
-                    <div class="role-badge">DETECTIVE AI</div>
-                    <div class="loading-animation">
-                      <span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
-                      ACCESSING NEURAL NETWORK
-                    </div>
-                  </div>
-                </div>
               </div>
             </el-scrollbar>
           </div>
@@ -119,13 +108,20 @@
                 @keyup.enter="sendMessage"
                 :disabled="loading"
                 size="large"
+                clearable
               >
                 <template #prefix>
-                  <el-icon><Terminal /></el-icon>
+                  <el-icon><Connection /></el-icon>
                 </template>
                 <template #suffix>
-                  <el-button :loading="loading" @click="sendMessage" type="primary" circle>
-                    <el-icon><Promotion /></el-icon>
+                  <el-button 
+                    :loading="loading" 
+                    @click="sendMessage" 
+                    type="primary" 
+                    circle 
+                    :disabled="!userInput.trim()"
+                  >
+                    <el-icon v-if="!loading"><Promotion /></el-icon>
                   </el-button>
                 </template>
               </el-input>
@@ -143,10 +139,14 @@ import axios from 'axios';
 import MarkdownIt from 'markdown-it';
 import ResultChart from './components/ResultChart.vue';
 import { ElMessage } from 'element-plus';
+import { 
+  User, Monitor, Download, Refresh, 
+  DataLine, CopyDocument, Connection, Promotion 
+} from '@element-plus/icons-vue';
 
 const md = new MarkdownIt();
 const userInput = ref('');
-const loading = ref('');
+const loading = ref(false); // Fix: Initialized as boolean
 const chatHistory = ref<any[]>([]);
 const scrollRef = ref<any>(null);
 const activeEvidence = ref(['visual']);
@@ -167,33 +167,36 @@ onMounted(() => {
   updateTime();
 });
 
-const renderMarkdown = (content: string) => md.render(content);
+const renderMarkdown = (content: string) => md.render(content || '');
 
 const getTableColumns = (data: any[]) => {
-  return data.length > 0 ? Object.keys(data[0]) : [];
+  return data && data.length > 0 ? Object.keys(data[0]) : [];
 };
 
 const copyToClipboard = (text: string) => {
+  if (!text) return;
   navigator.clipboard.writeText(text);
   ElMessage.success('Copied to clipboard');
 };
 
 const sendMessage = async () => {
-  if (!userInput.value.trim() || loading.value) return;
+  const query = userInput.value.trim();
+  if (!query || loading.value) return;
 
-  const query = userInput.value;
+  console.log("🚀 Starting Investigation:", query);
   chatHistory.value.push({ role: 'user', content: query });
   userInput.value = '';
   loading.value = true;
 
   try {
     const res = await axios.post(`${API_BASE}/chat`, { message: query });
+    console.log("✅ Received Response:", res.data);
     const { answer, sql, data, brief } = res.data;
 
     chatHistory.value.push({
       role: 'assistant',
-      content: answer,
-      evidence: sql ? { sql, data, brief } : null
+      content: answer || 'Analysis complete.',
+      evidence: sql ? { sql, data: data || [], brief: brief || query } : null
     });
     
     nextTick(() => {
@@ -201,8 +204,9 @@ const sendMessage = async () => {
         scrollRef.value.setScrollTop(100000);
       }
     });
-  } catch (error) {
-    ElMessage.error('Investigation failed: Network connection unstable');
+  } catch (error: any) {
+    console.error("❌ Investigation failed:", error);
+    ElMessage.error(`Investigation failed: ${error.response?.data?.detail || 'Network error'}`);
   } finally {
     loading.value = false;
   }
@@ -226,6 +230,7 @@ const exportCase = () => {
 </script>
 
 <style>
+/* Existing CSS remains same, ensuring high quality dark theme */
 :root {
   --sidebar-bg: #0d1117;
   --main-bg: #0a0a0a;
@@ -284,6 +289,7 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
+  background-color: var(--main-bg);
 }
 
 .case-log-container {
@@ -352,7 +358,7 @@ body {
   font-size: 0.8rem;
 }
 
-.table-footer { font-size: 0.7rem; color: #555; margin-top: 8px; text-align: center; }
+.table-footer { font-size: 0.75rem; color: #555; margin-top: 8px; text-align: center; }
 
 /* Input Area */
 .input-area {
@@ -372,18 +378,12 @@ body {
 
 .el-input__inner { color: #fff !important; }
 
-/* Animations */
-.loading-card { background: rgba(0, 188, 212, 0.05); border-style: dashed; }
-.loading-animation { font-family: monospace; font-size: 0.8rem; color: var(--accent-color); }
-.dot { animation: blink 1.4s infinite; }
-.dot:nth-child(2) { animation-delay: 0.2s; }
-.dot:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
-
+/* Empty state */
 .neon-circle {
   font-size: 4rem;
   text-shadow: 0 0 20px var(--accent-color);
   margin-bottom: 20px;
+  text-align: center;
 }
+.hint { color: var(--text-secondary); text-align: center; font-size: 0.9rem; }
 </style>
