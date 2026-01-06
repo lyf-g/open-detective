@@ -11,15 +11,15 @@ def run(cmd):
     return result
 
 # 定制化的元数据
-ISSUE_TITLE = "Feat: Frontend Session Sidebar & Integration"
+ISSUE_TITLE = "Feat: Context-Aware Conversation Logic"
 ISSUE_BODY = """
-Added session list sidebar, active session tracking, and integrated with backend session APIs.
+Integrated chat history into SQL generation and Summary prompts. Backend now fetches and passes last 5 messages.
 """
 
-COMMIT_MSG = "feat: add frontend session sidebar and history loading"
+COMMIT_MSG = "feat: pass chat history to AI for context-aware responses"
 
-PR_TITLE = "Frontend Session Management"
-PR_BODY = "Completes the full-stack session feature with UI support."
+PR_TITLE = "Contextual AI Memory"
+PR_BODY = "Enables the detective to remember previous questions (e.g. 'Compare with Vue')."
 
 print("🕵️‍♂️ Open-Detective High-Level Workflow Starting...")
 
