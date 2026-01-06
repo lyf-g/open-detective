@@ -2,46 +2,35 @@ import requests
 import os
 import json
 import re
-import time
-import jwt
 from typing import Optional
 from dotenv import dotenv_values
 
 class SQLBotClient:
     """
-    Client for DataEase SQLBot using AK/SK Signature Authentication.
+    Simple Client for DataEase SQLBot using a static Session Token (Bearer JWT).
     """
     def __init__(self, endpoint: Optional[str] = None):
         self.endpoint = endpoint or os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
 
-    def _get_live_config(self) -> dict:
+    def _get_live_token(self) -> str:
+        """Reads the raw token directly from the .env file."""
+        # Try to read from volume mounted .env first
         try:
             config = dotenv_values(".env")
-            return {
-                "ak": config.get("SQLBOT_ACCESS_KEY", ""),
-                "sk": config.get("SQLBOT_SECRET_KEY", ""),
-                "ds_id": int(config.get("SQLBOT_DATASOURCE_ID", "1"))
-            }
+            token = config.get("SQLBOT_API_KEY")
+            if token:
+                return token
         except Exception:
-            return {"ak": "", "sk": "", "ds_id": 1}
+            pass
+        # Fallback to env var
+        return os.getenv("SQLBOT_API_KEY", "")
 
-    def _generate_token(self, ak: str, sk: str) -> str:
-        """
-        Generates a JWT token signed with the Secret Key.
-        Payload typically includes the Access Key (iss/sub) and expiration.
-        """
-        payload = {
-            "iss": ak,
-            "sub": ak, # Usually the AK is the subject
-            "iat": int(time.time()),
-            "exp": int(time.time()) + 3600 # 1 hour validity
-        }
-        # DataEase sometimes uses specific claims, let's try standard first.
-        # If this fails, we might need 'accessKey': ak in payload.
-        payload["accessKey"] = ak 
-        
-        token = jwt.encode(payload, sk, algorithm="HS256")
-        return token
+    def _get_datasource_id(self) -> int:
+        try:
+            config = dotenv_values(".env")
+            return int(config.get("SQLBOT_DATASOURCE_ID", "1"))
+        except:
+            return 1
 
     def _extract_sql(self, text: str) -> str:
         if not text: return ""
@@ -52,27 +41,28 @@ class SQLBotClient:
         return text.strip()
 
     def generate_sql(self, question: str) -> Optional[str]:
-        conf = self._get_live_config()
-        if not conf["ak"] or not conf["sk"]:
-            print("❌ SQLBOT_ACCESS_KEY or SQLBOT_SECRET_KEY is missing")
+        token = self._get_live_token()
+        ds_id = self._get_datasource_id()
+        
+        if not token:
+            print("❌ SQLBOT_API_KEY is empty in .env")
             return None
 
-        try:
-            token = self._generate_token(conf["ak"], conf["sk"])
-            
-            headers = {
-                "X-SQLBOT-TOKEN": f"Bearer {token}",
-                "Content-Type": "application/json"
-            }
+        # Headers exactly as captured in browser
+        headers = {
+            "X-SQLBOT-TOKEN": token, # Expecting 'Bearer eyJ...'
+            "Content-Type": "application/json"
+        }
 
+        try:
             # Standard Chat Session Start
             url = f"{self.endpoint}/api/v1/chat/start"
             payload = {
                 "question": question,
-                "datasource": conf["ds_id"]
+                "datasource": ds_id
             }
             
-            print(f"📡 Requesting SQL from SQLBot (Signed Mode)...")
+            print(f"📡 Requesting SQL from SQLBot (Static Token Mode)...")
             res = requests.post(url, json=payload, headers=headers, timeout=20)
             
             if res.status_code != 200:
