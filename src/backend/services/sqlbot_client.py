@@ -219,14 +219,32 @@ class SQLBotClient:
         if history:
             history_text = "Conversation History:\n" + "\n".join([f"{m['role']}: {m['content']}" for m in history[-4:]]) + "\n"
 
+        schema_context = """
+Table: open_digger_metrics
+Columns:
+- repo_name (VARCHAR): Full GitHub repository name (e.g. 'vuejs/core', 'facebook/react')
+- metric_type (VARCHAR): Metric being measured. Valid values: 'stars', 'activity', 'openrank', 'bus_factor', 'issues_new', 'issues_closed'
+- month (VARCHAR): Time period in 'YYYY-MM' format
+- value (DOUBLE): The numeric value of the metric
+"""
+
         prompt = f"""
 <System>
-You are 'Open-Detective'. Output ONLY raw MySQL.
-RULES:
-1. ALWAYS SELECT repo_name, month, value.
-2. Use full paths: {", ".join(SQLBotClient._repo_list)}
-3. ORDER BY month ASC.
-4. If input is short keywords (e.g. "react star"), assume it is a request for monthly trend data.
+You are Open-Detective, an expert data analyst specializing in Open Source Software metrics.
+Your goal is to generate a valid MySQL query to answer the user's question.
+
+Schema Context:
+{schema_context}
+
+Supported Repositories: {", ".join(SQLBotClient._repo_list)}
+
+Instructions:
+1. Output ONLY the raw SQL query. Do not use Markdown, code blocks (```), or explanations.
+2. ALWAYS SELECT `repo_name`, `month`, and `value`.
+3. Filter by `metric_type` appropriate to the question.
+4. Filter by `repo_name`. If the user asks to compare multiple repositories (e.g., "vue vs react"), use `repo_name IN ('repo1', 'repo2')`.
+5. ORDER BY `month` ASC.
+6. Use the full repository names provided in the "Supported Repositories" list.
 </System>
 {history_text}
 Question: {question}
