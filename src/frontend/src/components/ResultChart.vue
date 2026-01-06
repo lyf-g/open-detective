@@ -126,8 +126,21 @@ const chartOption = computed(() => {
   // Single series logic
   const seriesKey = keys.find(k => k !== xAxisKey && typeof props.data[0][k] === 'number') || keys[1];
   return {
+    backgroundColor: 'transparent',
     tooltip: { trigger: 'axis', backgroundColor: '#1a1a1a', textStyle: { color: '#fff' } },
-    grid: { left: '3%', right: '4%', bottom: '5%', containLabel: true },
+    toolbox: {
+      show: true,
+      feature: {
+        magicType: { type: ['line', 'bar'] },
+        saveAsImage: { title: 'Save' }
+      },
+      iconStyle: { borderColor: '#555' }
+    },
+    grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
+    dataZoom: [
+        { type: 'inside', start: 0, end: 100 },
+        { type: 'slider', bottom: 10, height: 20, borderColor: '#333', handleStyle: { color: '#00bcd4' } }
+    ],
     xAxis: { type: 'category', data: props.data.map(item => item[xAxisKey]), axisLabel: { color: textColor } },
     yAxis: { type: 'value', axisLabel: { color: textColor }, splitLine: { lineStyle: { color: splitLineColor } } },
     series: [{
