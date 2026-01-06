@@ -53,103 +53,134 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+import uuid
+from datetime import datetime
+
 class ChatRequest(BaseModel):
     message: str
+    session_id: Optional[str] = None
 
-class ChatResponse(BaseModel):
-    answer: str
-    sql_query: str
-    data: List[Dict[str, Any]]
-    engine_source: str
+class Session(BaseModel):
+    id: str
+    title: str
+    created_at: datetime
 
-class HealthResponse(BaseModel):
-    status: str
-    version: str
-    db_connected: bool
+class Message(BaseModel):
+    role: str
+    content: str
+    evidence_sql: Optional[str] = None
+    evidence_data: Optional[List[Dict]] = None
 
-# Version 1 Router
-router_v1 = APIRouter(prefix="/api/v1")
+@router_v1.post("/sessions", response_model=Session)
+def create_session(request: Request):
+    session_id = str(uuid.uuid4())
+    title = "New Investigation"
+    conn = request.app.state.db
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO sessions (id, title) VALUES (%s, %s)", (session_id, title))
+    conn.commit()
+    cursor.close()
+    return {"id": session_id, "title": title, "created_at": datetime.now()}
 
-def detect_anomalies(data: list) -> list:
-    """Scans data for significant spikes or drops."""
-    if len(data) < 3: return []
-    
-    threshold = float(os.getenv("ANOMALY_THRESHOLD", "0.5"))
-    anomalies = []
-    
-    for i in range(1, len(data)):
-        # Handle both possible column names
-        prev = float(data[i-1].get('value') or data[i-1].get('metric_value') or 0)
-        curr = float(data[i].get('value') or data[i].get('metric_value') or 0)
-        repo = data[i].get('repo_name') or "Unknown Repository"
-        
-        if prev == 0: continue
-        
-        change = (curr - prev) / prev
-        if abs(change) > threshold:
-            type_label = "SPIKE" if change > 0 else "DROP"
-            anomalies.append({
-                "month": data[i].get('month'),
-                "repo": repo,
-                "type": type_label,
-                "intensity": f"{abs(change)*100:.1f}%"
-            })
-    return anomalies[:3]
+@router_v1.get("/sessions", response_model=List[Session])
+def list_sessions(request: Request):
+    cursor = request.app.state.db.cursor(dictionary=True)
+    cursor.execute("SELECT id, title, created_at FROM sessions ORDER BY created_at DESC")
+    sessions = cursor.fetchall()
+    cursor.close()
+    return sessions
+
+@router_v1.get("/sessions/{session_id}/messages", response_model=List[Message])
+def get_session_messages(session_id: str, request: Request):
+    cursor = request.app.state.db.cursor(dictionary=True)
+    cursor.execute("SELECT role, content, evidence_sql, evidence_data FROM messages WHERE session_id = %s ORDER BY id ASC", (session_id,))
+    rows = cursor.fetchall()
+    cursor.close()
+    # Parse JSON string back to object if needed, MySQL connector might handle it or return str
+    for row in rows:
+        if row.get('evidence_data') and isinstance(row['evidence_data'], str):
+             try: row['evidence_data'] = json.loads(row['evidence_data'])
+             except: pass
+    return rows
 
 @router_v1.post("/chat", response_model=ChatResponse)
 async def chat(request_request: Request, chat_request: ChatRequest):
-    print(f"Received message: {chat_request.message}")
+    print(f"Received message: {chat_request.message} (Session: {chat_request.session_id})")
     
-    # 1. Get Engine Type
+    # 1. Save User Message
+    if chat_request.session_id:
+        cursor = request_request.app.state.db.cursor()
+        cursor.execute(
+            "INSERT INTO messages (session_id, role, content) VALUES (%s, %s, %s)",
+            (chat_request.session_id, 'user', chat_request.message)
+        )
+        # Update title if first message
+        cursor.execute("SELECT count(*) FROM messages WHERE session_id = %s", (chat_request.session_id,))
+        count = cursor.fetchone()[0]
+        if count <= 1:
+            title = (chat_request.message[:30] + '..') if len(chat_request.message) > 30 else chat_request.message
+            cursor.execute("UPDATE sessions SET title = %s WHERE id = %s", (title, chat_request.session_id))
+        request_request.app.state.db.commit()
+        cursor.close()
+
+    # 2. Get Engine Type
     engine_type_raw = os.getenv("SQL_ENGINE_TYPE", "mock")
     engine_type = engine_type_raw.split('#')[0].strip().lower()
     
-    # 2. Generate SQL
+    # 3. Generate SQL (TODO: Pass context here)
     engine = get_sql_engine()
     sql_query = engine(chat_request.message)
     
-    if not sql_query:
-        return ChatResponse(
-            answer="报告 Agent，未能识别出有效的项目线索。请尝试输入具体项目名称（如 vue, react）。",
-            sql_query="",
-            data=[],
-            engine_source=engine_type
-        )
-
-    # 3. Execute SQL
-    data = []
-    try:
-        print(f"🚀 Executing SQL: {sql_query}")
-        cursor = request_request.app.state.db.cursor(dictionary=True)
-        cursor.execute(sql_query)
-        data = cursor.fetchall()
-        cursor.close()
-    except Exception as e:
-        print(f"❌ SQL Execution Error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-    # 4. Formulate Answer
     answer = ""
-    if data:
-        clues = detect_anomalies(data)
-        if engine_type == "sqlbot":
-            from src.backend.services.sqlbot_client import SQLBotClient
-            client = SQLBotClient()
-            answer = client.generate_summary(chat_request.message, data)
-            if clues:
-                clue_text = "\n\n🔍 **DETECTIVE CLUES FOUND:**\n" + "\n".join([f"- {c['month']} | {c['repo']} {c['type']} detected ({c['intensity']})" for c in clues])
-                answer += clue_text
-        else:
-            answer = f"报告 Agent，搜寻到 {len(data)} 条相关证据。具体趋势已在下方视觉重建。"
-            if clues:
-                clue_text = "\n\n🔍 **监测到异常波动:**\n" + "\n".join([f"- {c['month']} 发现 {c['intensity']} 的数据{c['type']}" for c in clues])
-                answer += clue_text
+    data = []
+    
+    if not sql_query:
+        answer = "报告 Agent，未能识别出有效的项目线索。请尝试输入具体项目名称（如 vue, react）。"
     else:
-        answer = "报告 Agent，在当前数据库中未搜寻到相关线索。建议更换项目名称或指标再次尝试。"
+        # 4. Execute SQL
+        try:
+            print(f"🚀 Executing SQL: {sql_query}")
+            cursor = request_request.app.state.db.cursor(dictionary=True)
+            cursor.execute(sql_query)
+            data = cursor.fetchall()
+            cursor.close()
+        except Exception as e:
+            print(f"❌ SQL Execution Error: {str(e)}")
+            # Don't crash, just report error
+            answer = f"数据库查询执行失败: {str(e)}"
+
+        # 5. Formulate Answer
+        if not answer and data:
+            clues = detect_anomalies(data)
+            if engine_type == "sqlbot":
+                from src.backend.services.sqlbot_client import SQLBotClient
+                client = SQLBotClient()
+                answer = client.generate_summary(chat_request.message, data)
+                if clues:
+                    clue_text = "\n\n🔍 **DETECTIVE CLUES FOUND:**\n" + "\n".join([f"- {c['month']} | {c['repo']} {c['type']} detected ({c['intensity']})" for c in clues])
+                    answer += clue_text
+            else:
+                answer = f"报告 Agent，搜寻到 {len(data)} 条相关证据。具体趋势已在下方视觉重建。"
+                if clues:
+                    clue_text = "\n\n🔍 **监测到异常波动:**\n" + "\n".join([f"- {c['month']} 发现 {c['intensity']} 的数据{c['type']}" for c in clues])
+                    answer += clue_text
+        elif not answer:
+            answer = "报告 Agent，在当前数据库中未搜寻到相关线索。建议更换项目名称或指标再次尝试。"
+
+    # 6. Save Assistant Message
+    if chat_request.session_id:
+        cursor = request_request.app.state.db.cursor()
+        evidence_data_json = json.dumps(data) if data else None
+        cursor.execute(
+            "INSERT INTO messages (session_id, role, content, evidence_sql, evidence_data) VALUES (%s, %s, %s, %s, %s)",
+            (chat_request.session_id, 'assistant', answer, sql_query, evidence_data_json)
+        )
+        request_request.app.state.db.commit()
+        cursor.close()
 
     return ChatResponse(
         answer=answer,
-        sql_query=sql_query,
+        sql_query=sql_query or "",
         data=data,
         engine_source=engine_type
     )
