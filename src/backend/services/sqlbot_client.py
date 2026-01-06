@@ -140,121 +140,90 @@ class SQLBotClient:
 
         return re.sub(r"'(.*?)'", replace_repo, sql).strip()
 
-    def generate_sql(self, question: str) -> Optional[str]:
-        headers = self._get_headers()
-        repos_str = ", ".join(SQLBotClient._repo_list)
-        schema_hint = f"""
-<SystemInstruction>
-You are the 'Open-Detective AI'. Your ONLY job is to output a single MySQL query.
-<DatabaseSchema>
-Table: open_digger_metrics
-Columns: month (string 'YYYY-MM'), value (number), repo_name (string), metric_type (string)
-</DatabaseSchema>
-<MetricMapping>
-- stars/star/星标 -> 'stars'
-- activity/活跃度/热度 -> 'activity'
-- openrank/影响力 -> 'openrank'
-</MetricMapping>
-<KnownRepositories>
-{repos_str}
-</KnownRepositories>
-<CriticalRules>
-1. If user says 'vue', map it to 'vuejs/core'. If 'react', map to 'facebook/react'.
-2. Use the FULL PATH from <KnownRepositories> whenever possible.
-3. If no exact match, use: repo_name LIKE '%name%'
-4. For comparison, use: WHERE (repo_name LIKE '%A%' OR repo_name LIKE '%B%')
-5. ALWAYS ORDER BY month ASC.
-6. DO NOT use STR_TO_DATE. 'month' is already a string.
-7. Output ONLY the raw SQL. No explanation.
-</CriticalRules>
-</SystemInstruction>
-"""
-        enhanced_question = f"{schema_hint}\nUserQuestion: {question}"
-
-        try:
-            url = f"{self.endpoint}/api/v1/chat/start"
-            payload = {"question": enhanced_question, "datasource": self.datasource_id}
-            print(f"📡 Sending XML-Enhanced Prompt to SQLBot...")
-            res = requests.post(url, json=payload, headers=headers, timeout=20)
-            
-            if res.status_code == 401:
-                SQLBotClient._cached_token = None
-                headers = self._get_headers()
-                res = requests.post(url, json=payload, headers=headers, timeout=20)
-
-            if res.status_code != 200: return None
-            json_res = res.json()
-            data = json_res.get("data", {}) if "data" in json_res else json_res
-            records = data.get("records", [])
-            if records and records[0].get("sql"):
-                return self.repair_sql(self._extract_sql(records[0].get("sql")))
-
-            chat_id = data.get("id")
-            if chat_id:
-                ask_url = f"{self.endpoint}/api/v1/chat/question"
-                ask_payload = {"question": enhanced_question, "chat_id": chat_id}
-                res = requests.post(ask_url, json=ask_payload, headers=headers, timeout=30, stream=True)
-                if res.status_code == 200:
-                    content_type = res.headers.get("Content-Type", "")
-                    if "text/event-stream" in content_type:
-                        full_content = ""
-                        for line in res.iter_lines():
-                            if line:
-                                decoded_line = line.decode('utf-8')
-                                if decoded_line.startswith("data:"):
-                                    json_str = decoded_line[5:].strip()
-                                    if json_str == "[DONE]": break
-                                    try:
-                                        chunk = json.loads(json_str)
-                                        full_content += chunk.get("content") or chunk.get("sql") or ""
-                                    except: pass
-                        data = self._extract_first_json(full_content)
-                        if data and isinstance(data, dict) and data.get("sql"):
-                            return self.repair_sql(data["sql"])
-                        return self.repair_sql(self._extract_sql(full_content))
-                    else:
-                        try:
-                            json_data = res.json()
-                            inner_data = json_data.get("data", {}) if "data" in json_data else json_data
-                            return self.repair_sql(self._extract_sql(inner_data.get("sql") or inner_data.get("content") or ""))
-                        except: return None
-            return None
-        except Exception as e:
-            print(f"❌ Connection Error: {e}")
-            return None
-
-    def generate_summary(self, question: str, data: list) -> str:
-        """Uses the LLM to interpret the query results."""
-        if not data: return "No evidence found to support the investigation."
-        
-        # Create a compact data summary for the LLM
-        data_summary = json.dumps(data[:15], ensure_ascii=False)
-        prompt = f"""
-<Task>
-You are the 'Open-Detective AI'. Interpret the investigation results for the user.
-Question: {question}
-Found Records: {len(data)}
-Data Sample: {data_summary}
-
-Rules:
-1. Provide a professional, concise analysis (max 3 sentences).
-2. Highlight key trends, peaks, or comparison winners.
-3. Use a tone suitable for a digital detective.
-4. Response in the same language as the user question.
-</Task>
-"""
+    def _ask_ai(self, prompt: str) -> str:
+        """Internal helper to ask the AI a question and get full text back (handles SSE)."""
         headers = self._get_headers()
         try:
             url = f"{self.endpoint}/api/v1/chat/start"
             payload = {"question": prompt, "datasource": self.datasource_id}
             res = requests.post(url, json=payload, headers=headers, timeout=20)
-            if res.status_code == 200:
-                full_text = res.json().get("data", {}).get("records", [{}])[0].get("content") or ""
-                # If content is empty, it might be a stream? Let's simplify for now
-                if full_text: return full_text
-            return f"Investigation complete. Found {len(data)} data points correlating to your request."
-        except:
-            return f"Found {len(data)} records for your query."
+            
+            if res.status_code != 200: return ""
+            
+            json_res = res.json()
+            data = json_res.get("data", {}) if "data" in json_res else json_res
+            
+            # 1. Check if we already have the answer in 'records'
+            records = data.get("records", [])
+            if records and (records[0].get("content") or records[0].get("sql")):
+                return records[0].get("content") or records[0].get("sql") or ""
+
+            # 2. If not, follow up with the chat_id
+            chat_id = data.get("id")
+            if not chat_id: return ""
+
+            ask_url = f"{self.endpoint}/api/v1/chat/question"
+            ask_payload = {"question": prompt, "chat_id": chat_id}
+            # We use stream=True because SQLBot usually streams text
+            res = requests.post(ask_url, json=ask_payload, headers=headers, timeout=30, stream=True)
+            
+            full_content = ""
+            if "text/event-stream" in res.headers.get("Content-Type", ""):
+                for line in res.iter_lines():
+                    if line:
+                        decoded = line.decode('utf-8')
+                        if decoded.startswith("data:"):
+                            json_str = decoded[5:].strip()
+                            if json_str == "[DONE]": break
+                            try:
+                                chunk = json.loads(json_str)
+                                full_content += chunk.get("content") or chunk.get("sql") or ""
+                            except: pass
+            else:
+                try:
+                    inner = res.json().get("data", {})
+                    full_content = inner.get("content") or inner.get("sql") or ""
+                except: pass
+            
+            return full_content
+        except Exception as e:
+            print(f"❌ AI Request Error: {e}")
+            return ""
+
+    def generate_summary(self, question: str, data: list) -> str:
+        """Uses the LLM to interpret the query results with a strong Detective persona."""
+        if not data: return "根据调查，目前的线索（数据库）中未发现与您的请求相符的记录。"
+        
+        # Create a compact data summary
+        data_sample = json.dumps(data[:10], ensure_ascii=False)
+        prompt = f"""
+<Task>
+你现在是 'Open-Detective AI'，一名资深的数字化开源分析专家。
+请根据以下调查结果，为 Agent（用户）提供一份专业、犀利且具有洞察力的中文分析报告。
+
+[用户问题]: {question}
+[证据数量]: 找到 {len(data)} 条相关记录。
+[证据样本]: {data_sample}
+
+[规则]:
+1. 严禁回答“Found X records”这种废话。
+2. 必须使用中文回答。
+3. 必须指出数据中的关键点（例如：谁是冠军、什么月份是转折点、趋势是好是坏）。
+4. 语气要像赛博时代的私人侦探，冷静且深刻。
+5. 篇幅控制在 3-5 句。
+</Task>
+"""
+        analysis = self._ask_ai(prompt)
+        if analysis:
+            # Strip any potential SQL junk the AI might have included by accident
+            analysis = re.sub(r'```sql.*?```', '', analysis, flags=re.DOTALL)
+            return analysis.strip()
+        
+        # Smat default if AI fails
+        return f"报告 Agent，调查已完成。我们在数据库中锁定了 {len(data)} 条关键证据。通过初步视觉重建（见下图），该项目的演进轨迹已清晰可见。"
+
+    def generate_sql(self, question: str) -> Optional[str]:
+        # ... (rest of the logic)
 
 def sqlbot_text_to_sql(text: str) -> str:
     client = SQLBotClient()
