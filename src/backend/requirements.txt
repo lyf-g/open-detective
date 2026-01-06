@@ -5,3 +5,4 @@ python-dotenv
 requests
 mysql-connector-python
 PyJWT
+pycryptodome
