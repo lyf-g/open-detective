@@ -27,6 +27,9 @@
             <el-button class="action-btn" type="primary" plain @click="exportCase" :disabled="chatHistory.length === 0">
               <el-icon><Download /></el-icon> Export Case File
             </el-button>
+            <el-button class="action-btn" type="primary" plain @click="shareSession" :disabled="!currentSessionId">
+              <el-icon><Share /></el-icon> Share Link
+            </el-button>
             <el-button class="action-btn" @click="createNewSession">
               <el-icon><Refresh /></el-icon> New Investigation
             </el-button>
@@ -191,7 +194,7 @@ import ResultChart from './components/ResultChart.vue';
 import SuggestedQuestions from './components/SuggestedQuestions.vue';
 import { ElMessage } from 'element-plus';
 import { 
-  User, Monitor, Download, Refresh, 
+  User, Monitor, Download, Refresh, Share,
   DataLine, CopyDocument, Connection, Promotion 
 } from '@element-plus/icons-vue';
 
@@ -278,7 +281,13 @@ onMounted(async () => {
   setInterval(updateTime, 1000);
   updateTime();
   await fetchSessions();
-  if (sessions.value.length > 0) {
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  const sharedSessionId = urlParams.get('session_id');
+  
+  if (sharedSessionId) {
+    loadSession(sharedSessionId);
+  } else if (sessions.value.length > 0) {
     loadSession(sessions.value[0].id);
   } else {
     createNewSession();
@@ -320,6 +329,12 @@ const copyToClipboard = (text: string) => {
 const handleSuggestion = (q: string) => {
   userInput.value = q;
   sendMessage();
+};
+
+const shareSession = () => {
+  const url = `${window.location.origin}/?session_id=${currentSessionId.value}`;
+  copyToClipboard(url);
+  ElMessage.success("Session link copied!");
 };
 
 const sendMessage = async () => {
