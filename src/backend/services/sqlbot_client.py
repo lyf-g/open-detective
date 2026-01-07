@@ -1,4 +1,5 @@
 import requests
+from tenacity import retry, stop_after_attempt, wait_exponential
 import os
 import json
 import re
@@ -132,6 +133,7 @@ class SQLBotClient:
         
         return text.strip()
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def _ask_ai(self, prompt: str) -> str:
         headers = self._get_headers()
         try:
@@ -154,6 +156,7 @@ class SQLBotClient:
             return full
         except: return ""
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def _ask_ai_stream(self, prompt: str):
         headers = self._get_headers()
         try:

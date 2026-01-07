@@ -6,7 +6,9 @@ import sys
 import asyncio
 from contextlib import asynccontextmanager
 from apscheduler.schedulers.background import BackgroundScheduler
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from asgi_correlation_id import CorrelationIdMiddleware
@@ -91,6 +93,15 @@ app.add_middleware(CorrelationIdMiddleware)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error("Global Exception", error=str(exc))
+    return JSONResponse({"detail": "Internal Server Error"}, status_code=500)
 
 app.include_router(api_router, prefix="/api/v1")
 
