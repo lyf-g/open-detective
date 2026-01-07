@@ -4,22 +4,32 @@ from fastapi.testclient import TestClient
 from unittest.mock import MagicMock, AsyncMock
 from src.backend.main import app
 
-# Mock Async Pool
+# 1. Async Context Manager Helper
+class AsyncContextManager:
+    def __init__(self, return_value=None):
+        self.return_value = return_value
+    async def __aenter__(self):
+        return self.return_value
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+# 2. Mock Cursor
+mock_cursor = MagicMock()
+mock_cursor.execute = AsyncMock()
+mock_cursor.fetchall = AsyncMock(return_value=[])
+mock_cursor.fetchone = AsyncMock(return_value={"count": 0})
+
+# 3. Mock Connection
+mock_conn = MagicMock()
+mock_conn.cursor = MagicMock(return_value=AsyncContextManager(mock_cursor))
+mock_conn.commit = AsyncMock()
+mock_conn.ping = AsyncMock()
+
+# 4. Mock Pool
 mock_pool = MagicMock()
-mock_conn = AsyncMock()
-mock_cursor = AsyncMock()
+mock_pool.acquire = MagicMock(return_value=AsyncContextManager(mock_conn))
 
-# Setup async context managers
-# pool.acquire() -> conn
-mock_pool.acquire.return_value.__aenter__.return_value = mock_conn
-# conn.cursor() -> cur
-mock_conn.cursor.return_value.__aenter__.return_value = mock_cursor
-
-# Setup cursor returns
-mock_cursor.fetchone.return_value = {"count": 0}
-mock_cursor.fetchall.return_value = []
-
-# Inject mock into app state
+# Inject into app state
 app.state.pool = mock_pool
 
 client = TestClient(app)
@@ -37,6 +47,9 @@ def test_create_session():
     assert data["title"] == "New Investigation"
 
 def test_chat_stream_flow():
+    # Setup fetchone for user message count check
+    mock_cursor.fetchone.return_value = {"count": 0}
+    
     session_res = client.post("/api/v1/sessions")
     session_id = session_res.json()["id"]
     
