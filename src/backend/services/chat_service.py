@@ -4,11 +4,12 @@ import asyncio
 from typing import Optional, Tuple, AsyncGenerator
 from src.backend.services.engine_factory import get_sql_engine
 from src.backend.services.logger import logger
+from src.backend.core.config import settings
 
 def detect_anomalies(data: list) -> list:
     """Scans data for significant spikes or drops."""
     if len(data) < 3: return []
-    threshold = float(os.getenv("ANOMALY_THRESHOLD", "0.5"))
+    threshold = settings.ANOMALY_THRESHOLD
     anomalies = []
     for i in range(1, len(data)):
         prev = float(data[i-1].get('value') or data[i-1].get('metric_value') or 0)
@@ -63,7 +64,7 @@ class ChatService:
 
     @staticmethod
     async def process_request(message: str, history: list, pool) -> Tuple[str, list, str, str]:
-        engine_type_raw = os.getenv("SQL_ENGINE_TYPE", "mock")
+        engine_type_raw = settings.SQL_ENGINE_TYPE
         engine_type = engine_type_raw.split('#')[0].strip().lower()
 
         sql_query = ""

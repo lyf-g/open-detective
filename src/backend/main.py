@@ -5,16 +5,15 @@ import json
 import sys
 import asyncio
 from contextlib import asynccontextmanager
-from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from asgi_correlation_id import CorrelationIdMiddleware
 
 from src.backend.services.logger import configure_logger, logger
 from src.backend.api.v1.api import api_router
 from src.backend.core.limiter import limiter
+from src.backend.core.config import settings
 
 # Allow importing from data directory
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
@@ -22,8 +21,6 @@ try:
     from data.etl_scripts.fetch_opendigger import run_etl
 except ImportError:
     run_etl = lambda: print("ETL Script import failed")
-
-load_dotenv()
 
 def check_system_integrity():
     """Ensures critical configuration files exist."""
@@ -35,9 +32,6 @@ def check_system_integrity():
         logger.warning("repos.json not found. Creating default configuration.")
         with open(repo_path, 'w') as f:
             json.dump(["vuejs/core", "facebook/react", "fastapi/fastapi"], f, indent=2)
-    env_path = os.path.join(base_dir, '.env')
-    if not os.path.exists(env_path):
-        logger.warning(".env not found. Please configure your environment variables.")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -55,10 +49,10 @@ async def lifespan(app: FastAPI):
         try:
             logger.info("Connecting to MySQL (Async)", attempt=i+1)
             pool = await aiomysql.create_pool(
-                host=os.getenv("DB_HOST", "localhost"),
-                user=os.getenv("DB_USER", "root"),
-                password=os.getenv("DB_PASSWORD", ""),
-                db=os.getenv("DB_NAME", "open_detective"),
+                host=settings.DB_HOST,
+                user=settings.DB_USER,
+                password=settings.DB_PASSWORD,
+                db=settings.DB_NAME,
                 autocommit=True,
                 cursorclass=aiomysql.DictCursor
             )
