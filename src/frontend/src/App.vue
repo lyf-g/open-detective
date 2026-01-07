@@ -48,6 +48,12 @@
           </div>
 
           <div class="sidebar-footer">
+            <div class="theme-switch" style="margin-bottom: 10px; text-align: center;">
+                <el-button circle size="small" @click="toggleDark()">
+                  <el-icon v-if="isDark"><Moon /></el-icon>
+                  <el-icon v-else><Sunny /></el-icon>
+                </el-button>
+            </div>
             <div class="system-time">{{ currentTime }}</div>
             <div class="copyright">v0.3.0 - CYBERNETIC DIV.</div>
           </div>
@@ -193,10 +199,14 @@ import 'highlight.js/styles/atom-one-dark.css';
 import ResultChart from './components/ResultChart.vue';
 import SuggestedQuestions from './components/SuggestedQuestions.vue';
 import { ElMessage } from 'element-plus';
+import { useDark, useToggle } from '@vueuse/core';
 import { 
-  User, Monitor, Download, Refresh, Share,
+  User, Monitor, Download, Refresh, Share, Moon, Sunny,
   DataLine, CopyDocument, Connection, Promotion 
 } from '@element-plus/icons-vue';
+
+const isDark = useDark();
+const toggleDark = useToggle(isDark);
 
 const md = new MarkdownIt({
   html: true,
