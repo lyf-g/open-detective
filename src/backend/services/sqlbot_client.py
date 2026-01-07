@@ -260,6 +260,16 @@ class SQLBotClient:
             
         return cleaned_ans
 
+    def _get_few_shot_examples(self) -> str:
+        try:
+            path = os.path.join(os.path.dirname(__file__), '../../../data/examples.json')
+            if os.path.exists(path):
+                with open(path, 'r') as f:
+                    examples = json.load(f)
+                return "\n".join([f"Q: {e['q']}\nSQL: {e['sql']}" for e in examples])
+        except: pass
+        return ""
+
     def generate_sql(self, question: str, history: list = []) -> Optional[str]:
         # Cache Check
         cache_key = f"{question.strip().lower()}|{len(history)}"
@@ -279,6 +289,8 @@ Columns:
 - value (DOUBLE): The numeric value of the metric
 """
 
+        examples = self._get_few_shot_examples()
+
         prompt = f"""
 <System>
 You are Open-Detective, an expert data analyst specializing in Open Source Software metrics.
@@ -288,6 +300,9 @@ Schema Context:
 {schema_context}
 
 Supported Repositories: {", ".join(SQLBotClient._repo_list)}
+
+Few-Shot Examples:
+{examples}
 
 Instructions:
 1. Output ONLY the raw SQL query. Do not use Markdown, code blocks (```), or explanations.

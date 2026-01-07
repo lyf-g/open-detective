@@ -1,0 +1,10 @@
+[
+  {
+    "q": "how many stars does vue have?",
+    "sql": "SELECT value, month, repo_name FROM open_digger_metrics WHERE repo_name='vuejs/core' AND metric_type='stars' ORDER BY month ASC"
+  },
+  {
+    "q": "compare react and vue activity",
+    "sql": "SELECT value, month, repo_name FROM open_digger_metrics WHERE repo_name IN ('facebook/react', 'vuejs/core') AND metric_type='activity' ORDER BY month ASC"
+  }
+]
