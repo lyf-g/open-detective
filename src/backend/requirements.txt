@@ -30,3 +30,4 @@ httpx
 pytest-asyncio
 aiomysql
 asgi-correlation-id
+alembic
