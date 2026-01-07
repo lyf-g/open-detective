@@ -1,6 +1,7 @@
 import requests
 from tenacity import retry, stop_after_attempt, wait_exponential
 import os
+from datetime import datetime
 import json
 import re
 import base64
@@ -298,6 +299,8 @@ Columns:
 <System>
 You are Open-Detective, an expert data analyst specializing in Open Source Software metrics.
 Your goal is to generate a valid MySQL query to answer the user's question.
+
+Current Date: {datetime.now().strftime('%Y-%m-%d')}
 
 Schema Context:
 {schema_context}
