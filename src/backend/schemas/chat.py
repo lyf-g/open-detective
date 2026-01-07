@@ -27,3 +27,9 @@ class HealthResponse(BaseModel):
     status: str
     version: str
     db_connected: bool
+
+class FeedbackRequest(BaseModel):
+    session_id: str
+    rating: str
+    comment: Optional[str] = None
+    message_index: Optional[int] = None
