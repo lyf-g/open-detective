@@ -103,7 +103,7 @@
                           <el-collapse-item title="Data Forensics (SQL & Raw)" name="details">
                             <div class="sql-block">
                               <span class="label">QUERY LOGIC:</span>
-                              <pre><code>{{ msg.evidence.sql }}</code></pre>
+                              <pre><code class="hljs language-sql" v-html="highlightSql(msg.evidence.sql)"></code></pre>
                               <el-button size="small" circle @click="copyToClipboard(msg.evidence.sql)" class="copy-float">
                                 <el-icon><CopyDocument /></el-icon>
                               </el-button>
@@ -184,6 +184,8 @@
 import { ref, onMounted, nextTick } from 'vue';
 import axios from 'axios';
 import MarkdownIt from 'markdown-it';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/atom-one-dark.css';
 import ResultChart from './components/ResultChart.vue';
 import { ElMessage } from 'element-plus';
 import { 
@@ -191,7 +193,19 @@ import {
   DataLine, CopyDocument, Connection, Promotion 
 } from '@element-plus/icons-vue';
 
-const md = new MarkdownIt();
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
+      } catch (__) {}
+    }
+    return ''; // use external default escaping
+  }
+});
 const userInput = ref('');
 const loading = ref(false);
 const chatHistory = ref<any[]>([]);
@@ -285,6 +299,14 @@ const isRefusal = (content: string) => {
 
 const getTableColumns = (data: any[]) => {
   return data && data.length > 0 ? Object.keys(data[0]) : [];
+};
+
+const highlightSql = (sql: string) => {
+  try {
+    return hljs.highlight(sql, { language: 'sql' }).value;
+  } catch (e) {
+    return sql;
+  }
 };
 
 const copyToClipboard = (text: string) => {
