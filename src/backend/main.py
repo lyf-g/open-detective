@@ -10,6 +10,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from asgi_correlation_id import CorrelationIdMiddleware
 
 from src.backend.services.logger import configure_logger, logger
 from src.backend.api.v1.api import api_router
@@ -81,6 +82,8 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan
 )
+
+app.add_middleware(CorrelationIdMiddleware)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)

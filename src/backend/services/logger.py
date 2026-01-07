@@ -1,6 +1,12 @@
 import structlog
 import logging
 import sys
+from asgi_correlation_id import correlation_id
+
+def add_correlation(logger, log_method, event_dict):
+    if request_id := correlation_id.get():
+        event_dict["request_id"] = request_id
+    return event_dict
 
 def configure_logger():
     structlog.configure(
@@ -13,6 +19,7 @@ def configure_logger():
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             structlog.processors.UnicodeDecoder(),
+            add_correlation,
             structlog.processors.JSONRenderer()
         ],
         context_class=dict,
@@ -23,7 +30,9 @@ def configure_logger():
 
     handler = logging.StreamHandler(sys.stdout)
     root_logger = logging.getLogger()
-    root_logger.addHandler(handler)
+    # Avoid duplicate logs if handler already exists
+    if not root_logger.handlers:
+        root_logger.addHandler(handler)
     root_logger.setLevel(logging.INFO)
 
 logger = structlog.get_logger()
