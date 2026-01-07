@@ -24,6 +24,7 @@ services:
     depends_on:
       - mysql
       - sqlbot
+      - redis
 
   frontend:
     build:
@@ -63,6 +64,11 @@ services:
       - "3306:3306"
     volumes:
       - ./data/mysql:/var/lib/mysql
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
 
 volumes:
   db_data:

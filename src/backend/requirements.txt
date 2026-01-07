@@ -35,3 +35,4 @@ pydantic-settings
 tenacity
 numpy
 sqlparse
+redis
