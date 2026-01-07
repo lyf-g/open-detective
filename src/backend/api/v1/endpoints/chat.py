@@ -98,7 +98,7 @@ async def collect_feedback(feedback: FeedbackRequest):
     return {"status": "received"}
 
 @router.get("/messages/{message_id}/export")
-async def export_message_data(message_id: int, format: str = "csv", request: Request):
+async def export_message_data(message_id: int, request: Request, format: str = "csv"):
     pool = request.app.state.pool
     async with pool.acquire() as conn:
         async with conn.cursor() as cur:

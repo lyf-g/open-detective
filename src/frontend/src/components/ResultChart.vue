@@ -2,7 +2,28 @@
   <div class="case-visualization">
     <div class="chart-header">
       <h3 v-if="title" class="chart-title">{{ title }}</h3>
-      <el-tag size="small" type="info" effect="plain" class="chart-tag">Interactive Analytics</el-tag>
+      <div class="actions">
+        <el-button 
+          size="small" 
+          type="danger" 
+          plain 
+          @click="checkAnomalies" 
+          :loading="analyzing"
+          v-if="!anomalies.length"
+        >
+           Find Anomalies
+        </el-button>
+        <el-button 
+          size="small" 
+          type="info" 
+          plain 
+          @click="clearAnomalies" 
+          v-else
+        >
+           Clear Anomalies
+        </el-button>
+        <el-tag size="small" type="info" effect="plain" class="chart-tag">Interactive Analytics</el-tag>
+      </div>
     </div>
     <div class="chart-body">
       <v-chart class="chart" :option="chartOption" autoresize />
@@ -11,10 +32,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { ElMessage } from 'element-plus';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
-import { LineChart, BarChart, PieChart } from 'echarts/charts';
+import { LineChart, BarChart, PieChart, ScatterChart } from 'echarts/charts';
 import {
   GridComponent,
   TooltipComponent,
@@ -22,6 +44,7 @@ import {
   TitleComponent,
   ToolboxComponent,
   DataZoomComponent,
+  MarkPointComponent
 } from 'echarts/components';
 import VChart from 'vue-echarts';
 
@@ -31,12 +54,14 @@ use([
   LineChart,
   BarChart,
   PieChart,
+  ScatterChart,
   GridComponent,
   TooltipComponent,
   LegendComponent,
   TitleComponent,
   ToolboxComponent,
   DataZoomComponent,
+  MarkPointComponent
 ]);
 
 const props = defineProps<{
@@ -44,6 +69,39 @@ const props = defineProps<{
   title?: string;
   theme?: 'light' | 'dark';
 }>();
+
+const analyzing = ref(false);
+const anomalies = ref<any[]>([]);
+
+const clearAnomalies = () => {
+    anomalies.value = [];
+};
+
+const checkAnomalies = async () => {
+    analyzing.value = true;
+    try {
+        const response = await fetch('/api/v1/analytics/anomalies', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: props.data })
+        });
+        if (!response.ok) throw new Error("API Error");
+        
+        const result = await response.json();
+        if (result.anomalies && result.anomalies.length > 0) {
+            anomalies.value = result.anomalies;
+            ElMessage.success(`Found ${result.anomalies.length} anomalies`);
+        } else {
+            ElMessage.info('No significant anomalies found.');
+            anomalies.value = [];
+        }
+    } catch (e) {
+        ElMessage.error('Analysis failed');
+        console.error(e);
+    } finally {
+        analyzing.value = false;
+    }
+};
 
 const chartOption = computed(() => {
   if (!props.data || props.data.length === 0) return {};
@@ -79,6 +137,27 @@ const chartOption = computed(() => {
             emphasis: { focus: 'series', lineStyle: { width: 3 } }
         };
     });
+    
+    if (anomalies.value.length > 0) {
+        const anomalyData = anomalies.value.map(a => {
+           return [a[xAxisKey], a[valKey]];
+        });
+        seriesList.push({
+            name: 'Anomalies',
+            type: 'scatter',
+            symbolSize: 12,
+            itemStyle: { color: '#ff4d4f', shadowBlur: 10, shadowColor: '#ff4d4f' },
+            z: 20,
+            data: anomalyData,
+            tooltip: {
+               formatter: (params: any) => {
+                   const item = anomalies.value[params.dataIndex];
+                   if (!item) return '';
+                   return `<b>Anomaly Detected!</b><br/>${item['repo_name']}<br/>Date: ${item[xAxisKey]}<br/>Value: ${item[valKey]}<br/>Z-Score: ${item.z_score?.toFixed(2)}`;
+               }
+            }
+        } as any);
+    }
 
     return {
       backgroundColor: 'transparent',
@@ -90,7 +169,7 @@ const chartOption = computed(() => {
         axisPointer: { lineStyle: { color: '#00bcd4', width: 1 } }
       },
       legend: {
-        data: repos,
+        data: [...repos, 'Anomalies'],
         top: 0,
         textStyle: { color: textColor },
         icon: 'circle'
@@ -125,6 +204,36 @@ const chartOption = computed(() => {
 
   // Single series logic
   const seriesKey = keys.find(k => k !== xAxisKey && typeof props.data[0][k] === 'number') || keys[1];
+  const seriesData = [{
+      name: seriesKey,
+      type: 'line',
+      data: props.data.map(item => item[seriesKey]),
+      smooth: true,
+      itemStyle: { color: '#00bcd4' },
+      areaStyle: { opacity: 0.2, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset: 0, color: '#00bcd4'}, {offset: 1, color: 'rgba(0,188,212,0)'}] } }
+  }];
+  
+  if (anomalies.value.length > 0) {
+        const anomalyData = anomalies.value.map(a => {
+           return [a[xAxisKey], a[seriesKey]];
+        });
+        seriesData.push({
+            name: 'Anomalies',
+            type: 'scatter',
+            symbolSize: 15,
+            itemStyle: { color: '#ff4d4f', shadowBlur: 10, shadowColor: '#ff4d4f' },
+            z: 20,
+            data: anomalyData,
+            tooltip: {
+               formatter: (params: any) => {
+                   const item = anomalies.value[params.dataIndex];
+                   if (!item) return '';
+                   return `<b>Anomaly Detected!</b><br/>Date: ${item[xAxisKey]}<br/>Value: ${item[seriesKey]}<br/>Z-Score: ${item.z_score?.toFixed(2)}`;
+               }
+            }
+        } as any);
+  }
+  
   return {
     backgroundColor: 'transparent',
     tooltip: { trigger: 'axis', backgroundColor: '#1a1a1a', textStyle: { color: '#fff' } },
@@ -143,14 +252,7 @@ const chartOption = computed(() => {
     ],
     xAxis: { type: 'category', data: props.data.map(item => item[xAxisKey]), axisLabel: { color: textColor } },
     yAxis: { type: 'value', axisLabel: { color: textColor }, splitLine: { lineStyle: { color: splitLineColor } } },
-    series: [{
-      name: seriesKey,
-      type: 'line',
-      data: props.data.map(item => item[seriesKey]),
-      smooth: true,
-      itemStyle: { color: '#00bcd4' },
-      areaStyle: { opacity: 0.2, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset: 0, color: '#00bcd4'}, {offset: 1, color: 'rgba(0,188,212,0)'}] } }
-    }]
+    series: seriesData
   };
 });
 </script>
@@ -168,6 +270,11 @@ const chartOption = computed(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
+}
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 .chart-title {
   color: #00bcd4;
