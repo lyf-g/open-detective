@@ -26,3 +26,5 @@ uvicorn==0.40.0
 pycryptodome
 apscheduler
 slowapi
+httpx
+pytest-asyncio
