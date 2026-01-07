@@ -1,5 +1,5 @@
-# Frontend Dockerfile
-FROM node:18-alpine AS build
+# Stage 1: Build
+FROM node:22-alpine as build
 WORKDIR /app
 
 # Copy package files first for better caching
