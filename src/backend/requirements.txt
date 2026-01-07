@@ -36,3 +36,4 @@ tenacity
 numpy
 sqlparse
 redis
+prometheus-fastapi-instrumentator
