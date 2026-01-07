@@ -1,9 +1,10 @@
 import json
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
-from src.backend.schemas.chat import ChatRequest, ChatResponse
+from src.backend.schemas.chat import ChatRequest, ChatResponse, FeedbackRequest
 from src.backend.services.chat_service import ChatService
 from src.backend.core.limiter import limiter
+from datetime import datetime
 
 router = APIRouter()
 
@@ -81,3 +82,13 @@ async def chat_stream(request: Request, chat_request: ChatRequest):
         yield json.dumps({"type": "done"}) + "\n"
 
     return StreamingResponse(event_generator(), media_type="application/x-ndjson")
+
+@router.post("/feedback")
+async def collect_feedback(feedback: FeedbackRequest):
+    entry = feedback.dict()
+    entry["timestamp"] = str(datetime.now())
+    import os
+    os.makedirs("data", exist_ok=True)
+    with open("data/feedback.jsonl", "a") as f:
+        f.write(json.dumps(entry) + "\n")
+    return {"status": "received"}
