@@ -1,0 +1,35 @@
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from functools import lru_cache
+import os
+
+class Settings(BaseSettings):
+    # Database
+    DB_HOST: str = "localhost"
+    DB_USER: str = "root"
+    DB_PASSWORD: str = ""
+    DB_NAME: str = "open_detective"
+    
+    # App
+    SQL_ENGINE_TYPE: str = "mock"
+    ANOMALY_THRESHOLD: float = 0.5
+    
+    # SQLBot
+    SQLBOT_ENDPOINT: str = "http://sqlbot:8000"
+    SQLBOT_USERNAME: str = "admin"
+    SQLBOT_PASSWORD: str = "SQLBot@123456"
+    SQLBOT_DATASOURCE_ID: int = 1
+    SQLBOT_API_KEY: str = ""
+    
+    # Resolves to project root .env if running from src/backend
+    # or relies on environment variables already set
+    model_config = SettingsConfigDict(
+        env_file=os.path.join(os.path.dirname(__file__), "../../../.env"),
+        env_file_encoding="utf-8",
+        extra="ignore"
+    )
+
+@lru_cache
+def get_settings():
+    return Settings()
+
+settings = get_settings()
