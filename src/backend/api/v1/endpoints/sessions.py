@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Response
 from src.backend.schemas.chat import Session, Message
 from typing import List
 import uuid
@@ -38,3 +38,21 @@ async def get_session_messages(session_id: str, request: Request):
                      try: row['evidence_data'] = json.loads(row['evidence_data'])
                      except: pass
             return rows
+
+@router.get("/sessions/{session_id}/export")
+async def export_session(session_id: str, request: Request):
+    messages = await get_session_messages(session_id, request)
+    
+    md = f"# Investigation Session {session_id}\n\n"
+    for msg in messages:
+        role = msg['role'].upper()
+        content = msg['content']
+        md += f"### {role}\n{content}\n\n"
+        if msg.get('evidence_sql'):
+            md += f"```sql\n{msg['evidence_sql']}\n```\n\n"
+            
+    return Response(
+        content=md,
+        media_type="text/markdown",
+        headers={"Content-Disposition": f"attachment; filename=session-{session_id}.md"}
+    )
