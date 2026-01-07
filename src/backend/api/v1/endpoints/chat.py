@@ -1,5 +1,7 @@
 import json
-from fastapi import APIRouter, Request
+import csv
+import io
+from fastapi import APIRouter, Request, HTTPException, Response
 from fastapi.responses import StreamingResponse
 from src.backend.schemas.chat import ChatRequest, ChatResponse, FeedbackRequest
 from src.backend.services.chat_service import ChatService
@@ -94,3 +96,27 @@ async def collect_feedback(feedback: FeedbackRequest):
     with open("data/feedback.jsonl", "a") as f:
         f.write(json.dumps(entry) + "\n")
     return {"status": "received"}
+
+@router.get("/messages/{message_id}/export")
+async def export_message_data(message_id: int, format: str = "csv", request: Request):
+    pool = request.app.state.pool
+    async with pool.acquire() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute("SELECT evidence_data FROM messages WHERE id = %s", (message_id,))
+            row = await cur.fetchone()
+            
+    if not row or not row['evidence_data']:
+        raise HTTPException(status_code=404, detail="No data found")
+        
+    data = json.loads(row['evidence_data']) if isinstance(row['evidence_data'], str) else row['evidence_data']
+    
+    if format == "json":
+        return data
+        
+    output = io.StringIO()
+    if data and isinstance(data, list):
+        writer = csv.DictWriter(output, fieldnames=data[0].keys())
+        writer.writeheader()
+        writer.writerows(data)
+        
+    return Response(content=output.getvalue(), media_type="text/csv", headers={"Content-Disposition": f"attachment; filename=data-{message_id}.csv"})

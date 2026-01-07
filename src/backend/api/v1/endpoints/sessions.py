@@ -31,7 +31,7 @@ async def get_session_messages(session_id: str, request: Request):
     pool = request.app.state.pool
     async with pool.acquire() as conn:
         async with conn.cursor() as cur:
-            await cur.execute("SELECT role, content, evidence_sql, evidence_data FROM messages WHERE session_id = %s ORDER BY id ASC", (session_id,))
+            await cur.execute("SELECT id, role, content, evidence_sql, evidence_data FROM messages WHERE session_id = %s ORDER BY id ASC", (session_id,))
             rows = await cur.fetchall()
             for row in rows:
                 if row.get('evidence_data') and isinstance(row['evidence_data'], str):
