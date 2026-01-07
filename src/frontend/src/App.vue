@@ -61,6 +61,7 @@
                       <div class="neon-circle">🔍</div>
                     </template>
                     <p class="hint">Select a session or start a new investigation.</p>
+                    <SuggestedQuestions @select="handleSuggestion" />
                   </el-empty>
                 </div>
 
@@ -187,6 +188,7 @@ import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 import ResultChart from './components/ResultChart.vue';
+import SuggestedQuestions from './components/SuggestedQuestions.vue';
 import { ElMessage } from 'element-plus';
 import { 
   User, Monitor, Download, Refresh, 
@@ -313,6 +315,11 @@ const copyToClipboard = (text: string) => {
   if (!text) return;
   navigator.clipboard.writeText(text);
   ElMessage.success({ message: 'Logic copied to clipboard', grouping: true });
+};
+
+const handleSuggestion = (q: string) => {
+  userInput.value = q;
+  sendMessage();
 };
 
 const sendMessage = async () => {
