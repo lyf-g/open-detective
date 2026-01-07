@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     DB_NAME: str = "open_detective"
     DB_POOL_MIN: int = 1
     DB_POOL_MAX: int = 20
+    REDIS_URL: str = "redis://redis:6379/0"
     
     # App
     SQL_ENGINE_TYPE: str = "mock"
