@@ -29,3 +29,4 @@ slowapi
 httpx
 pytest-asyncio
 aiomysql
+asgi-correlation-id
