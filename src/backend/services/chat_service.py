@@ -6,6 +6,7 @@ from src.backend.services.engine_factory import get_sql_engine
 from src.backend.services.logger import logger
 from src.backend.core.config import settings
 from src.backend.services.analytics import forecast_next_months
+from src.backend.services.sql_validator import validate_sql
 
 def detect_anomalies(data: list) -> list:
     """Scans data for significant spikes or drops."""
@@ -84,6 +85,9 @@ class ChatService:
         data = []
         error_msg = ""
         if sql_query:
+            if not validate_sql(sql_query):
+                return "", [], engine_type, "Security Alert: Only SELECT statements are allowed."
+
             try:
                 async with pool.acquire() as conn:
                     async with conn.cursor() as cur:
