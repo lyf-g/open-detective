@@ -1,8 +1,9 @@
 import os
-import mysql.connector
+import aiomysql
 import time
 import json
 import sys
+import asyncio
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -46,33 +47,33 @@ async def lifespan(app: FastAPI):
     scheduler.add_job(run_etl, 'interval', hours=24)
     scheduler.start()
 
+    # Async Pool
+    pool = None
     max_retries = 5
-    conn = None
     for i in range(max_retries):
         try:
-            logger.info("Attempting to connect to MySQL", attempt=i+1, max_retries=max_retries)
-            conn = mysql.connector.connect(
+            logger.info("Connecting to MySQL (Async)", attempt=i+1)
+            pool = await aiomysql.create_pool(
                 host=os.getenv("DB_HOST", "localhost"),
                 user=os.getenv("DB_USER", "root"),
                 password=os.getenv("DB_PASSWORD", ""),
-                database=os.getenv("DB_NAME", "open_detective")
+                db=os.getenv("DB_NAME", "open_detective"),
+                autocommit=True,
+                cursorclass=aiomysql.DictCursor
             )
-            if conn.is_connected():
-                logger.info("Successfully connected to MySQL.")
-                app.state.db = conn
-                break
+            app.state.pool = pool
+            logger.info("Connected to MySQL.")
+            break
         except Exception as e:
-            logger.warning("MySQL not ready yet", error=str(e))
+            logger.warning("MySQL connection failed", error=str(e))
             if i < max_retries - 1:
-                time.sleep(5)
-            else:
-                logger.error("Max retries reached. Backend shutting down.")
-                raise e
+                await asyncio.sleep(5)
     
     yield
     scheduler.shutdown()
-    if conn and conn.is_connected():
-        app.state.db.close()
+    if pool:
+        pool.close()
+        await pool.wait_closed()
 
 app = FastAPI(
     title="Open-Detective API",

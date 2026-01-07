@@ -28,3 +28,4 @@ apscheduler
 slowapi
 httpx
 pytest-asyncio
+aiomysql

@@ -5,18 +5,20 @@ from src.backend.schemas.chat import ChatRequest, ChatResponse, FeedbackRequest
 from src.backend.services.chat_service import ChatService
 from src.backend.core.limiter import limiter
 from datetime import datetime
+import os
 
 router = APIRouter()
 
 @router.post("/chat", response_model=ChatResponse)
 @limiter.limit("10/minute")
 async def chat(request: Request, chat_request: ChatRequest):
+    pool = request.app.state.pool
     if chat_request.session_id:
-        ChatService.save_user_message(request.app.state.db, chat_request.session_id, chat_request.message)
+        await ChatService.save_user_message(pool, chat_request.session_id, chat_request.message)
     
-    history = ChatService.get_history(request.app.state.db, chat_request.session_id) if chat_request.session_id else []
+    history = await ChatService.get_history(pool, chat_request.session_id) if chat_request.session_id else []
     
-    sql, data, engine, error = ChatService.process_request(chat_request.message, history, request.app.state.db)
+    sql, data, engine, error = await ChatService.process_request(chat_request.message, history, pool)
     
     answer = ""
     if error:
@@ -26,11 +28,11 @@ async def chat(request: Request, chat_request: ChatRequest):
     elif not data:
         answer = "报告 Agent，在当前数据库中未搜寻到相关线索..."
     else:
-        for chunk in ChatService.generate_answer_stream(chat_request.message, data, history, engine):
+        async for chunk in ChatService.generate_answer_stream(chat_request.message, data, history, engine):
             answer += chunk
     
     if chat_request.session_id:
-        ChatService.save_assistant_message(request.app.state.db, chat_request.session_id, answer, sql, data)
+        await ChatService.save_assistant_message(pool, chat_request.session_id, answer, sql, data)
         
     return ChatResponse(
         answer=answer,
@@ -42,12 +44,13 @@ async def chat(request: Request, chat_request: ChatRequest):
 @router.post("/chat/stream")
 @limiter.limit("10/minute")
 async def chat_stream(request: Request, chat_request: ChatRequest):
+    pool = request.app.state.pool
     if chat_request.session_id:
-        ChatService.save_user_message(request.app.state.db, chat_request.session_id, chat_request.message)
+        await ChatService.save_user_message(pool, chat_request.session_id, chat_request.message)
     
-    history = ChatService.get_history(request.app.state.db, chat_request.session_id) if chat_request.session_id else []
+    history = await ChatService.get_history(pool, chat_request.session_id) if chat_request.session_id else []
     
-    sql, data, engine, error = ChatService.process_request(chat_request.message, history, request.app.state.db)
+    sql, data, engine, error = await ChatService.process_request(chat_request.message, history, pool)
     
     async def event_generator():
         yield json.dumps({
@@ -72,12 +75,12 @@ async def chat_stream(request: Request, chat_request: ChatRequest):
             yield json.dumps({"type": "token", "content": msg}) + "\n"
             full_answer = msg
         else:
-            for chunk in ChatService.generate_answer_stream(chat_request.message, data, history, engine):
+            async for chunk in ChatService.generate_answer_stream(chat_request.message, data, history, engine):
                 yield json.dumps({"type": "token", "content": chunk}) + "\n"
                 full_answer += chunk
         
         if chat_request.session_id:
-            ChatService.save_assistant_message(request.app.state.db, chat_request.session_id, full_answer, sql, data)
+            await ChatService.save_assistant_message(pool, chat_request.session_id, full_answer, sql, data)
         
         yield json.dumps({"type": "done"}) + "\n"
 
@@ -87,7 +90,6 @@ async def chat_stream(request: Request, chat_request: ChatRequest):
 async def collect_feedback(feedback: FeedbackRequest):
     entry = feedback.dict()
     entry["timestamp"] = str(datetime.now())
-    import os
     os.makedirs("data", exist_ok=True)
     with open("data/feedback.jsonl", "a") as f:
         f.write(json.dumps(entry) + "\n")

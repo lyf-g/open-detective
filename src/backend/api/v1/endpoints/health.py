@@ -6,10 +6,13 @@ import requests
 router = APIRouter()
 
 @router.get("/health", response_model=HealthResponse)
-def health_check(request: Request):
+async def health_check(request: Request):
     db_status = False
     try:
-        db_status = request.app.state.db.is_connected()
+        if hasattr(request.app.state, 'pool'):
+            async with request.app.state.pool.acquire() as conn:
+                await conn.ping()
+                db_status = True
     except:
         pass
     return {"status": "ok", "version": "0.1.0", "db_connected": db_status}
