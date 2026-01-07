@@ -33,3 +33,4 @@ asgi-correlation-id
 alembic
 pydantic-settings
 tenacity
+numpy

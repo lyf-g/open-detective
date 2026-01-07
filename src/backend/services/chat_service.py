@@ -5,6 +5,7 @@ from typing import Optional, Tuple, AsyncGenerator
 from src.backend.services.engine_factory import get_sql_engine
 from src.backend.services.logger import logger
 from src.backend.core.config import settings
+from src.backend.services.analytics import forecast_next_months
 
 def detect_anomalies(data: list) -> list:
     """Scans data for significant spikes or drops."""
@@ -89,6 +90,11 @@ class ChatService:
                         logger.info("Executing SQL", sql=sql_query)
                         await cur.execute(sql_query)
                         data = await cur.fetchall()
+                
+                # Add Forecast
+                if data:
+                    forecast = forecast_next_months(data)
+                    data.extend(forecast)
             except Exception as e:
                 logger.error("SQL Execution Error", error=str(e), sql=sql_query)
                 error_msg = str(e)
