@@ -12,6 +12,7 @@ class Session(BaseModel):
     created_at: datetime
 
 class Message(BaseModel):
+    id: Optional[int] = None
     role: str
     content: str
     evidence_sql: Optional[str] = None
