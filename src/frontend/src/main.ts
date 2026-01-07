@@ -5,6 +5,17 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import './style.css'
 import App from './App.vue'
+import axios from 'axios';
+import { ElMessage } from 'element-plus';
+
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    const msg = error.response?.data?.detail || error.message || 'Network Error';
+    if (msg !== 'Network Error') ElMessage.error(msg);
+    return Promise.reject(error);
+  }
+);
 
 const app = createApp(App)
 

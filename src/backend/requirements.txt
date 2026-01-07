@@ -32,3 +32,4 @@ aiomysql
 asgi-correlation-id
 alembic
 pydantic-settings
+tenacity
