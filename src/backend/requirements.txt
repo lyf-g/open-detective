@@ -34,3 +34,4 @@ alembic
 pydantic-settings
 tenacity
 numpy
+sqlparse
