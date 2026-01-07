@@ -20,6 +20,8 @@ from src.backend.api.v1.api import api_router
 from src.backend.core.limiter import limiter
 from src.backend.core.config import settings
 
+import subprocess
+
 # Allow importing from data directory
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 try:
@@ -38,10 +40,24 @@ def check_system_integrity():
         with open(repo_path, 'w') as f:
             json.dump(["vuejs/core", "facebook/react", "fastapi/fastapi"], f, indent=2)
 
+def run_sqlbot_init():
+    """Runs the SQLBot auto-configuration script."""
+    # /app/src/backend/main.py -> /app/data/...
+    script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/etl_scripts/init_sqlbot.py'))
+    try:
+        logger.info("Starting SQLBot auto-configuration...")
+        subprocess.run([sys.executable, script_path], check=True)
+        logger.info("SQLBot auto-configuration finished.")
+    except Exception as e:
+        logger.warning(f"SQLBot auto-config failed: {e}")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     configure_logger()
     check_system_integrity()
+
+    # Trigger SQLBot Init in background
+    asyncio.create_task(asyncio.to_thread(run_sqlbot_init))
 
     scheduler = BackgroundScheduler()
     scheduler.add_job(run_etl, 'interval', hours=24)
@@ -71,6 +87,10 @@ async def lifespan(app: FastAPI):
             if i < max_retries - 1:
                 await asyncio.sleep(5)
     
+    if not pool:
+        logger.critical("Could not connect to MySQL after multiple attempts. Exiting.")
+        raise RuntimeError("Database connection failed")
+
     yield
     scheduler.shutdown()
     if pool:
