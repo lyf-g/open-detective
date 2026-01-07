@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     DB_USER: str = "root"
     DB_PASSWORD: str = ""
     DB_NAME: str = "open_detective"
+    DB_POOL_MIN: int = 1
+    DB_POOL_MAX: int = 20
     
     # App
     SQL_ENGINE_TYPE: str = "mock"

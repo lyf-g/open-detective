@@ -58,7 +58,9 @@ async def lifespan(app: FastAPI):
                 password=settings.DB_PASSWORD,
                 db=settings.DB_NAME,
                 autocommit=True,
-                cursorclass=aiomysql.DictCursor
+                cursorclass=aiomysql.DictCursor,
+                minsize=settings.DB_POOL_MIN,
+                maxsize=settings.DB_POOL_MAX
             )
             app.state.pool = pool
             logger.info("Connected to MySQL.")
