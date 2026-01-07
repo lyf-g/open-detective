@@ -56,3 +56,41 @@ def forecast_next_months(data: List[Dict[str, Any]], months: int = 3) -> List[Di
         })
         
     return future_points
+
+def detect_anomalies(data: List[Dict[str, Any]], threshold: float = 2.0) -> List[Dict[str, Any]]:
+    """
+    Detects anomalies in time-series data using Z-score.
+    """
+    if not data or len(data) < 3:
+        return []
+
+    valid_data = [d for d in data if 'value' in d]
+    if len(valid_data) < 3: return []
+    
+    try:
+        values = [float(d['value']) for d in valid_data]
+    except ValueError:
+        return [] # Cannot parse values
+
+    mean = np.mean(values)
+    std = np.std(values)
+
+    anomalies = []
+    if std == 0: return []
+
+    for d in valid_data:
+        try:
+            val = float(d['value'])
+            z_score = (val - mean) / std
+            if abs(z_score) > threshold:
+                anomalies.append({
+                    **d,
+                    "z_score": float(z_score),
+                    "mean": float(mean),
+                    "std_dev": float(std),
+                    "is_anomaly": True
+                })
+        except:
+            continue
+            
+    return anomalies
