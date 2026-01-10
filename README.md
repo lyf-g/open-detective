@@ -15,8 +15,13 @@
   - **动态可视化**：基于 ECharts 自动渲染折线图、柱状图，图表主题随系统实时同步。
   - **多维度指标**：支持 Stars, Activity, OpenRank, **Bus Factor** (人才风险), **Issues New/Closed** (维护效率) 等 50+ 全球顶级项目数据。
 
+- **🚨 异常检测 (Anomaly Detection)**
+  - **智能风控**：内置 Z-score 算法自动识别数据异常点（如 Star 数突增、Issue 积压暴涨）。
+  - **即时分析**：在图表界面一键点击 "Find Anomalies" 即可高亮显示异常波动。
+
 - **💾 企业级数据引擎**
   - 使用 **MySQL 8.0** 存储海量 OpenDigger 真实历史指标。
+  - **Redis 缓存**：高频查询毫秒级响应。
   - 内置高性能 ETL 管道，直连官方 OSS CDN 数据源。
 
 - **📂 案件卷宗导出**
@@ -25,7 +30,7 @@
 ## 🛠️ Tech Stack (技术栈)
 
 - **Frontend**: Vue 3, TypeScript, Vite, ECharts
-- **Backend**: Python, FastAPI, MySQL 8.0
+- **Backend**: Python, FastAPI (Async), MySQL 8.0, Redis
 - **AI Engine**: DataEase SQLBot (Text-to-SQL + RAG)
 - **Deployment**: Docker, Docker Compose
 
@@ -54,15 +59,14 @@ docker-compose exec backend python data/etl_scripts/mock_data.py
 docker-compose exec backend python data/etl_scripts/fetch_opendigger.py
 ```
 
-### 3. 配置 SQLBot (关键步骤)
-1.  **访问后台**: [http://localhost:8000](http://localhost:8000)
-2.  **登录凭据**: 
-    *   User: `admin`
-    *   Pass: `SQLBot@123456`
-3.  **添加数据源**: 
-    *   类型: `MySQL`
-    *   Host: `mysql` | Port: `3306` | DB: `open_detective`
-4.  **生成 Token**: 在 SQLBot 后台生成 Token 并填入根目录 `.env` 文件的 `SQLBOT_API_KEY` 中（支持热加载，无需重启）。
+### 3. 配置 SQLBot (智能配置)
+系统支持自动配置 SQLBot。
+1.  **自动配置**: 在 `.env` 中设置 `SQLBOT_AUTO_CONFIG=true` 并填写 LLM 相关信息，后端启动时会自动尝试配置数据源和模型。
+2.  **手动配置**:
+    *   **访问后台**: [http://localhost:8000](http://localhost:8000)
+    *   **登录凭据**: User: `admin` | Pass: `SQLBot@123456`
+    *   **添加数据源**: MySQL (`mysql` : `3306` / `open_detective`)
+    *   **生成 Token**: 填入 `.env` 的 `SQLBOT_API_KEY` (支持热加载)。
 
 ## 🌐 Service Portal (服务入口)
 
