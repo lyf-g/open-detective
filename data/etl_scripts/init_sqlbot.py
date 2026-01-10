@@ -94,6 +94,9 @@ def configure_datasource(token):
             if res.status_code == 200:
                 print(f"✅ Datasource configured via {ep}.")
                 return
+            elif res.status_code == 500 and "Name already exists" in res.text:
+                print(f"✅ Datasource already exists (verified via {ep}).")
+                return
             elif res.status_code != 404 and res.status_code != 405:
                  print(f"   {ep} returned {res.status_code} {res.text}")
 
@@ -109,36 +112,49 @@ def configure_llm(token):
     if token and not token.startswith("Bearer "): token = f"Bearer {token}"
     headers = {"X-SQLBOT-TOKEN": token, "Content-Type": "application/json"}
     
-    # Generic structure guess
+    # 1. Check existing models
+    print(f"🧠 Checking existing LLM models...")
+    existing_models = []
+    try:
+        res = requests.get(f"{ENDPOINT}/api/v1/system/aimodel", headers=headers)
+        if res.status_code == 200:
+            existing_models = res.json().get("data", [])
+            for m in existing_models:
+                # If model with same base_model exists, skip
+                if m.get("base_model") == LLM_MODEL or m.get("name") == f"Auto-{LLM_PROVIDER}":
+                    print(f"✅ LLM '{m.get('name')}' ({m.get('base_model')}) already exists.")
+                    return
+    except Exception as e:
+        print(f"⚠️ Failed to list models: {e}")
+
+    # 2. Prepare Payload
+    # Supplier Map (Guessing based on observation)
+    supplier_map = {
+        "openai": 1,
+        "deepseek": 3,
+        "azure": 2
+    }
+    supplier_id = supplier_map.get(LLM_PROVIDER.lower(), 1) # Default to OpenAI
+    
     payload = {
-        "provider": LLM_PROVIDER,
-        "config": {
-            "apiKey": LLM_KEY,
-            "apiBase": LLM_BASE,
-            "model": LLM_MODEL
-        },
-        "status": "ENABLE"
+        "name": f"Auto-{LLM_PROVIDER}",
+        "model_type": 0, # Text Generation
+        "base_model": LLM_MODEL,
+        "supplier": supplier_id,
+        "protocol": 1, # OpenAI Compatible
+        "default_model": True,
+        "api_domain": LLM_BASE,
+        "api_key": LLM_KEY,
+        "config_list": [] 
     }
     
     print(f"🧠 Configuring LLM ({LLM_PROVIDER})...")
     try:
-        # Try multiple potential endpoints
-        endpoints = [
-            f"{ENDPOINT}/api/v1/llm/save",
-            f"{ENDPOINT}/api/v1/system/parameter/llm",
-            f"{ENDPOINT}/api/v1/llm/create"
-        ]
-        
-        success = False
-        for ep in endpoints:
-            res = requests.post(ep, json=payload, headers=headers)
-            if res.status_code == 200:
-                print(f"✅ LLM configured via {ep}.")
-                success = True
-                break
-        
-        if not success:
-            print(f"⚠️ LLM config failed on all attempts.")
+        res = requests.post(f"{ENDPOINT}/api/v1/system/aimodel", json=payload, headers=headers)
+        if res.status_code == 200:
+            print("✅ LLM configured successfully.")
+        else:
+            print(f"⚠️ LLM config result: {res.status_code} {res.text}")
     except Exception as e:
         print(f"❌ LLM config failed: {e}")
 
