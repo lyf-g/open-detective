@@ -77,30 +77,36 @@ def configure_datasource(token):
     
     print(f"🔌 Configuring Datasource: {DB_HOST}...")
     try:
-        # Check existing
-        list_res = requests.get(f"{ENDPOINT}/api/v1/datasource", headers=headers)
-        if list_res.status_code == 200:
-            print(f"   Existing Datasources: {len(list_res.json().get('data', []))}")
-        
-        # Try POST /api/v1/datasource (standard) or /api/v1/datasource/create
-        endpoints = [
-            f"{ENDPOINT}/api/v1/datasource",
-            f"{ENDPOINT}/api/v1/datasource/create",
-            f"{ENDPOINT}/api/v1/datasource/add"
-        ]
-        
-        for ep in endpoints:
-            res = requests.post(ep, json=payload, headers=headers)
-            if res.status_code == 200:
-                print(f"✅ Datasource configured via {ep}.")
-                return
-            elif res.status_code == 500 and "Name already exists" in res.text:
-                print(f"✅ Datasource already exists (verified via {ep}).")
-                return
-            elif res.status_code != 404 and res.status_code != 405:
-                 print(f"   {ep} returned {res.status_code} {res.text}")
+        # Check existing (Try standard DataEase paging endpoint)
+        # POST /api/v1/datasource/list/{page}/{size}
+        check_url = f"{ENDPOINT}/api/v1/datasource/list/1/100"
+        try:
+            list_res = requests.post(check_url, json={}, headers=headers, timeout=5)
+            if list_res.status_code == 200:
+                data_list = list_res.json().get("data", [])
+                # The data might be inside 'list' or just a list
+                if isinstance(data_list, dict):
+                    data_list = data_list.get("list", [])
+                
+                print(f"   Existing Datasources: {len(data_list)}")
+                for ds in data_list:
+                    if ds.get("name") == "OpenDetectiveDB":
+                        print("✅ Datasource 'OpenDetectiveDB' already exists.")
+                        return
+        except Exception as e:
+            print(f"⚠️ Check existing failed: {e}")
 
-        print(f"⚠️ Datasource config failed on all attempts.")
+        # Create using the known correct endpoint
+        create_url = f"{ENDPOINT}/api/v1/datasource/add"
+        res = requests.post(create_url, json=payload, headers=headers)
+        
+        if res.status_code == 200:
+            print(f"✅ Datasource configured via {create_url}.")
+        elif res.status_code == 500 and "Name already exists" in res.text:
+            print(f"✅ Datasource already exists (server confirmed).")
+        else:
+             print(f"❌ Datasource config failed: {res.status_code} {res.text}")
+
     except Exception as e:
         print(f"❌ Datasource config failed: {e}")
 
