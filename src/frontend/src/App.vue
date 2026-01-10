@@ -41,8 +41,13 @@
               <div v-for="sess in sessions" :key="sess.id" 
                    :class="['session-item', { active: currentSessionId === sess.id }]"
                    @click="loadSession(sess.id)">
-                <div class="session-title">{{ sess.title }}</div>
-                <div class="session-date">{{ new Date(sess.created_at).toLocaleDateString() }}</div>
+                <div class="session-info">
+                   <div class="session-title">{{ sess.title }}</div>
+                   <div class="session-date">{{ new Date(sess.created_at).toLocaleDateString() }}</div>
+                </div>
+                <el-button class="session-delete" type="danger" link size="small" @click="(e) => deleteSession(sess.id, e)">
+                  <el-icon><Delete /></el-icon>
+                </el-button>
               </div>
             </el-scrollbar>
           </div>
@@ -202,37 +207,34 @@ import { ElMessage } from 'element-plus';
 import { useDark, useToggle } from '@vueuse/core';
 import { 
   User, Monitor, Download, Refresh, Share, Moon, Sunny,
-  DataLine, CopyDocument, Connection, Promotion 
+  DataLine, CopyDocument, Connection, Promotion, Delete
 } from '@element-plus/icons-vue';
 
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
+// ... (MarkdownIt setup) ...
+// ... (Refs) ...
 
-const md = new MarkdownIt({
-  html: true,
-  linkify: true,
-  typographer: true,
-  highlight: function (str, lang) {
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        return hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
-      } catch (__) {}
+// ... (Existing functions) ...
+
+const deleteSession = async (id: string, event: Event) => {
+  event.stopPropagation();
+  try {
+    await axios.delete(`${API_BASE}/sessions/${id}`);
+    sessions.value = sessions.value.filter(s => s.id !== id);
+    if (currentSessionId.value === id) {
+      if (sessions.value.length > 0) loadSession(sessions.value[0].id);
+      else {
+        currentSessionId.value = null;
+        chatHistory.value = [];
+        window.history.replaceState({}, '', window.location.pathname);
+      }
     }
-    return ''; // use external default escaping
+    ElMessage.success("Session deleted");
+  } catch (e) {
+    ElMessage.error("Failed to delete session");
   }
-});
-const userInput = ref('');
-const loading = ref(false);
-const chatHistory = ref<any[]>([]);
-const scrollRef = ref<any>(null);
-const engineType = ref('sqlbot');
-const currentTime = ref('');
-
-// Session State
-const sessions = ref<any[]>([]);
-const currentSessionId = ref<string | null>(null);
-
-const API_BASE = '/api/v1';
+};
 
 const reloadPage = () => window.location.reload();
 
@@ -454,11 +456,24 @@ const exportCase = () => {
 /* New Session List Styles */
 .sidebar-sessions { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; margin-top: 20px; border-top: 1px solid #222; padding-top: 15px; }
 .session-label { font-size: 0.65rem; color: #555; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; }
-.session-item { padding: 10px; margin-bottom: 8px; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+.session-item { 
+  padding: 10px; 
+  margin-bottom: 8px; 
+  border-radius: 6px; 
+  cursor: pointer; 
+  transition: all 0.2s; 
+  border: 1px solid transparent; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.session-info { flex-grow: 1; overflow: hidden; }
 .session-item:hover { background: rgba(255,255,255,0.05); }
+.session-item:hover .session-delete { opacity: 1; }
 .session-item.active { background: rgba(0, 188, 212, 0.1); border-color: rgba(0, 188, 212, 0.3); }
 .session-title { font-size: 0.8rem; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
 .session-date { font-size: 0.6rem; color: #666; margin-top: 4px; }
+.session-delete { opacity: 0; transition: opacity 0.2s; padding: 0 !important; margin-left: 5px; }
 
 :root {
   --sidebar-bg: #0d1117;
