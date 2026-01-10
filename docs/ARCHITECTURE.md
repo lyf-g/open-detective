@@ -21,7 +21,8 @@ graph TD
     end
     
     subgraph "Data Persistence"
-        Backend -->|Read/Write| DB[(MySQL 8.0 Database)]
+        Backend -->|Async Read/Write| DB[(MySQL 8.0 Database)]
+        Backend -->|Cache/Session| Redis[(Redis Cache)]
         SQLBot -->|Read Schema/Data| DB
     end
     
@@ -39,19 +40,21 @@ graph TD
 ### 3.1 Data Layer (The Source of Truth)
 - **Source**: [OpenDigger](https://github.com/X-lab2017/open-digger) static data via OSS CDN.
 - **Storage**: MySQL 8.0.
+- **Caching**: Redis for high-speed query caching and session management.
 - **Optimization**: Indexed by `(repo_name, metric_type)` for sub-millisecond query performance.
 - **ETL**: `data/etl_scripts/fetch_opendigger.py` handles multi-repo batch ingestion with automatic retries.
 
 ### 3.2 Backend Layer (The Orchestrator)
-- **Framework**: FastAPI (Python).
+- **Framework**: FastAPI (Python) with **Async IO** (`aiomysql`) for high-concurrency performance.
 - **Engine Factory**: A modular pattern that allows switching between `Mock` (rule-based) and `SQLBot` (AI-based) engines via `.env`.
-- **Hot-Reloading**: Automatically detects updates to `SQLBOT_API_KEY` without container restarts.
-- **Resilience**: Built-in MySQL connection retry logic to handle Docker startup race conditions.
+- **Auto-Configuration**: `data/etl_scripts/init_sqlbot.py` attempts to automatically configure SQLBot datasource and LLM on startup.
+- **Resilience**: Built-in connection retry logic and connection pooling.
 
 ### 3.3 Intelligence Engine (The Brain)
 - **Engine**: [DataEase SQLBot](https://github.com/dataease/SQLBot).
 - **Integration**: Communicates via standard `chat/start` and `chat/question` endpoints using a JWT-based `X-SQLBOT-TOKEN`.
 - **RAG Context**: Includes a business glossary (`data/sql/sqlbot_glossary.md`) to help the LLM understand domain-specific metrics like OpenRank and Bus Factor.
+- **Anomaly Detection**: Dedicated endpoint for Z-score based outlier analysis in time-series data.
 
 ### 3.4 Frontend Layer (The Face)
 - **Framework**: Vue 3 + TypeScript + Vite.
