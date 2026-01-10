@@ -56,3 +56,14 @@ async def export_session(session_id: str, request: Request):
         media_type="text/markdown",
         headers={"Content-Disposition": f"attachment; filename=session-{session_id}.md"}
     )
+
+@router.delete("/sessions/{session_id}")
+async def delete_session(session_id: str, request: Request):
+    pool = request.app.state.pool
+    async with pool.acquire() as conn:
+        async with conn.cursor() as cur:
+            # ON DELETE CASCADE handles messages
+            await cur.execute("DELETE FROM sessions WHERE id = %s", (session_id,))
+            if cur.rowcount == 0:
+                return Response(status_code=404)
+    return Response(status_code=204)
