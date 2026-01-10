@@ -77,26 +77,8 @@ def configure_datasource(token):
     
     print(f"🔌 Configuring Datasource: {DB_HOST}...")
     try:
-        # Check existing (Try standard DataEase paging endpoint)
-        # POST /api/v1/datasource/list/{page}/{size}
-        check_url = f"{ENDPOINT}/api/v1/datasource/list/1/100"
-        try:
-            list_res = requests.post(check_url, json={}, headers=headers, timeout=5)
-            if list_res.status_code == 200:
-                data_list = list_res.json().get("data", [])
-                # The data might be inside 'list' or just a list
-                if isinstance(data_list, dict):
-                    data_list = data_list.get("list", [])
-                
-                print(f"   Existing Datasources: {len(data_list)}")
-                for ds in data_list:
-                    if ds.get("name") == "OpenDetectiveDB":
-                        print("✅ Datasource 'OpenDetectiveDB' already exists.")
-                        return
-        except Exception as e:
-            print(f"⚠️ Check existing failed: {e}")
-
-        # Create using the known correct endpoint
+        # Strategy: Try to create. If it fails with "Name already exists", treat as success.
+        # This avoids guessing the "list" endpoint which varies by version.
         create_url = f"{ENDPOINT}/api/v1/datasource/add"
         res = requests.post(create_url, json=payload, headers=headers)
         
