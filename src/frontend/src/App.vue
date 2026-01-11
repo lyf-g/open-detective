@@ -24,6 +24,9 @@
           </div>
 
           <div class="sidebar-actions">
+            <el-button class="action-btn" type="danger" plain @click="openDeepScan">
+              <el-icon><Aim /></el-icon> Deep Scan (Battle Mode)
+            </el-button>
             <el-button class="action-btn" type="primary" plain @click="exportCase" :disabled="chatHistory.length === 0">
               <el-icon><Download /></el-icon> Export Case File
             </el-button>
@@ -191,6 +194,17 @@
           </div>
         </el-main>
       </el-container>
+
+      <!-- Battle Mode Overlay -->
+      <div v-if="showRadar" class="battle-overlay" @click.self="showRadar = false">
+        <div class="battle-card">
+          <div class="battle-header">
+            <h2>{{ radarTitle }}</h2>
+            <el-button circle size="small" @click="showRadar = false"><el-icon><Delete /></el-icon></el-button>
+          </div>
+          <RadarView :data="radarData" :title="radarTitle" />
+        </div>
+      </div>
     </div>
   </el-config-provider>
 </template>
@@ -202,33 +216,25 @@ import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 import ResultChart from './components/ResultChart.vue';
+import RadarView from './components/RadarView.vue';
 import SuggestedQuestions from './components/SuggestedQuestions.vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
 import { useDark, useToggle } from '@vueuse/core';
-import { 
+import {
   User, Monitor, Download, Refresh, Share, Moon, Sunny,
-  DataLine, CopyDocument, Connection, Promotion, Delete
+  DataLine, CopyDocument, Connection, Promotion, Delete, Aim
 } from '@element-plus/icons-vue';
 
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
-const md = new MarkdownIt({
-  html: true,
-  linkify: true,
-  typographer: true,
-  highlight: function (str, lang) {
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        return hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
-      } catch (__error) {}
-    }
-    return ''; // use external default escaping
-  }
-});
+// ...
+
 const userInput = ref('');
 const loading = ref(false);
-const chatHistory = ref<any[]>([]);
+const showRadar = ref(false);
+const radarData = ref<any[]>([]);
+const radarTitle = ref('');const chatHistory = ref<any[]>([]);
 const scrollRef = ref<any>(null);
 const engineType = ref('sqlbot');
 const currentTime = ref('');
@@ -456,6 +462,33 @@ const sendMessage = async () => {
   }
 };
 
+const openDeepScan = async () => {
+  try {
+    const { value } = await ElMessageBox.prompt('Enter Repository Name (e.g. vuejs/core)', 'Deep Scan Protocol', {
+      confirmButtonText: 'Scan',
+      cancelButtonText: 'Cancel',
+      inputPattern: /.+/,
+      inputErrorMessage: 'Repo name required'
+    });
+    
+    if (value) {
+      const loadingInstance = ElLoading.service({ fullscreen: true, text: 'Scanning Repositories... Analyzing Metadata...' });
+      try {
+        const res = await axios.post(`${API_BASE}/analytics/profile`, { repo: value });
+        radarData.value = res.data.radar;
+        radarTitle.value = `BATTLE MODE: ${res.data.repo}`;
+        showRadar.value = true;
+      } catch (e) {
+        ElMessage.error("Scan Failed");
+      } finally {
+        loadingInstance.close();
+      }
+    }
+  } catch {
+    // Cancelled
+  }
+};
+
 const exportCase = () => {
   let content = "# Open-Detective Investigation Report\n\n";
   chatHistory.value.forEach(m => {
@@ -620,5 +653,46 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 12px 30px rgba(0, 188, 212, 0.15);
   border-color: rgba(0, 188, 212, 0.5);
+}
+
+/* Battle Mode */
+.battle-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s;
+}
+.battle-card {
+  width: 600px;
+  background: #111;
+  border: 2px solid #00bcd4;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 50px rgba(0, 188, 212, 0.3);
+  position: relative;
+}
+.battle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+.battle-header h2 {
+  color: #00bcd4;
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
 }
 </style>
