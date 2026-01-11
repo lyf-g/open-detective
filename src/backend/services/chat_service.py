@@ -134,7 +134,7 @@ class ChatService:
     async def generate_answer_stream(message: str, data: list, history: list, engine_type: str) -> AsyncGenerator[str, None]:
         # 1. Deduction (The "Hook")
         deduction = ChatService.generate_deduction(data)
-        yield json.dumps({"type": "token", "content": f"**[NEURAL DEDUCTION]**\n> {deduction}\n\n"})
+        yield f"**[NEURAL DEDUCTION]**\n> {deduction}\n\n"
         await asyncio.sleep(0.5) # Dramatic pause
 
         if engine_type == "sqlbot":
@@ -143,14 +143,12 @@ class ChatService:
             # client.generate_summary_stream is synchronous generator.
             # We wrap it.
             for chunk in client.generate_summary_stream(message, data, history=history):
-                # Ensure we send JSON format if the frontend expects it, or raw text?
-                # The frontend code I saw earlier handles JSON lines.
-                yield json.dumps({"type": "token", "content": chunk})
+                yield chunk
                 await asyncio.sleep(0)
         else:
-            yield json.dumps({"type": "token", "content": f"Evidence retrieved: {len(data)} records found.\n"})
+            yield f"Evidence retrieved: {len(data)} records found.\n"
             
         clues = detect_anomalies(data)
         if clues:
              clue_text = "\n\n**[ANOMALY ALERT]**\n" + "\n".join([f"- {c['month']} | {c['repo']} {c['type']} detected ({c['intensity']})" for c in clues])
-             yield json.dumps({"type": "token", "content": clue_text})
+             yield clue_text
