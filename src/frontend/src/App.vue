@@ -30,6 +30,9 @@
             <el-button class="action-btn" type="success" plain @click="showGlobe = true">
               <el-icon><MapLocation /></el-icon> Global Intel
             </el-button>
+            <el-button class="action-btn" type="warning" plain @click="openSentiment">
+              <el-icon><ChatDotRound /></el-icon> Sentiment Analysis
+            </el-button>
             <el-button class="action-btn" type="primary" plain @click="exportCase" :disabled="chatHistory.length === 0">
               <el-icon><Download /></el-icon> Export Case File
             </el-button>
@@ -223,6 +226,17 @@
           <GlobeView />
         </div>
       </div>
+
+      <!-- Sentiment Overlay -->
+      <div v-if="showSentiment" class="battle-overlay" @click.self="showSentiment = false">
+        <div class="battle-card" style="width: 800px; height: 400px;">
+          <div class="battle-header">
+            <h2>COMMUNITY SENTIMENT: {{ sentimentData?.repo }}</h2>
+            <el-button circle size="small" @click="showSentiment = false"><el-icon><Delete /></el-icon></el-button>
+          </div>
+          <SentimentView v-if="sentimentData" :data="sentimentData" />
+        </div>
+      </div>
     </div>
   </el-config-provider>
 </template>
@@ -237,13 +251,13 @@ import ResultChart from './components/ResultChart.vue';
 import RadarView from './components/RadarView.vue';
 import DossierCard from './components/DossierCard.vue';
 import GlobeView from './components/GlobeView.vue';
+import SentimentView from './components/SentimentView.vue';
 import SuggestedQuestions from './components/SuggestedQuestions.vue';
 import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
 import { useDark, useToggle } from '@vueuse/core';
-import {
+import { 
   User, Monitor, Download, Refresh, Share, Moon, Sunny,
-  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone,
-  MapLocation
+  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound
 } from '@element-plus/icons-vue';
 
 const isDark = useDark();
@@ -259,6 +273,8 @@ const radarTitle = ref('');
 const showDossier = ref(false);
 const dossierData = ref<any>(null);
 const showGlobe = ref(false);
+const showSentiment = ref(false);
+const sentimentData = ref<any>(null);
 const isListening = ref(false);
 const scrollRef = ref<any>(null);
 const engineType = ref('sqlbot');
@@ -503,6 +519,32 @@ const sendMessage = async () => {
   } catch (error: any) {
     loading.value = false;
     ElMessage.error(`System error: ${error.message}`);
+  }
+};
+
+const openSentiment = async () => {
+  try {
+    const { value } = await ElMessageBox.prompt('Enter Repository Name (e.g. vuejs/core)', 'Sentiment Analysis', {
+      confirmButtonText: 'Analyze',
+      cancelButtonText: 'Cancel',
+      inputPattern: /.+/,
+      inputErrorMessage: 'Repo name required'
+    });
+    
+    if (value) {
+      const loadingInstance = ElLoading.service({ fullscreen: true, text: 'Mining Community Data...' });
+      try {
+        const res = await axios.post(`${API_BASE}/analytics/sentiment`, { repo: value });
+        sentimentData.value = res.data;
+        showSentiment.value = true;
+      } catch (e) {
+        ElMessage.error("Analysis Failed");
+      } finally {
+        loadingInstance.close();
+      }
+    }
+  } catch {
+    // Cancelled
   }
 };
 
