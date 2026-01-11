@@ -29,6 +29,19 @@ def configure_logger():
     )
 
     handler = logging.StreamHandler(sys.stdout)
+    
+    # Add correlation ID filter to standard logging
+    class CorrelationIdFilter(logging.Filter):
+        def filter(self, record):
+            cid = correlation_id.get()
+            record.request_id = cid if cid else ""
+            return True
+
+    handler.addFilter(CorrelationIdFilter())
+    handler.setFormatter(logging.Formatter(
+        '%(asctime)s [%(levelname)s] [%(request_id)s] %(name)s: %(message)s'
+    ))
+
     root_logger = logging.getLogger()
     # Avoid duplicate logs if handler already exists
     if not root_logger.handlers:
