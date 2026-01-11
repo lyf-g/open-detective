@@ -27,6 +27,9 @@
             <el-button class="action-btn" type="danger" plain @click="openDeepScan">
               <el-icon><Aim /></el-icon> Deep Scan (Battle Mode)
             </el-button>
+            <el-button class="action-btn" type="success" plain @click="showGlobe = true">
+              <el-icon><MapLocation /></el-icon> Global Intel
+            </el-button>
             <el-button class="action-btn" type="primary" plain @click="exportCase" :disabled="chatHistory.length === 0">
               <el-icon><Download /></el-icon> Export Case File
             </el-button>
@@ -209,6 +212,17 @@
       <div v-if="showDossier" class="dossier-overlay" @click.self="showDossier = false">
         <DossierCard :profile="dossierData" />
       </div>
+
+      <!-- Globe Overlay -->
+      <div v-if="showGlobe" class="battle-overlay" @click.self="showGlobe = false">
+        <div class="battle-card" style="width: 800px; height: 700px;">
+          <div class="battle-header">
+            <h2>GLOBAL INTELLIGENCE</h2>
+            <el-button circle size="small" @click="showGlobe = false"><el-icon><Delete /></el-icon></el-button>
+          </div>
+          <GlobeView />
+        </div>
+      </div>
     </div>
   </el-config-provider>
 </template>
@@ -222,12 +236,14 @@ import 'highlight.js/styles/atom-one-dark.css';
 import ResultChart from './components/ResultChart.vue';
 import RadarView from './components/RadarView.vue';
 import DossierCard from './components/DossierCard.vue';
+import GlobeView from './components/GlobeView.vue';
 import SuggestedQuestions from './components/SuggestedQuestions.vue';
 import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
 import { useDark, useToggle } from '@vueuse/core';
 import {
   User, Monitor, Download, Refresh, Share, Moon, Sunny,
-  DataLine, CopyDocument, Connection, Promotion, Delete, Aim
+  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone,
+  MapLocation
 } from '@element-plus/icons-vue';
 
 const isDark = useDark();
@@ -242,6 +258,7 @@ const radarData = ref<any[]>([]);
 const radarTitle = ref('');
 const showDossier = ref(false);
 const dossierData = ref<any>(null);
+const showGlobe = ref(false);
 const isListening = ref(false);
 const scrollRef = ref<any>(null);
 const engineType = ref('sqlbot');
