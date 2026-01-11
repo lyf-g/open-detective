@@ -62,8 +62,17 @@ async def delete_session(session_id: str, request: Request):
     pool = request.app.state.pool
     async with pool.acquire() as conn:
         async with conn.cursor() as cur:
-            # ON DELETE CASCADE handles messages
+            # Manually delete messages first to avoid FK constraint issues
+            # (In case ON DELETE CASCADE is missing in the running DB)
+            await cur.execute("DELETE FROM messages WHERE session_id = %s", (session_id,))
+            
             await cur.execute("DELETE FROM sessions WHERE id = %s", (session_id,))
             if cur.rowcount == 0:
+                # If messages existed but session didn't (unlikely), we might still want to return success or 404.
+                # If we deleted messages, we technically acted. 
+                # But strictly speaking, if session didn't exist, it's a 404 or success (idempotent).
+                # Checking session existence first would be cleaner, but extra query.
+                # If delete sessions returns 0, and we just deleted messages, it means the session row wasn't there.
+                # Let's assume 404 if session row wasn't touched.
                 return Response(status_code=404)
     return Response(status_code=204)
