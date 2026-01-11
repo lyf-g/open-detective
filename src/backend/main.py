@@ -22,13 +22,6 @@ from src.backend.core.config import settings
 
 import subprocess
 
-# Allow importing from data directory
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
-try:
-    from data.etl_scripts.fetch_opendigger import run_etl
-except ImportError:
-    run_etl = lambda: logger.warning("ETL Script import failed")
-
 def check_system_integrity():
     """Ensures critical configuration files exist."""
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -59,9 +52,16 @@ async def lifespan(app: FastAPI):
     # Trigger SQLBot Init in background
     asyncio.create_task(asyncio.to_thread(run_sqlbot_init))
 
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(run_etl, 'interval', hours=24)
-    scheduler.start()
+    # Lazy import ETL script to avoid sys.path issues during startup
+    try:
+        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
+        from data.etl_scripts.fetch_opendigger import run_etl
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(run_etl, 'interval', hours=24)
+        scheduler.start()
+    except ImportError:
+        logger.warning("ETL Script import failed, scheduler not started")
+        scheduler = None
 
     # Async Pool
     pool = None
@@ -92,7 +92,8 @@ async def lifespan(app: FastAPI):
         raise RuntimeError("Database connection failed")
 
     yield
-    scheduler.shutdown()
+    if scheduler:
+        scheduler.shutdown()
     if pool:
         pool.close()
         await pool.wait_closed()
