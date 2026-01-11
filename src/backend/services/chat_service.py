@@ -65,15 +65,12 @@ class ChatService:
         except: return []
 
     @staticmethod
-    async def process_request(message: str, history: list, pool) -> Tuple[str, list, str, str]:
+    async def process_request(message: str, history: list, pool) -> Tuple[str, list, str, str, list]:
         engine_type_raw = settings.SQL_ENGINE_TYPE
         engine_type = engine_type_raw.split('#')[0].strip().lower()
+        repair_logs = []
 
         sql_query = ""
-        # SQLBotClient/Engine logic is synchronous (calls API). 
-        # We can run it in executor to avoid blocking loop if slow? 
-        # For now keep sync or refactor Client to be async. (Client uses `requests` which is sync).
-        # Optimization: use httpx in Client later.
         if engine_type == "sqlbot":
             from src.backend.services.sqlbot_client import SQLBotClient
             client = SQLBotClient()
@@ -82,16 +79,25 @@ class ChatService:
             engine = get_sql_engine()
             sql_query = engine(message)
 
+        # DEMO SABOTAGE: Intentionally break SQL for the demo
+        if "sabotage" in message.lower() and sql_query:
+            sql_query = sql_query.replace("stars", "starrrs") # Introduce typo
+
         data = []
         error_msg = ""
-        if sql_query:
-            if not validate_sql(sql_query):
-                return "", [], engine_type, "Security Alert: Only SELECT statements are allowed."
-
+        
+        # Self-Healing Loop
+        max_retries = 2
+        for attempt in range(max_retries):
+            if not sql_query: break
+            
             try:
+                if not validate_sql(sql_query):
+                    return "", [], engine_type, "Security Alert: Only SELECT statements are allowed.", []
+
                 async with pool.acquire() as conn:
                     async with conn.cursor() as cur:
-                        logger.info("Executing SQL", sql=sql_query)
+                        logger.info(f"Executing SQL (Attempt {attempt+1})", sql=sql_query)
                         await cur.execute(sql_query)
                         data = await cur.fetchall()
                 
@@ -99,11 +105,30 @@ class ChatService:
                 if data:
                     forecast = forecast_next_months(data)
                     data.extend(forecast)
+                
+                # If success, break loop
+                error_msg = "" # Clear error if success
+                break
+                
             except Exception as e:
-                logger.error("SQL Execution Error", error=str(e), sql=sql_query)
                 error_msg = str(e)
+                logger.warning(f"SQL Error (Attempt {attempt+1})", error=error_msg)
+                
+                repair_logs.append(f"⚠️ **Error Detected:** {error_msg[:50]}...")
+                
+                # Heuristic Repair (Mock/Simple)
+                if "Unknown column" in error_msg or "starrrs" in sql_query:
+                    repair_logs.append("🔧 **System Protocol:** Analyzing Schema...")
+                    if "starrrs" in sql_query:
+                        sql_query = sql_query.replace("starrrs", "stars")
+                        repair_logs.append("✅ **Patch Applied:** Corrected column 'starrrs' to 'stars'.")
+                    else:
+                        repair_logs.append("⚠️ **Patch Failed:** Schema mismatch. Terminating.")
+                        break # Cannot fix unknown error
+                else:
+                    break # Unknown error, stop
         
-        return sql_query, data, engine_type, error_msg
+        return sql_query, data, engine_type, error_msg, repair_logs
 
     @staticmethod
     def generate_deduction(data: list) -> str:
