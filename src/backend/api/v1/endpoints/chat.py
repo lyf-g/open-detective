@@ -20,15 +20,20 @@ async def chat(request: Request, chat_request: ChatRequest):
     
     history = await ChatService.get_history(pool, chat_request.session_id) if chat_request.session_id else []
     
-    sql, data, engine, error = await ChatService.process_request(chat_request.message, history, pool)
+    # Unpack 5 values
+    sql, data, engine, error, repair_logs = await ChatService.process_request(chat_request.message, history, pool)
     
     answer = ""
+    # Prepend repair logs to answer
+    if repair_logs:
+        answer += "\n".join(repair_logs) + "\n\n"
+
     if error:
-        answer = f"数据库查询执行失败: {error}"
+        answer += f"数据库查询执行失败: {error}"
     elif not sql:
-        answer = "报告 Agent，未能识别出有效的项目线索..."
+        answer += "报告 Agent，未能识别出有效的项目线索..."
     elif not data:
-        answer = "报告 Agent，在当前数据库中未搜寻到相关线索..."
+        answer += "报告 Agent，在当前数据库中未搜寻到相关线索..."
     else:
         async for chunk in ChatService.generate_answer_stream(chat_request.message, data, history, engine):
             answer += chunk
@@ -52,9 +57,22 @@ async def chat_stream(request: Request, chat_request: ChatRequest):
     
     history = await ChatService.get_history(pool, chat_request.session_id) if chat_request.session_id else []
     
-    sql, data, engine, error = await ChatService.process_request(chat_request.message, history, pool)
+    # Unpack 5 values
+    sql, data, engine, error, repair_logs = await ChatService.process_request(chat_request.message, history, pool)
     
     async def event_generator():
+        # 1. Stream Repair Logs (Visual Self-Healing)
+        full_answer = ""
+        if repair_logs:
+            for log in repair_logs:
+                chunk = f"{log}\n\n"
+                yield json.dumps({"type": "token", "content": chunk}) + "\n"
+                full_answer += chunk
+                # import asyncio # Need to ensure asyncio is imported if we sleep, but ChatService handles sleep in its generator.
+                # Here we are in endpoint. We can't easily sleep without async. 
+                # FastAPI endpoints are async, so 'import asyncio' at top level is fine.
+
+        # 2. Send Meta
         yield json.dumps({
             "type": "meta", 
             "sql_query": sql, 
@@ -63,19 +81,18 @@ async def chat_stream(request: Request, chat_request: ChatRequest):
             "error": error
         }) + "\n"
 
-        full_answer = ""
         if error:
             msg = f"数据库查询执行失败: {error}"
             yield json.dumps({"type": "token", "content": msg}) + "\n"
-            full_answer = msg
+            full_answer += msg
         elif not sql:
             msg = "报告 Agent，未能识别出有效的项目线索..."
             yield json.dumps({"type": "token", "content": msg}) + "\n"
-            full_answer = msg
+            full_answer += msg
         elif not data:
             msg = "报告 Agent，在当前数据库中未搜寻到相关线索..."
             yield json.dumps({"type": "token", "content": msg}) + "\n"
-            full_answer = msg
+            full_answer += msg
         else:
             async for chunk in ChatService.generate_answer_stream(chat_request.message, data, history, engine):
                 yield json.dumps({"type": "token", "content": chunk}) + "\n"
