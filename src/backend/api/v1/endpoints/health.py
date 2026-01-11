@@ -8,14 +8,26 @@ router = APIRouter()
 @router.get("/health", response_model=HealthResponse)
 async def health_check(request: Request):
     db_status = False
+    pool_info = {}
     try:
         if hasattr(request.app.state, 'pool'):
-            async with request.app.state.pool.acquire() as conn:
+            pool = request.app.state.pool
+            async with pool.acquire() as conn:
                 await conn.ping()
                 db_status = True
-    except:
-        pass
-    return {"status": "ok", "version": "0.1.0", "db_connected": db_status}
+            pool_info = {
+                "size": pool.size,
+                "free": pool.freesize
+            }
+    except Exception as e:
+        pool_info["error"] = str(e)
+    
+    return {
+        "status": "ok", 
+        "version": "0.1.0", 
+        "db_connected": db_status,
+        "details": pool_info
+    }
 
 @router.get("/sqlbot-health")
 async def sqlbot_health():

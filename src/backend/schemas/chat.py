@@ -28,6 +28,7 @@ class HealthResponse(BaseModel):
     status: str
     version: str
     db_connected: bool
+    details: Optional[Dict[str, Any]] = None
 
 class FeedbackRequest(BaseModel):
     session_id: str
