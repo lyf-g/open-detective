@@ -12,10 +12,43 @@ class AnomalyRequest(BaseModel):
 class ProfileRequest(BaseModel):
     repo: str
 
+class DossierRequest(BaseModel):
+    username: str
+
 @router.post("/analytics/anomalies")
 async def check_anomalies(request: AnomalyRequest):
     results = detect_anomalies(request.data, request.threshold)
     return {"anomalies": results, "count": len(results)}
+
+@router.post("/analytics/dossier")
+async def get_suspect_dossier(request: DossierRequest):
+    user = request.username
+    # Mock Dossier Generation (In real app, query GitHub/OpenDigger user metrics)
+    
+    codenames = {
+        "antfu": "The Architect",
+        "yyx990803": "The Creator",
+        "torvalds": "The Kernel",
+        "rich-harris": "Speed Demon"
+    }
+    
+    codename = codenames.get(user.lower(), "Unknown Operative")
+    threat = 5 if user.lower() in codenames else 2
+    
+    return {
+        "username": user,
+        "codename": codename,
+        "threat_level": f"DEFCON {threat}",
+        "psych_profile": "Highly disciplined. Shows signs of sleep deprivation. Obsessed with performance optimization.",
+        "skills": [
+            {"name": "Coding Speed", "value": 98},
+            {"name": "Architecture", "value": 95},
+            {"name": "Community", "value": 90},
+            {"name": "Debugging", "value": 88},
+            {"name": "Innovation", "value": 92}
+        ],
+        "status": "ACTIVE SURVEILLANCE"
+    }
 
 @router.post("/analytics/profile")
 async def get_repo_profile(payload: ProfileRequest, request: Request):
