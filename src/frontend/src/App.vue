@@ -211,6 +211,7 @@
           <RadarView :data="radarData" :title="radarTitle" />
         </div>
       </div>
+
       <!-- Dossier Overlay -->
       <div v-if="showDossier" class="dossier-overlay" @click.self="showDossier = false">
         <DossierCard :profile="dossierData" />
@@ -257,16 +258,29 @@ import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
 import { useDark, useToggle } from '@vueuse/core';
 import { 
   User, Monitor, Download, Refresh, Share, Moon, Sunny,
-  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound
+  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu
 } from '@element-plus/icons-vue';
 
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
-// ...
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
+      } catch (__error) {}
+    }
+    return '';
+  }
+});
 
 const userInput = ref('');
 const loading = ref(false);
+const chatHistory = ref<any[]>([]);
 const showRadar = ref(false);
 const radarData = ref<any[]>([]);
 const radarTitle = ref('');
@@ -331,11 +345,10 @@ const loadSession = async (id: string) => {
   if (loading.value) return;
   currentSessionId.value = id;
   loading.value = true;
-  chatHistory.value = []; // Clear current view
+  chatHistory.value = [];
   
   try {
     const res = await axios.get(`${API_BASE}/sessions/${id}/messages`);
-    // Map backend messages to frontend format
     chatHistory.value = res.data.map((m: any, idx: number) => ({
       id: idx,
       role: m.role,
@@ -377,7 +390,6 @@ onMounted(async () => {
 
 const renderMarkdown = (content: string) => {
   if (!content) return '';
-  // Brute force: Remove anything between { and } that looks like JSON
   let sanitized = content.replace(/\{.*?\}/gs, '');
   return md.render(sanitized.trim());
 };
@@ -385,7 +397,6 @@ const renderMarkdown = (content: string) => {
 const isRefusal = (content: string) => {
   if (!content) return false;
   const keywords = ['无法', '抱歉', 'sorry', 'refuse', 'error', '未能识别', '没有发现'];
-  // Also check if it's very short and contains no spaces (typical of raw error objects)
   return keywords.some(k => content.includes(k)) || (content.startsWith('{') && content.endsWith('}'));
 };
 
@@ -422,7 +433,6 @@ const sendMessage = async () => {
   const query = userInput.value.trim();
   if (!query || loading.value) return;
 
-  // Dossier Protocol (Hijack)
   if (query.toLowerCase().startsWith('profile ')) {
       const username = query.substring(8).trim();
       if (username) {
@@ -453,7 +463,6 @@ const sendMessage = async () => {
   userInput.value = '';
   loading.value = true;
 
-  // Auto-scroll to bottom
   nextTick(() => {
     if (scrollRef.value) scrollRef.value.setScrollTop(100000);
   });
@@ -499,7 +508,6 @@ const sendMessage = async () => {
                 } : null
              };
              chatHistory.value.push(assistantMsg);
-             if (json.error) assistantMsg.content = `**Error:** ${json.error}\n`;
           } 
           else if (json.type === 'token') {
              if (!assistantMsg) {
@@ -524,13 +532,10 @@ const sendMessage = async () => {
 
 const openSentiment = async () => {
   try {
-    const { value } = await ElMessageBox.prompt('Enter Repository Name (e.g. vuejs/core)', 'Sentiment Analysis', {
+    const { value } = await ElMessageBox.prompt('Enter Repository Name', 'Sentiment Analysis', {
       confirmButtonText: 'Analyze',
-      cancelButtonText: 'Cancel',
-      inputPattern: /.+/,
-      inputErrorMessage: 'Repo name required'
+      cancelButtonText: 'Cancel'
     });
-    
     if (value) {
       const loadingInstance = ElLoading.service({ fullscreen: true, text: 'Mining Community Data...' });
       try {
@@ -543,22 +548,17 @@ const openSentiment = async () => {
         loadingInstance.close();
       }
     }
-  } catch {
-    // Cancelled
-  }
+  } catch {}
 };
 
 const openDeepScan = async () => {
   try {
-    const { value } = await ElMessageBox.prompt('Enter Repository Name (e.g. vuejs/core)', 'Deep Scan Protocol', {
+    const { value } = await ElMessageBox.prompt('Enter Repository Name', 'Deep Scan Protocol', {
       confirmButtonText: 'Scan',
-      cancelButtonText: 'Cancel',
-      inputPattern: /.+/,
-      inputErrorMessage: 'Repo name required'
+      cancelButtonText: 'Cancel'
     });
-    
     if (value) {
-      const loadingInstance = ElLoading.service({ fullscreen: true, text: 'Scanning Repositories... Analyzing Metadata...' });
+      const loadingInstance = ElLoading.service({ fullscreen: true, text: 'Scanning Repositories...' });
       try {
         const res = await axios.post(`${API_BASE}/analytics/profile`, { repo: value });
         radarData.value = res.data.radar;
@@ -570,9 +570,7 @@ const openDeepScan = async () => {
         loadingInstance.close();
       }
     }
-  } catch {
-    // Cancelled
-  }
+  } catch {}
 };
 
 const exportCase = () => {
@@ -593,21 +591,9 @@ const exportCase = () => {
 </script>
 
 <style>
-/* ... keep existing styles ... */
-/* New Session List Styles */
 .sidebar-sessions { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; margin-top: 20px; border-top: 1px solid #222; padding-top: 15px; }
 .session-label { font-size: 0.65rem; color: #555; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; }
-.session-item { 
-  padding: 10px; 
-  margin-bottom: 8px; 
-  border-radius: 6px; 
-  cursor: pointer; 
-  transition: all 0.2s; 
-  border: 1px solid transparent; 
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+.session-item { padding: 10px; margin-bottom: 8px; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; display: flex; justify-content: space-between; align-items: center; }
 .session-info { flex-grow: 1; overflow: hidden; }
 .session-item:hover { background: rgba(255,255,255,0.05); }
 .session-item:hover .session-delete { opacity: 1; }
@@ -636,8 +622,6 @@ body {
 }
 
 .full-height { height: 100vh; }
-
-/* Sidebar */
 .sidebar { background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; }
 .sidebar-header { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; cursor: pointer; }
 .logo { font-size: 2.2rem; }
@@ -649,12 +633,10 @@ body {
 .sidebar-footer { font-size: 0.7rem; border-top: 1px solid var(--border-color); padding-top: 20px; }
 .system-time { color: var(--accent-color); font-family: monospace; font-size: 1rem; margin-bottom: 4px; }
 
-/* Main Area */
 .main-workspace { padding: 0 !important; display: flex; flex-direction: column; background: radial-gradient(circle at center, #0a0a0a 0%, #050505 100%); }
 .case-log-container { flex-grow: 1; overflow: hidden; }
 .case-log { max-width: 850px; margin: 0 auto; padding: 40px 20px; }
 
-/* Messages */
 .message-row { display: flex; flex-direction: column; margin-bottom: 32px; animation: fadeIn 0.3s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .user { align-items: flex-end; }
@@ -663,151 +645,29 @@ body {
 .assistant .message-card { border-left: 4px solid var(--accent-color); }
 .role-badge { font-size: 0.65rem; font-weight: 900; color: var(--accent-color); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; letter-spacing: 1px; }
 .content { font-size: 0.95rem; color: #d1d5db; line-height: 1.6; }
-.content blockquote {
-  border-left: 3px solid #00bcd4;
-  margin: 10px 0;
-  padding: 10px 15px;
-  background: rgba(0, 188, 212, 0.05);
-  font-family: 'Fira Code', monospace;
-  font-size: 0.85rem;
-  color: #a5d6ff;
-}
-.content strong {
-  color: #00bcd4;
-  font-weight: 800;
-  text-shadow: 0 0 5px rgba(0, 188, 212, 0.4);
-}
+.content blockquote { border-left: 3px solid #00bcd4; margin: 10px 0; padding: 10px 15px; background: rgba(0, 188, 212, 0.05); font-family: 'Fira Code', monospace; font-size: 0.85rem; color: #a5d6ff; }
+.content strong { color: #00bcd4; font-weight: 800; text-shadow: 0 0 5px rgba(0, 188, 212, 0.4); }
 
-/* Evidence */
 .evidence-section { margin-top: 24px; padding-top: 10px; }
 .evidence-box { background: rgba(0,0,0,0.3); border-radius: 6px; padding: 12px; border: 1px solid #222; margin-bottom: 12px; }
 .evidence-header { font-size: 0.75rem; font-weight: 800; color: #666; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; text-transform: uppercase; }
-.secondary-evidence { background: transparent !important; border: none !important; }
-.el-collapse-item__header { background-color: transparent !important; color: var(--text-secondary) !important; font-size: 0.75rem !important; border-bottom: 1px solid #222 !important; }
-.el-collapse-item__wrap { background-color: transparent !important; border: none !important; }
-
 .sql-block { position: relative; background: #000; padding: 12px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #333; }
-.sql-block .label { font-size: 0.6rem; color: #444; font-weight: bold; position: absolute; top: 5px; left: 10px; }
 .sql-block pre { margin: 15px 0 0 0; font-family: 'Fira Code', monospace; color: #a5d6ff; font-size: 0.8rem; overflow-x: auto; }
-.copy-float { position: absolute; top: 8px; right: 8px; background: #111 !important; border-color: #333 !important; }
-
 .mini-table { --el-table-bg-color: transparent; --el-table-tr-bg-color: transparent; --el-table-header-bg-color: #111; font-size: 0.75rem; }
-.table-info { font-size: 0.65rem; color: #555; margin-top: 6px; text-align: right; font-style: italic; }
 
-/* Thought Chain */
-.thought-chain {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.thought-step {
-  font-size: 0.75rem;
-  color: #444;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.thought-step.active {
-  color: var(--accent-color);
-  font-weight: bold;
-}
-.is-loading {
-  margin-right: 5px;
-}
-
-/* Loading State */
-.loading-content { display: flex; flex-direction: column; gap: 8px; padding: 10px 0; }
-.loading-text { font-size: 0.75rem; color: var(--text-secondary); font-family: monospace; }
+.thought-chain { margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
+.thought-step { font-size: 0.75rem; color: #444; display: flex; align-items: center; gap: 8px; }
+.thought-step.active { color: var(--accent-color); font-weight: bold; }
 .scanner-line { height: 2px; background: var(--accent-color); width: 100%; border-radius: 2px; position: relative; overflow: hidden; }
 .scanner-line::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, #fff, transparent); animation: scan 1.5s infinite; }
 @keyframes scan { from { left: -100%; } to { left: 100%; } }
 
-/* Input */
 .input-area { padding: 30px 40px 50px; background: linear-gradient(to top, var(--main-bg) 70%, transparent); }
 .input-wrapper { max-width: 850px; margin: 0 auto; }
 .el-input__wrapper { background-color: #161b22 !important; box-shadow: 0 0 0 0 1px #30363d inset !important; border-radius: 12px !important; }
 .el-input__inner { color: #fff !important; }
 
-/* Empty state */
-.neon-circle { font-size: 3.5rem; filter: drop-shadow(0 0 15px var(--accent-color)); margin-bottom: 20px; text-align: center; }
-
-/* Global Scrollbar Styling */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--main-bg); }
-::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
-
-/* Interactive Elements */
-.message-card { 
-  max-width: 90%; 
-  background: var(--card-bg); 
-  border: 1px solid var(--border-color); 
-  border-radius: 8px; 
-  padding: 18px; 
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5); 
-  position: relative;
-  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.message-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(0, 188, 212, 0.15);
-  border-color: rgba(0, 188, 212, 0.5);
-}
-
-/* Battle Mode */
-.battle-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(5px);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.3s;
-}
-.battle-card {
-  width: 600px;
-  background: #111;
-  border: 2px solid #00bcd4;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 0 50px rgba(0, 188, 212, 0.3);
-  position: relative;
-}
-.battle-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #333;
-  padding-bottom: 10px;
-}
-.battle-header h2 {
-  color: #00bcd4;
-  margin: 0;
-  font-size: 1.2rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
-}
-
-.dossier-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.9);
-  backdrop-filter: blur(8px);
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.5s;
-}
+.battle-overlay, .dossier-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s; }
+.battle-card { width: 600px; background: #111; border: 2px solid #00bcd4; border-radius: 12px; padding: 20px; box-shadow: 0 0 50px rgba(0, 188, 212, 0.3); position: relative; }
+.battle-header h2 { color: #00bcd4; margin: 0; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px rgba(0, 188, 212, 0.5); }
 </style>
