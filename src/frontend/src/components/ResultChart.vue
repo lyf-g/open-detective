@@ -106,39 +106,94 @@ const checkAnomalies = async () => {
 const chartOption = computed(() => {
   if (!props.data || props.data.length === 0) return {};
 
-  const isDark = true; // Hardcoded dark for cyberpunk theme
   const textColor = '#909399';
   const splitLineColor = '#2c2c2c';
 
   const keys = Object.keys(props.data[0]);
   const xAxisKey = keys.find(k => ['month', 'date', 'year', 'day'].includes(k.toLowerCase())) || keys[0];
   const hasRepoName = keys.includes('repo_name');
+  
+  // Identify value key (heuristic: number and not xAxis)
+  const valKey = keys.find(k => k !== xAxisKey && k !== 'repo_name' && k !== 'is_forecast' && typeof props.data[0][k] === 'number') || 'value';
 
-  // Multi-series logic
-  if (hasRepoName) {
-    const repos = [...new Set(props.data.map(d => d.repo_name))];
-    const valKey = keys.find(k => k !== xAxisKey && k !== 'repo_name' && typeof props.data[0][k] === 'number') || 'value';
-    const allTimePoints = [...new Set(props.data.map(d => d[xAxisKey]))].sort();
+  // Get all unique time points sorted
+  const allTimePoints = [...new Set(props.data.map(d => d[xAxisKey]))].sort();
+
+  const seriesList: any[] = [];
+  
+  const repos = hasRepoName ? [...new Set(props.data.map(d => d.repo_name))] : ['Value'];
+
+  repos.forEach((repo) => {
+      const repoData = hasRepoName ? props.data.filter(d => d.repo_name === repo) : props.data;
+      
+      // Split into Actual vs Forecast
+      // We rely on 'is_forecast' flag.
+      const actualRows = repoData.filter(d => !d.is_forecast);
+      const forecastRows = repoData.filter(d => d.is_forecast);
+      
+      if (forecastRows.length === 0) {
+          // Standard single line
+          const dataPoints = allTimePoints.map(t => {
+              const found = repoData.find(d => d[xAxisKey] === t);
+              return found ? found[valKey] : null;
+          });
+          seriesList.push({
+              name: repo,
+              type: 'line',
+              data: dataPoints,
+              smooth: true,
+              showSymbol: false,
+              areaStyle: { opacity: 0.05 },
+              emphasis: { focus: 'series' }
+          });
+      } else {
+          // Complex split line
+          // 1. Actual Series
+          const actualPoints = allTimePoints.map(t => {
+              const found = actualRows.find(d => d[xAxisKey] === t);
+              return found ? found[valKey] : null;
+          });
+          
+          seriesList.push({
+              name: repo,
+              type: 'line',
+              data: actualPoints,
+              smooth: true,
+              showSymbol: false,
+              areaStyle: { opacity: 0.05 },
+              emphasis: { focus: 'series' }
+          });
+
+          // 2. Forecast Series
+          // To connect lines, we need the LAST actual point to be the FIRST forecast point (visually).
+          // We find the last actual row's index in allTimePoints
+          const lastActualRow = actualRows[actualRows.length - 1];
+          
+          const forecastPoints = allTimePoints.map(t => {
+              const foundForecast = forecastRows.find(d => d[xAxisKey] === t);
+              if (foundForecast) return foundForecast[valKey];
+              
+              // Connector point
+              if (lastActualRow && t === lastActualRow[xAxisKey]) {
+                  return lastActualRow[valKey];
+              }
+              return null;
+          });
+
+          seriesList.push({
+              name: repo + ' (Forecast)',
+              type: 'line',
+              data: forecastPoints,
+              smooth: true,
+              showSymbol: false,
+              lineStyle: { type: 'dashed', opacity: 0.7 },
+              itemStyle: { opacity: 0.7 },
+              emphasis: { focus: 'series' }
+          });
+      }
+  });
     
-    const seriesList = repos.map((repo) => {
-        const repoData = props.data.filter(d => d.repo_name === repo);
-        const dataPoints = allTimePoints.map(t => {
-            const found = repoData.find(d => d[xAxisKey] === t);
-            return found ? found[valKey] : null;
-        });
-        
-        return {
-            name: repo,
-            type: 'line',
-            data: dataPoints,
-            smooth: true,
-            showSymbol: false,
-            areaStyle: { opacity: 0.05 },
-            emphasis: { focus: 'series', lineStyle: { width: 3 } }
-        };
-    });
-    
-    if (anomalies.value.length > 0) {
+  if (anomalies.value.length > 0) {
         const anomalyData = anomalies.value.map(a => {
            return [a[xAxisKey], a[valKey]];
         });
@@ -153,23 +208,23 @@ const chartOption = computed(() => {
                formatter: (params: any) => {
                    const item = anomalies.value[params.dataIndex];
                    if (!item) return '';
-                   return `<b>Anomaly Detected!</b><br/>${item['repo_name']}<br/>Date: ${item[xAxisKey]}<br/>Value: ${item[valKey]}<br/>Z-Score: ${item.z_score?.toFixed(2)}`;
+                   return `<b>Anomaly Detected!</b><br/>${item['repo_name'] || ''}<br/>Date: ${item[xAxisKey]}<br/>Value: ${item[valKey]}<br/>Z-Score: ${item.z_score?.toFixed(2)}`;
                }
             }
-        } as any);
-    }
+        });
+  }
 
-    return {
+  return {
       backgroundColor: 'transparent',
       tooltip: {
         trigger: 'axis',
         backgroundColor: '#1a1a1a',
         borderColor: '#333',
-        textStyle: { color: '#fff' },
+        textStyle: { color: textColor },
         axisPointer: { lineStyle: { color: '#00bcd4', width: 1 } }
       },
       legend: {
-        data: [...repos, 'Anomalies'],
+        data: seriesList.map(s => s.name),
         top: 0,
         textStyle: { color: textColor },
         icon: 'circle'
@@ -199,60 +254,6 @@ const chartOption = computed(() => {
         splitLine: { lineStyle: { color: splitLineColor, type: 'dashed' } }
       },
       series: seriesList
-    };
-  }
-
-  // Single series logic
-  const seriesKey = keys.find(k => k !== xAxisKey && typeof props.data[0][k] === 'number') || keys[1];
-  const seriesData = [{
-      name: seriesKey,
-      type: 'line',
-      data: props.data.map(item => item[seriesKey]),
-      smooth: true,
-      itemStyle: { color: '#00bcd4' },
-      areaStyle: { opacity: 0.2, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset: 0, color: '#00bcd4'}, {offset: 1, color: 'rgba(0,188,212,0)'}] } }
-  }];
-  
-  if (anomalies.value.length > 0) {
-        const anomalyData = anomalies.value.map(a => {
-           return [a[xAxisKey], a[seriesKey]];
-        });
-        seriesData.push({
-            name: 'Anomalies',
-            type: 'scatter',
-            symbolSize: 15,
-            itemStyle: { color: '#ff4d4f', shadowBlur: 10, shadowColor: '#ff4d4f' },
-            z: 20,
-            data: anomalyData,
-            tooltip: {
-               formatter: (params: any) => {
-                   const item = anomalies.value[params.dataIndex];
-                   if (!item) return '';
-                   return `<b>Anomaly Detected!</b><br/>Date: ${item[xAxisKey]}<br/>Value: ${item[seriesKey]}<br/>Z-Score: ${item.z_score?.toFixed(2)}`;
-               }
-            }
-        } as any);
-  }
-  
-  return {
-    backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis', backgroundColor: '#1a1a1a', textStyle: { color: '#fff' } },
-    toolbox: {
-      show: true,
-      feature: {
-        magicType: { type: ['line', 'bar'] },
-        saveAsImage: { title: 'Save' }
-      },
-      iconStyle: { borderColor: '#555' }
-    },
-    grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
-    dataZoom: [
-        { type: 'inside', start: 0, end: 100 },
-        { type: 'slider', bottom: 10, height: 20, borderColor: '#333', handleStyle: { color: '#00bcd4' } }
-    ],
-    xAxis: { type: 'category', data: props.data.map(item => item[xAxisKey]), axisLabel: { color: textColor } },
-    yAxis: { type: 'value', axisLabel: { color: textColor }, splitLine: { lineStyle: { color: splitLineColor } } },
-    series: seriesData
   };
 });
 </script>
