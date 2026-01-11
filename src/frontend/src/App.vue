@@ -212,10 +212,32 @@ import {
 
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
-// ... (MarkdownIt setup) ...
-// ... (Refs) ...
 
-// ... (Existing functions) ...
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
+      } catch (__error) {}
+    }
+    return ''; // use external default escaping
+  }
+});
+const userInput = ref('');
+const loading = ref(false);
+const chatHistory = ref<any[]>([]);
+const scrollRef = ref<any>(null);
+const engineType = ref('sqlbot');
+const currentTime = ref('');
+
+// Session State
+const sessions = ref<any[]>([]);
+const currentSessionId = ref<string | null>(null);
+
+const API_BASE = '/api/v1';
 
 const deleteSession = async (id: string, event: Event) => {
   event.stopPropagation();
@@ -357,7 +379,7 @@ const sendMessage = async () => {
     await createNewSession();
   }
 
-  chatHistory.value.push({ 
+  chatHistory.value.push({
     id: Date.now(),
     role: 'user', 
     content: query 
