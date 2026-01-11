@@ -205,6 +205,10 @@
           <RadarView :data="radarData" :title="radarTitle" />
         </div>
       </div>
+      <!-- Dossier Overlay -->
+      <div v-if="showDossier" class="dossier-overlay" @click.self="showDossier = false">
+        <DossierCard :profile="dossierData" />
+      </div>
     </div>
   </el-config-provider>
 </template>
@@ -217,6 +221,7 @@ import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 import ResultChart from './components/ResultChart.vue';
 import RadarView from './components/RadarView.vue';
+import DossierCard from './components/DossierCard.vue';
 import SuggestedQuestions from './components/SuggestedQuestions.vue';
 import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
 import { useDark, useToggle } from '@vueuse/core';
@@ -234,7 +239,10 @@ const userInput = ref('');
 const loading = ref(false);
 const showRadar = ref(false);
 const radarData = ref<any[]>([]);
-const radarTitle = ref('');const chatHistory = ref<any[]>([]);
+const radarTitle = ref('');
+const showDossier = ref(false);
+const dossierData = ref<any>(null);
+const isListening = ref(false);
 const scrollRef = ref<any>(null);
 const engineType = ref('sqlbot');
 const currentTime = ref('');
@@ -380,6 +388,25 @@ const shareSession = () => {
 const sendMessage = async () => {
   const query = userInput.value.trim();
   if (!query || loading.value) return;
+
+  // Dossier Protocol (Hijack)
+  if (query.toLowerCase().startsWith('profile ')) {
+      const username = query.substring(8).trim();
+      if (username) {
+          loading.value = true;
+          try {
+              const res = await axios.post(`${API_BASE}/analytics/dossier`, { username });
+              dossierData.value = res.data;
+              showDossier.value = true;
+          } catch (e) {
+              ElMessage.error("Subject not found in database.");
+          } finally {
+              loading.value = false;
+              userInput.value = '';
+          }
+          return;
+      }
+  }
 
   if (!currentSessionId.value) {
     await createNewSession();
@@ -708,5 +735,20 @@ body {
   letter-spacing: 2px;
   text-transform: uppercase;
   text-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+}
+
+.dossier-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.5s;
 }
 </style>
