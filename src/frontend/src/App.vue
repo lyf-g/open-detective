@@ -577,6 +577,20 @@ body {
 .assistant .message-card { border-left: 4px solid var(--accent-color); }
 .role-badge { font-size: 0.65rem; font-weight: 900; color: var(--accent-color); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; letter-spacing: 1px; }
 .content { font-size: 0.95rem; color: #d1d5db; line-height: 1.6; }
+.content blockquote {
+  border-left: 3px solid #00bcd4;
+  margin: 10px 0;
+  padding: 10px 15px;
+  background: rgba(0, 188, 212, 0.05);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #a5d6ff;
+}
+.content strong {
+  color: #00bcd4;
+  font-weight: 800;
+  text-shadow: 0 0 5px rgba(0, 188, 212, 0.4);
+}
 
 /* Evidence */
 .evidence-section { margin-top: 24px; padding-top: 10px; }
