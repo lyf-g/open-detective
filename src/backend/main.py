@@ -119,14 +119,22 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 Instrumentator().instrument(app).expose(app)
 
+from src.backend.schemas.common import BaseError
+
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
-    return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+    return JSONResponse(
+        content=BaseError(code=exc.status_code, message=exc.detail).model_dump(),
+        status_code=exc.status_code
+    )
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error("Global Exception", error=str(exc))
-    return JSONResponse({"detail": "Internal Server Error"}, status_code=500)
+    return JSONResponse(
+        content=BaseError(code=500, message="Internal Server Error", details=str(exc)).model_dump(),
+        status_code=500
+    )
 
 app.include_router(api_router, prefix="/api/v1")
 
