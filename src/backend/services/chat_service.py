@@ -106,18 +106,51 @@ class ChatService:
         return sql_query, data, engine_type, error_msg
 
     @staticmethod
+    def generate_deduction(data: list) -> str:
+        """Generates a noir/cyberpunk style insight."""
+        if not data:
+            return "Scan complete. No trace found in the archives."
+        
+        # Simple Trend Analysis
+        values = [float(d.get('value') or d.get('metric_value') or 0) for d in data if not d.get('is_forecast')]
+        if len(values) < 2:
+            return "Insufficient data for behavioral profiling."
+            
+        start, end = values[0], values[-1]
+        change = (end - start) / start if start != 0 else 0
+        
+        if change > 0.5:
+            return "Subject exhibiting explosive growth. Momentum is critical."
+        elif change > 0.1:
+            return "Steady upward trajectory confirmed. Systems nominal."
+        elif change < -0.5:
+            return "Catastrophic signal loss. Subject vital signs are fading."
+        elif change < -0.1:
+            return "Slow decay detected. Entropy is increasing."
+        else:
+            return "Pattern is stable. No significant deviations observed."
+
+    @staticmethod
     async def generate_answer_stream(message: str, data: list, history: list, engine_type: str) -> AsyncGenerator[str, None]:
+        # 1. Deduction (The "Hook")
+        deduction = ChatService.generate_deduction(data)
+        yield json.dumps({"type": "token", "content": f"**[NEURAL DEDUCTION]**\n> {deduction}\n\n"})
+        await asyncio.sleep(0.5) # Dramatic pause
+
         if engine_type == "sqlbot":
             from src.backend.services.sqlbot_client import SQLBotClient
             client = SQLBotClient()
             # client.generate_summary_stream is synchronous generator.
             # We wrap it.
             for chunk in client.generate_summary_stream(message, data, history=history):
-                yield chunk
-                await asyncio.sleep(0) # Yield control
+                # Ensure we send JSON format if the frontend expects it, or raw text?
+                # The frontend code I saw earlier handles JSON lines.
+                yield json.dumps({"type": "token", "content": chunk})
+                await asyncio.sleep(0)
         else:
-            yield f"报告 Agent，搜寻到 {len(data)} 条相关证据。具体趋势已在下方视觉重建。"
+            yield json.dumps({"type": "token", "content": f"Evidence retrieved: {len(data)} records found.\n"})
             
         clues = detect_anomalies(data)
         if clues:
-             yield "\n\n🔍 **DETECTIVE CLUES FOUND:**\n" + "\n".join([f"- {c['month']} | {c['repo']} {c['type']} detected ({c['intensity']})" for c in clues])
+             clue_text = "\n\n**[ANOMALY ALERT]**\n" + "\n".join([f"- {c['month']} | {c['repo']} {c['type']} detected ({c['intensity']})" for c in clues])
+             yield json.dumps({"type": "token", "content": clue_text})
