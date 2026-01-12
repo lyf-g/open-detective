@@ -669,31 +669,28 @@ const renderMarkdown = (content: string) => {
   
   // 1. Aggressive JSON & Refusal Stripping
   let sanitized = content
-      .replace(/\{[^{}]*"success":false.*?\}/gs, '') // Remove JSON error blocks
-      .replace(/\{[^{}]*"message":.*?\}/gs, '')      // Remove generic JSON messages
-      .replace(/我是智能问数小助手.*?。/gs, '')       // Remove specific persona intro
-      .replace(/我无法以文本分析师.*?。/gs, '')       // Remove capability refusal
-      .replace(/请提供.*?。/gs, '');                  // Remove request for clarification
+      .replace(/\{[^{}]*"success":false.*?\}/gs, '')
+      .replace(/\{[^{}]*"message":.*?\}/gs, '')
+      .replace(/我是智能问数小助手.*?。/gs, '')
+      .replace(/我无法以文本分析师.*?。/gs, '')
+      .replace(/请提供.*?。/gs, '')
+      .replace(/智能问数小助手/g, '开源侦探');
   
-  // 2. Transform Tags into UI Cards (Handle formatting flexibility)
-  // We use a flexible regex to catch [NEURAL DEDUCTION] even if it has ** around it
-  if (sanitized.match(/\[NEURAL DEDUCTION\]/)) {
+  // 2. Transform Tags into UI Cards
+  if (sanitized.includes('[NEURAL DEDUCTION]') || sanitized.includes('NEURAL DEDUCTION')) {
       sanitized = sanitized.replace(
-          /(\*\*|__)?\[NEURAL DEDUCTION\](\*\*|__)?/g, 
+          /(\*\*|__)?\[?NEURAL DEDUCTION\]?(\*\*|__)?/g, 
           `<div class="analysis-card deduction"><div class="card-title">🧠 NEURAL DEDUCTION</div><div class="card-content">`
       );
       
-      if (sanitized.match(/\[ANOMALY ALERT\]/)) {
+      if (sanitized.includes('[ANOMALY ALERT]') || sanitized.includes('ANOMALY DETECTED')) {
           sanitized = sanitized.replace(
-              /(\*\*|__)?\[ANOMALY ALERT\](\*\*|__)?/g, 
+              /(\*\*|__)?\[?(ANOMALY ALERT|ANOMALY DETECTED)\]?(\*\*|__)?/g, 
               `</div></div><div class="analysis-card anomaly"><div class="card-title">🚨 ANOMALY DETECTED</div><div class="card-content">`
           );
       }
       sanitized += '</div></div>'; 
   }
-  
-  // 3. Final cleanup of empty lines created by removal
-  sanitized = sanitized.replace(/^\s*[\r\n]/gm, '');
   
   return md.render(sanitized.trim());
 };
@@ -1059,6 +1056,21 @@ body {
 .node:nth-child(2).active { background: #409eff; border-color: #409eff; color: #409eff; color: #000;} /* SQL */
 .node:nth-child(3).active { background: #e6a23c; border-color: #e6a23c; color: #e6a23c; color: #000;} /* SEC */
 .node:nth-child(4).active { background: #67c23a; border-color: #67c23a; color: #67c23a; color: #000;} /* VIS */
+
+.card-content {
+  padding: 18px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #d1d5db;
+}
+.card-content h1 { font-size: 1.4rem; color: #fff; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+.card-content h2 { font-size: 1.15rem; color: #00bcd4; margin: 25px 0 15px; border-left: 3px solid #00bcd4; padding-left: 12px; }
+.card-content h3 { font-size: 1rem; color: #e6a23c; margin: 15px 0 10px; }
+.card-content p { margin: 12px 0; }
+.card-content ul, .card-content ol { padding-left: 20px; margin: 12px 0; }
+.card-content li { margin-bottom: 8px; }
+.card-content blockquote { background: rgba(0, 188, 212, 0.05); border-left: 3px solid #00bcd4; padding: 10px 15px; margin: 15px 0; font-style: italic; color: #a5d6ff; }
 
 .sidebar-header { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; cursor: pointer; }
 .logo { font-size: 2.2rem; }

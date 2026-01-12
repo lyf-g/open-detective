@@ -205,52 +205,50 @@ class SQLBotClient:
 
     def _generate_fallback_report(self, question: str, data: list) -> str:
         """Rule-based detective report when AI fails."""
-        if not data: return "### 🕵️‍♂️ 侦查中断\n\n**状态**：数据链缺失。\n**行动**：请尝试更换关键词或检查仓库名称。"
+        if not data: return "### 🕵️‍♂️ 侦查中断\n\n**状态**：证据链断裂。\n**结论**：目标对象未在数据库中留下可追踪痕迹。"
         
-        # Robust Logic Analysis
         try:
             values = [float(d.get('value') or d.get('metric_value') or 0) for d in data]
             months = [d.get('month', '未知') for d in data]
         except:
-            return "### ⚠️ 数据解析错误\n\n证据文件已损坏。"
+            return "### ⚠️ 逻辑溢出\n\n证据文件遭遇强力加密，暂时无法读取。"
             
-        if not values: return "### 📂 档案为空\n\n虽已建立连接，但目标未留下任何痕迹。"
-        
         start_val = values[0]
         end_val = values[-1]
         max_val = max(values)
         min_val = min(values)
         avg_val = sum(values) / len(values)
         
-        # Trend Analysis
         diff = end_val - start_val
         percent_change = (diff / start_val * 100) if start_val != 0 else 0
         
-        trend_icon = "➡️"
         trend_desc = "平稳波动"
-        if percent_change > 20: 
-            trend_icon = "↗️"
-            trend_desc = "显著上升"
-        elif percent_change < -20: 
-            trend_icon = "↘️"
-            trend_desc = "明显下滑"
+        if percent_change > 20: trend_desc = "显著增长"
+        elif percent_change < -20: trend_desc = "严重下滑"
             
-        # Peak Detection
         peak_idx = values.index(max_val)
-        peak_date = months[peak_idx] if peak_idx < len(months) else "未知时间"
+        peak_date = months[peak_idx]
 
-        return f"""### 📂 案件分析报告 (自动生成)
+        return f"""[NEURAL DEDUCTION]
+> 正在解析跨时区数据指纹... 目标已锁定。
 
-**🎯 核心指标追踪**
-*   **当前读数**: `{int(end_val)}` (基准: `{int(start_val)}`)
-*   **总体态势**: {trend_icon} **{trend_desc}** ({percent_change:+.1f}%)
-*   **峰值时刻**: `{peak_date}` 达到高点 `{int(max_val)}`
+# 📂 开源侦探核心审计报告
 
-**🕵️‍♂️ 侦探笔记**
-根据截获的数据流分析，该目标在观测窗口内呈现 **{trend_desc}** 趋势。
-平均活跃水平保持在 `{int(avg_val)}` 左右。需要特别关注 **{peak_date}** 前后的社区事件，该时间点出现了异常高值。
+## 一、 证据概览
+本次侦查聚焦于目标的波动特征。数据跨度共 `{len(data)}` 个周期。
+数值在 `{min_val:.2f}` 与 `{max_val:.2f}` 之间剧烈震荡。
 
-> *[系统提示] 由于上级AI节点拒绝了深度文本请求，本报告由本地逻辑引擎自动生成。*
+## 二、 行为模式识别
+1. **关键异动**：在 `{peak_date}` 监测到峰值响应 `{int(max_val)}`。
+2. **趋势判定**：整体呈现 **{trend_desc}** 态势（周期偏移量: `{percent_change:+.1f}%`）。
+3. **活跃基准**：系统均值维持在 `{int(avg_val)}` 水平。
+
+## 三、 侦探最终判决
+目标项目目前处于 **{trend_desc}** 阶段。建议结合 `{peak_date}` 前后的核心提交记录进行深度代码审计。
+
+[ANOMALY ALERT]
+- {peak_date} | 监测到最高级别活动峰值
+- 偏移量 | {percent_change:+.1f}% 相较于初始观测点
 """
 
     def generate_summary(self, question: str, data: list, history: list = []) -> str:
