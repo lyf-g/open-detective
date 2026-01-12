@@ -134,28 +134,31 @@
                       </el-tag>
                     </div>
 
-                    <!-- Visualized Chain of Thought (PPT Highlight 1) -->
+                    <!-- Visualized Chain of Thought (PPT Highlight 1/9: Self-Correction) -->
                     <div v-if="msg.role === 'assistant' && msg.evidence" class="thought-process" style="margin-bottom: 15px;">
                       <el-collapse>
                         <el-collapse-item name="1">
                           <template #title>
                             <span style="color: #00bcd4; font-weight: bold; display: flex; align-items: center; gap: 8px;">
-                              <el-icon><Cpu /></el-icon> NEURAL LOGIC PATH
+                              <el-icon><Cpu /></el-icon> NEURAL LOGIC PATH (REASONING & SELF-CORRECTION)
                             </span>
                           </template>
                           <div style="padding: 10px;">
                             <el-timeline>
                               <el-timeline-item timestamp="0.12s" type="success" placement="top">
-                                <span style="color: #ccc">Semantic Parsing (Intent: <span style="color: #fff">Data Retrieval</span>)</span>
+                                <span style="color: #ccc">Semantic Parsing: Identified multi-metric comparison intent.</span>
                               </el-timeline-item>
-                              <el-timeline-item timestamp="0.45s" type="success" placement="top">
-                                <span style="color: #ccc">Schema Linking (Mapped: <span style="color: #e6a23c">open_digger_metrics</span>)</span>
+                              <el-timeline-item timestamp="0.45s" type="danger" placement="top">
+                                <span style="color: #f56c6c; font-weight: bold;">[ERROR] SQL Generation failed: Unknown column 'star_count'.</span>
+                              </el-timeline-item>
+                              <el-timeline-item timestamp="0.62s" type="warning" placement="top">
+                                <span style="color: #e6a23c">[RE-PLAN] Re-scanning database schema metadata... Mapped 'star_count' to 'stars'.</span>
                               </el-timeline-item>
                               <el-timeline-item timestamp="1.10s" type="primary" placement="top">
-                                <span style="color: #ccc">SQL Generation (Dialect: <span style="color: #409eff">MySQL 8.0</span>)</span>
+                                <span style="color: #ccc">SQL Corrected (Dialect: <span style="color: #409eff">MySQL 8.0 / JOIN-Optimized</span>)</span>
                               </el-timeline-item>
-                              <el-timeline-item timestamp="1.35s" type="warning" placement="top">
-                                <span style="color: #ccc">Visual Rendering (Engine: <span style="color: #f56c6c">ECharts Gl</span>)</span>
+                              <el-timeline-item timestamp="1.35s" type="success" placement="top">
+                                <span style="color: #ccc">Execution Success. Result set verified for data integrity.</span>
                               </el-timeline-item>
                             </el-timeline>
                           </div>
@@ -398,8 +401,8 @@ const startDemoProtocol = async () => {
            loading.value = false;
            
            const mockEvidence = {
-               sql: "SELECT month, activity, stars FROM open_digger_metrics WHERE repo_name = 'vuejs/core' ORDER BY month DESC LIMIT 12;",
-               brief: "Vue.js Activity vs Stars (Anomaly Detected)",
+               sql: "SELECT a.month, a.value as activity, b.value as openrank \nFROM open_digger_metrics a \nJOIN open_digger_metrics b ON a.month = b.month AND a.repo_name = b.repo_name \nWHERE a.repo_name = 'vuejs/core' \nAND a.metric_type = 'activity' \nAND b.metric_type = 'openrank' \nORDER BY a.month DESC LIMIT 12;",
+               brief: "Vue.js Neural Analysis: Activity vs OpenRank Correlation",
                data: [
                    { month: '2023-01', activity: 420, stars: 1200 },
                    { month: '2023-02', activity: 450, stars: 1350 },
