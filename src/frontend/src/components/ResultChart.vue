@@ -15,20 +15,20 @@
         </el-button>
         <el-button 
           size="small" 
-          type="warning" 
-          plain 
-          @click="analyzeCause"
-        >
-           Root Cause Probe
-        </el-button>
-        <el-button 
-          size="small" 
           type="info" 
           plain 
           @click="clearAnomalies" 
           v-else
         >
            Clear Anomalies
+        </el-button>
+        <el-button 
+          size="small" 
+          type="warning" 
+          plain 
+          @click="analyzeCause"
+        >
+           Root Cause Probe
         </el-button>
         <el-tag size="small" type="info" effect="plain" class="chart-tag">Interactive Analytics</el-tag>
       </div>
