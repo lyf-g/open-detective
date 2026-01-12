@@ -1,6 +1,21 @@
 <template>
   <el-config-provider :button="{ autoInsertSpace: true }">
     <div class="detective-app">
+      <!-- Global Situational Awareness Ticker (PPT Highlight 3) -->
+      <div class="global-ticker">
+        <div class="ticker-content">
+          <span v-for="(item, i) in tickerItems" :key="i" :class="['ticker-item', item.type]">
+            <el-icon><Warning v-if="item.type === 'alert'" /><InfoFilled v-else /></el-icon>
+            {{ item.msg }}
+          </span>
+           <!-- Duplicate for seamless loop -->
+           <span v-for="(item, i) in tickerItems" :key="`dup-${i}`" :class="['ticker-item', item.type]">
+            <el-icon><Warning v-if="item.type === 'alert'" /><InfoFilled v-else /></el-icon>
+            {{ item.msg }}
+          </span>
+        </div>
+      </div>
+
       <el-container class="full-height">
         <!-- Sidebar -->
         <el-aside width="280px" class="sidebar">
@@ -311,13 +326,22 @@ import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
 import { useDark, useToggle } from '@vueuse/core';
 import { 
   User, Monitor, Download, Refresh, Share, Moon, Sunny,
-  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu, Switch
+  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu, Switch, Warning, InfoFilled
 } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 
 const { t, locale } = useI18n();
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
+
+const tickerItems = ref([
+  { type: 'alert', msg: '[ALERT] React: Issue backlog critical (+15% DoD)' },
+  { type: 'info', msg: 'Vue.js: 3.4.0 release adoption rate > 80%' },
+  { type: 'warn', msg: '[WARN] TensorFlow: Bus Factor dropping (Risk Level 3)' },
+  { type: 'alert', msg: '[ALERT] Kubernetes: Unusual commit velocity detected' },
+  { type: 'info', msg: 'OpenAI: Star history anomaly normalized' },
+  { type: 'warn', msg: '[WARN] Deno: Maintainer activity low' }
+]);
 
 const toggleLanguage = () => {
   locale.value = locale.value === 'en' ? 'zh' : 'en';
@@ -701,8 +725,42 @@ body {
   overflow: hidden;
 }
 
-.full-height { height: 100vh; }
+.full-height { height: calc(100vh - 30px); }
 .sidebar { background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; }
+
+/* Ticker Styles */
+.global-ticker {
+  height: 30px;
+  background: #111;
+  border-bottom: 1px solid #00bcd4;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 100;
+}
+.ticker-content {
+  display: flex;
+  white-space: nowrap;
+  animation: ticker-scroll 30s linear infinite;
+}
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 50px;
+  font-size: 0.8rem;
+  font-family: 'Share Tech Mono', monospace;
+}
+.ticker-item.alert { color: #f56c6c; font-weight: bold; text-shadow: 0 0 5px red; }
+.ticker-item.warn { color: #e6a23c; }
+.ticker-item.info { color: #00bcd4; }
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 .sidebar-header { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; cursor: pointer; }
 .logo { font-size: 2.2rem; }
 .main-title { font-size: 1.1rem; font-weight: 800; margin: 0; color: #fff; letter-spacing: 1px; }
