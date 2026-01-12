@@ -85,6 +85,9 @@
                 <el-button circle size="small" @click="toggleLanguage()">
                   <span style="font-size: 10px; font-weight: bold;">{{ locale.toUpperCase() }}</span>
                 </el-button>
+                <el-button circle size="small" @click="showTerminal = !showTerminal" :type="showTerminal ? 'primary' : ''">
+                  <el-icon><Terminal /></el-icon>
+                </el-button>
             </div>
             <div class="system-time">{{ currentTime }}</div>
             <div class="copyright">v0.3.0 - CYBERNETIC DIV.</div>
@@ -306,6 +309,21 @@
           </div>
         </div>
       </div>
+
+      <!-- Neural Terminal (PPT Highlight 4) -->
+      <div v-if="showTerminal" class="neural-terminal">
+        <div class="terminal-header">
+          <span><el-icon><Cpu /></el-icon> NEURAL_CORE_LOGS</span>
+          <el-icon style="cursor: pointer" @click="showTerminal = false"><Delete /></el-icon>
+        </div>
+        <div class="terminal-body" ref="terminalRef">
+          <div v-for="(log, i) in terminalLogs" :key="i" class="log-line">
+            <span class="log-time">[{{ log.time }}]</span>
+            <span :class="['log-type', log.type]">{{ log.prefix }}</span>
+            <span class="log-msg">{{ log.msg }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </el-config-provider>
 </template>
@@ -326,13 +344,46 @@ import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
 import { useDark, useToggle } from '@vueuse/core';
 import { 
   User, Monitor, Download, Refresh, Share, Moon, Sunny,
-  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu, Switch, Warning, InfoFilled
+  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu, Switch, Warning, InfoFilled, Terminal
 } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 
 const { t, locale } = useI18n();
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
+
+const showTerminal = ref(false);
+const terminalLogs = ref<any[]>([]);
+const terminalRef = ref<HTMLElement | null>(null);
+
+const addLog = (type: string, prefix: string, msg: string) => {
+  const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+  terminalLogs.value.push({ time, type, prefix, msg });
+  if (terminalLogs.value.length > 50) terminalLogs.value.shift();
+  nextTick(() => {
+    if (terminalRef.value) terminalRef.value.scrollTop = terminalRef.value.scrollHeight;
+  });
+};
+
+const startLogSimulation = () => {
+  const events = [
+    { type: 'info', prefix: '[KERNEL]', msg: 'Heartbeat signal sent to mesh network' },
+    { type: 'success', prefix: '[NET]', msg: 'Packet verified: 34ms latency' },
+    { type: 'warn', prefix: '[AI]', msg: 'Context window utilization: 45%' },
+    { type: 'info', prefix: '[DB]', msg: 'Query optimizer: Index scan active' },
+    { type: 'info', prefix: '[SYS]', msg: 'Garbage collection cycle completed' }
+  ];
+  setInterval(() => {
+    if (Math.random() > 0.7) {
+      const e = events[Math.floor(Math.random() * events.length)];
+      addLog(e.type, e.prefix, e.msg + (Math.random() > 0.5 ? ` [ID:${Math.floor(Math.random()*999)}]` : ''));
+    }
+  }, 2000);
+};
+
+onMounted(() => {
+  startLogSimulation();
+});
 
 const tickerItems = ref([
   { type: 'alert', msg: '[ALERT] React: Issue backlog critical (+15% DoD)' },
@@ -760,6 +811,47 @@ body {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+
+/* Neural Terminal */
+.neural-terminal {
+  position: fixed;
+  bottom: 0;
+  left: 280px; /* Sidebar width */
+  right: 0;
+  height: 200px;
+  background: rgba(10, 10, 10, 0.95);
+  border-top: 2px solid #00bcd4;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Fira Code', monospace;
+  box-shadow: 0 -5px 20px rgba(0, 188, 212, 0.2);
+  transition: all 0.3s;
+}
+.terminal-header {
+  height: 30px;
+  background: #00222a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 0.8rem;
+  color: #00bcd4;
+  border-bottom: 1px solid #004d40;
+}
+.terminal-body {
+  flex-grow: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+.log-line { display: flex; gap: 10px; margin-bottom: 2px; }
+.log-time { color: #555; }
+.log-type.info { color: #ccc; }
+.log-type.success { color: #67c23a; }
+.log-type.warn { color: #e6a23c; }
+.log-msg { color: #aaa; }
 
 .sidebar-header { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; cursor: pointer; }
 .logo { font-size: 2.2rem; }
