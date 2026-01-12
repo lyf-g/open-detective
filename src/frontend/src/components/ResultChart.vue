@@ -15,6 +15,14 @@
         </el-button>
         <el-button 
           size="small" 
+          type="warning" 
+          plain 
+          @click="analyzeCause"
+        >
+           Root Cause Probe
+        </el-button>
+        <el-button 
+          size="small" 
           type="info" 
           plain 
           @click="clearAnomalies" 
@@ -25,8 +33,28 @@
         <el-tag size="small" type="info" effect="plain" class="chart-tag">Interactive Analytics</el-tag>
       </div>
     </div>
-    <div class="chart-body">
+    
+    <div class="chart-body" style="position: relative;">
       <v-chart class="chart" :option="chartOption" autoresize />
+      
+      <!-- Causal Overlay (PPT Highlight 7) -->
+      <transition name="fade">
+        <div v-if="showCause" class="cause-overlay" @click="showCause = false">
+            <div class="cause-graph">
+                <div class="cause-title">PROBABILISTIC CAUSAL GRAPH (P(C|E))</div>
+                <div class="nodes">
+                    <div class="node root">Activity Spike</div>
+                    <div class="arrow">↓ (0.95)</div>
+                    <div class="node event">Release v3.4</div>
+                    <div class="arrow">↓ (0.82)</div>
+                    <div class="node outcome">Issue Increase</div>
+                </div>
+                <div class="alt-path">
+                    <div class="connector">↳ (0.60) HackerNews Trend</div>
+                </div>
+            </div>
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -72,6 +100,11 @@ const props = defineProps<{
 
 const analyzing = ref(false);
 const anomalies = ref<any[]>([]);
+const showCause = ref(false);
+
+const analyzeCause = () => {
+    showCause.value = true;
+};
 
 const clearAnomalies = () => {
     anomalies.value = [];
@@ -293,4 +326,34 @@ const chartOption = computed(() => {
   height: 300px;
   width: 100%;
 }
+
+.cause-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(4px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 50;
+    cursor: pointer;
+}
+.cause-graph {
+    border: 2px solid #e6a23c;
+    padding: 20px;
+    background: #111;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(230, 162, 60, 0.3);
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+}
+.cause-title { color: #e6a23c; font-weight: bold; margin-bottom: 15px; border-bottom: 1px dashed #555; padding-bottom: 5px; }
+.nodes { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.node { padding: 5px 10px; border: 1px solid #555; border-radius: 4px; color: #ccc; }
+.node.root { border-color: #f56c6c; color: #f56c6c; font-weight: bold; }
+.node.event { border-color: #409eff; color: #409eff; }
+.node.outcome { border-color: #67c23a; color: #67c23a; }
+.arrow { color: #666; font-size: 0.8rem; }
+.alt-path { margin-top: 5px; font-size: 0.8rem; color: #999; }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
