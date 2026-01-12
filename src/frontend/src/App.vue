@@ -429,14 +429,28 @@ const startDemoProtocol = async () => {
                    dossierData.value = res.data;
                    showDossier.value = true;
                } catch (e) {
-                   // Fallback
+                   // Fallback (Professional OSPO Style)
                    dossierData.value = {
                        username: 'yyx990803',
                        codename: 'The Creator',
-                       threat_level: 'DEFCON 5',
-                       psych_profile: 'Highly disciplined. Shows signs of sleep deprivation. Obsessed with performance optimization.',
-                       skills: [{name: 'Code', value:99}, {name: 'Arch', value:95}, {name: 'Design', value:90}, {name: 'Speed', value:92}, {name: 'Vision', value:96}],
-                       status: 'ACTIVE SURVEILLANCE'
+                       risk_score: 92,
+                       risk_dimensions: [
+                           { name: 'Bus Factor', value: 95 },
+                           { name: 'Code Complexity', value: 85 },
+                           { name: 'Issue Velocity', value: 70 },
+                           { name: 'Dependency Risk', value: 30 },
+                           { name: 'Community Health', value: 98 }
+                       ],
+                       metrics: [
+                           { name: 'Influence Reach', value: 99 },
+                           { name: 'Commit Frequency', value: 88 },
+                           { name: 'Review Response', value: 92 }
+                       ],
+                       incidents: [
+                           { date: '2023-11-12', desc: 'Sudden spike in closed issues (Automated?)' },
+                           { date: '2023-10-05', desc: 'Core maintainer role transition detected' }
+                       ],
+                       recommendation: 'Monitor for burnout signals. High dependency on single individual. Recommend expanding maintainer circle.'
                    };
                    showDossier.value = true;
                }
