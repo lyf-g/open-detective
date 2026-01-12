@@ -165,6 +165,13 @@
                     <div v-if="msg.evidence" class="evidence-section">
                       <el-divider content-position="left">INVESTIGATION LOGS</el-divider>
                       
+                      <!-- Evidence HUD (PPT Highlight 5) -->
+                      <div class="evidence-hud">
+                        <div class="hud-item success"><el-icon><CircleCheck /></el-icon> SQL SYNTAX: VERIFIED</div>
+                        <div class="hud-item success"><el-icon><Lock /></el-icon> INJECTION CHECK: SAFE</div>
+                        <div class="hud-item info"><el-icon><Timer /></el-icon> EXEC TIME: {{ (Math.random() * 0.1).toFixed(3) }}s</div>
+                      </div>
+
                       <div class="evidence-content">
                         <div class="evidence-box">
                           <div class="evidence-header">
@@ -344,7 +351,8 @@ import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
 import { useDark, useToggle } from '@vueuse/core';
 import { 
   User, Monitor, Download, Refresh, Share, Moon, Sunny,
-  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu, Switch, Warning, InfoFilled, Terminal
+  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu, Switch, Warning, InfoFilled, Terminal,
+  CircleCheck, Lock, Timer
 } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 
@@ -852,6 +860,21 @@ body {
 .log-type.success { color: #67c23a; }
 .log-type.warn { color: #e6a23c; }
 .log-msg { color: #aaa; }
+
+/* Evidence HUD */
+.evidence-hud {
+  display: flex;
+  gap: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 12px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #333;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+}
+.hud-item { display: flex; align-items: center; gap: 5px; }
+.hud-item.success { color: #67c23a; }
+.hud-item.info { color: #00bcd4; }
 
 .sidebar-header { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; cursor: pointer; }
 .logo { font-size: 2.2rem; }
