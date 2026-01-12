@@ -667,24 +667,33 @@ onMounted(async () => {
 const renderMarkdown = (content: string) => {
   if (!content) return '';
   
-  // 1. Sanitize JSON artifacts
-  let sanitized = content.replace(/\{"success":false.*?\}/gs, '');
+  // 1. Aggressive JSON & Refusal Stripping
+  let sanitized = content
+      .replace(/\{[^{}]*"success":false.*?\}/gs, '') // Remove JSON error blocks
+      .replace(/\{[^{}]*"message":.*?\}/gs, '')      // Remove generic JSON messages
+      .replace(/我是智能问数小助手.*?。/gs, '')       // Remove specific persona intro
+      .replace(/我无法以文本分析师.*?。/gs, '')       // Remove capability refusal
+      .replace(/请提供.*?。/gs, '');                  // Remove request for clarification
   
-  // 2. Transform Tags into UI Cards
-  if (sanitized.includes('[NEURAL DEDUCTION]')) {
+  // 2. Transform Tags into UI Cards (Handle formatting flexibility)
+  // We use a flexible regex to catch [NEURAL DEDUCTION] even if it has ** around it
+  if (sanitized.match(/\[NEURAL DEDUCTION\]/)) {
       sanitized = sanitized.replace(
-          /\[NEURAL DEDUCTION\]/g, 
+          /(\*\*|__)?\[NEURAL DEDUCTION\](\*\*|__)?/g, 
           `<div class="analysis-card deduction"><div class="card-title">🧠 NEURAL DEDUCTION</div><div class="card-content">`
       );
-      // Close deduction div before anomaly or end
-      if (sanitized.includes('[ANOMALY ALERT]')) {
-          sanitized = sanitized.replace(/\[ANOMALY ALERT\]/g, `</div></div><div class="analysis-card anomaly"><div class="card-title">🚨 ANOMALY DETECTED</div><div class="card-content">`);
+      
+      if (sanitized.match(/\[ANOMALY ALERT\]/)) {
+          sanitized = sanitized.replace(
+              /(\*\*|__)?\[ANOMALY ALERT\](\*\*|__)?/g, 
+              `</div></div><div class="analysis-card anomaly"><div class="card-title">🚨 ANOMALY DETECTED</div><div class="card-content">`
+          );
       }
-      sanitized += '</div></div>'; // Close final tags
+      sanitized += '</div></div>'; 
   }
   
-  // 3. Clean Brackets
-  sanitized = sanitized.replace(/\{.*?\}/gs, '');
+  // 3. Final cleanup of empty lines created by removal
+  sanitized = sanitized.replace(/^\s*[\r\n]/gm, '');
   
   return md.render(sanitized.trim());
 };

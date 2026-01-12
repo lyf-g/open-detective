@@ -267,18 +267,10 @@ class SQLBotClient:
 """
         ans = self._ask_ai(prompt)
         
-        # Check for refusal
-        refusal_keywords = [
-            "我是智能问数小助手", 
-            "I cannot", 
-            "我无法", 
-            "抱歉",
-            "我的核心功能是根据数据库表结构",
-            "超出了我的能力范围",
-            "text analyst"
-        ]
-        if any(k in ans for k in refusal_keywords):
-            return self._generate_fallback_report(question, data)
+        # Aggressive Refusal/Error Check
+        # If it looks like JSON error or contains refusal words, kill it.
+        if '{"success":false' in ans or '"message":' in ans or "小助手" in ans or "我无法" in ans or "I cannot" in ans:
+             return self._generate_fallback_report(question, data)
 
         cleaned_ans = self.sanitize_text(ans)
         
