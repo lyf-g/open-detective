@@ -16,11 +16,11 @@ services:
       - DB_HOST=mysql
       - DB_USER=root
       - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - SQLBOT_API_KEY=${SQLBOT_API_KEY}
-      - SQLBOT_USERNAME=${SQLBOT_USERNAME}
-      - SQLBOT_PASSWORD=${SQLBOT_PASSWORD}
-      - SQLBOT_ACCESS_KEY=${SQLBOT_ACCESS_KEY}
-      - SQLBOT_SECRET_KEY=${SQLBOT_SECRET_KEY}
+      - SQLBOT_API_KEY=${SQLBOT_API_KEY:-}
+      - SQLBOT_USERNAME=${SQLBOT_USERNAME:-admin}
+      - SQLBOT_PASSWORD=${SQLBOT_PASSWORD:-SQLBot@123456}
+      - SQLBOT_ACCESS_KEY=${SQLBOT_ACCESS_KEY:-}
+      - SQLBOT_SECRET_KEY=${SQLBOT_SECRET_KEY:-}
     depends_on:
       - mysql
       - sqlbot
@@ -43,7 +43,7 @@ services:
       - "8000:8000"
       - "8001:8001"
     environment:
-      - SECRET_KEY=${SQLBOT_SECRET_KEY}
+      - SECRET_KEY=${SQLBOT_SECRET_KEY:-default_secret_key}
     volumes:
       - db_data:/opt/sqlbot/db_shared
       - ./data/sqlbot/excel:/opt/sqlbot/data/excel
