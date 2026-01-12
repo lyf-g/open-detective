@@ -158,7 +158,11 @@ def configure_llm(token):
         if res.status_code == 200:
             print("✅ LLM configured successfully.")
         else:
-            print(f"⚠️ LLM config result: {res.status_code} {res.text}")
+            print(f"⚠️ LLM config result: {res.status_code}")
+            try:
+                print(f"   Response: {res.json()}")
+            except:
+                print(f"   Response Text: {res.text}")
     except Exception as e:
         print(f"❌ LLM config failed: {e}")
 
