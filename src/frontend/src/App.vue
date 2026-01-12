@@ -102,6 +102,9 @@
                 <el-button circle size="small" @click="startDemoProtocol" type="warning" plain>
                   <el-icon><Opportunity /></el-icon>
                 </el-button>
+                <el-button circle size="small" @click="forceDossier" type="danger" plain>
+                  <el-icon><User /></el-icon>
+                </el-button>
             </div>
             <div class="system-time">{{ currentTime }}</div>
             <div class="copyright">v0.3.0 - CYBERNETIC DIV.</div>
@@ -472,6 +475,38 @@ const startDemoProtocol = async () => {
            
        }, 3000);
    }, 500);
+};
+
+const forceDossier = () => {
+    const dossierProfile = {
+       username: 'yyx990803',
+       codename: 'The Architect',
+       risk_score: 45,
+       risk_dimensions: [
+           { name: 'Bus Factor', value: 85 },
+           { name: 'Code Complexity', value: 65 },
+           { name: 'Issue Velocity', value: 92 },
+           { name: 'Dependency Risk', value: 20 },
+           { name: 'Community Health', value: 98 }
+       ],
+       metrics: [
+           { name: 'Influence Reach', value: 99 },
+           { name: 'Commit Frequency', value: 75 },
+           { name: 'Review Response', value: 88 }
+       ],
+       incidents: [
+           { date: '2023-12-28', desc: 'Vue 3.4 release: "Slam Dunk" performance boost' },
+           { date: '2023-09-15', desc: 'Vapor Mode prototype announced (Experimental)' }
+       ],
+       recommendation: 'Project stability is high, but key architectural decisions remain centralized.'
+   };
+   chatHistory.value.push({
+       id: Date.now(),
+       role: 'assistant',
+       content: "Manual Override: Retrieving target dossier...",
+       dossier: dossierProfile
+   });
+   nextTick(() => { if (scrollRef.value) scrollRef.value.setScrollTop(100000); });
 };
 
 const showTerminal = ref(false);
