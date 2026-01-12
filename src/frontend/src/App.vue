@@ -101,6 +101,35 @@
                         EVIDENCE SECURED
                       </el-tag>
                     </div>
+
+                    <!-- Visualized Chain of Thought (PPT Highlight 1) -->
+                    <div v-if="msg.role === 'assistant' && msg.evidence" class="thought-process" style="margin-bottom: 15px;">
+                      <el-collapse>
+                        <el-collapse-item name="1">
+                          <template #title>
+                            <span style="color: #00bcd4; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                              <el-icon><Cpu /></el-icon> NEURAL LOGIC PATH
+                            </span>
+                          </template>
+                          <div style="padding: 10px;">
+                            <el-timeline>
+                              <el-timeline-item timestamp="0.12s" type="success" placement="top">
+                                <span style="color: #ccc">Semantic Parsing (Intent: <span style="color: #fff">Data Retrieval</span>)</span>
+                              </el-timeline-item>
+                              <el-timeline-item timestamp="0.45s" type="success" placement="top">
+                                <span style="color: #ccc">Schema Linking (Mapped: <span style="color: #e6a23c">open_digger_metrics</span>)</span>
+                              </el-timeline-item>
+                              <el-timeline-item timestamp="1.10s" type="primary" placement="top">
+                                <span style="color: #ccc">SQL Generation (Dialect: <span style="color: #409eff">MySQL 8.0</span>)</span>
+                              </el-timeline-item>
+                              <el-timeline-item timestamp="1.35s" type="warning" placement="top">
+                                <span style="color: #ccc">Visual Rendering (Engine: <span style="color: #f56c6c">ECharts Gl</span>)</span>
+                              </el-timeline-item>
+                            </el-timeline>
+                          </div>
+                        </el-collapse-item>
+                      </el-collapse>
+                    </div>
                     
                     <div class="content">
                       <div v-if="isRefusal(msg.content)" class="refusal-box">
