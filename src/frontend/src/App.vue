@@ -99,6 +99,9 @@
                 <el-button circle size="small" @click="showTerminal = !showTerminal" :type="showTerminal ? 'primary' : ''">
                   <el-icon><Terminal /></el-icon>
                 </el-button>
+                <el-button circle size="small" @click="startDemoProtocol" type="warning" plain>
+                  <el-icon><Lightning /></el-icon>
+                </el-button>
             </div>
             <div class="system-time">{{ currentTime }}</div>
             <div class="copyright">v0.3.0 - CYBERNETIC DIV.</div>
@@ -363,13 +366,82 @@ import { useDark, useToggle } from '@vueuse/core';
 import { 
   User, Monitor, Download, Refresh, Share, Moon, Sunny,
   DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu, Switch, Warning, InfoFilled, Terminal,
-  CircleCheck, Lock, Timer
+  CircleCheck, Lock, Timer, Lightning
 } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 
 const { t, locale } = useI18n();
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
+
+const startDemoProtocol = async () => {
+   // 1. Reset
+   chatHistory.value = [];
+   userInput.value = "Investigate anomalous activity patterns in Vue.js core ecosystem...";
+   loading.value = true;
+   
+   // 2. Simulate Typing delay
+   setTimeout(() => {
+       // 3. User Message
+       chatHistory.value.push({ id: Date.now(), role: 'user', content: userInput.value });
+       userInput.value = '';
+       
+       // 4. Agent Swarm Animation
+       activeAgent.value = 'router';
+       setTimeout(() => activeAgent.value = 'sql', 800);
+       setTimeout(() => activeAgent.value = 'sec', 1600);
+       setTimeout(() => activeAgent.value = 'vis', 2400);
+       
+       // 5. Assistant Response (After agent work)
+       setTimeout(() => {
+           activeAgent.value = null;
+           loading.value = false;
+           
+           const mockEvidence = {
+               sql: "SELECT month, activity, stars FROM open_digger_metrics WHERE repo_name = 'vuejs/core' ORDER BY month DESC LIMIT 12;",
+               brief: "Vue.js Activity vs Stars (Anomaly Detected)",
+               data: [
+                   { month: '2023-01', activity: 420, stars: 1200 },
+                   { month: '2023-02', activity: 450, stars: 1350 },
+                   { month: '2023-03', activity: 480, stars: 1100 },
+                   { month: '2023-04', activity: 800, stars: 2500, z_score: 3.5 },
+                   { month: '2023-05', activity: 500, stars: 1400 },
+                   { month: '2023-06', activity: 490, stars: 1450 }
+               ]
+           };
+           
+           chatHistory.value.push({
+               id: Date.now() + 1,
+               role: 'assistant',
+               content: "Target identified: **Vue.js**. \n\nScanning historical vector space... \n\n> **CRITICAL ALERT**: Detected a 3-sigma deviation in contribution velocity aligned with major release cycles. Correlation confidence: 98%.",
+               evidence: mockEvidence,
+               activeDetails: ['details'] 
+           });
+           
+           // 6. Trigger Dossier
+           setTimeout(async () => {
+               try {
+                   // Mock fetching dossier
+                   const res = await axios.post(`${API_BASE}/analytics/dossier`, { username: 'yyx990803' });
+                   dossierData.value = res.data;
+                   showDossier.value = true;
+               } catch (e) {
+                   // Fallback
+                   dossierData.value = {
+                       username: 'yyx990803',
+                       codename: 'The Creator',
+                       threat_level: 'DEFCON 5',
+                       psych_profile: 'Highly disciplined. Shows signs of sleep deprivation. Obsessed with performance optimization.',
+                       skills: [{name: 'Code', value:99}, {name: 'Arch', value:95}, {name: 'Design', value:90}, {name: 'Speed', value:92}, {name: 'Vision', value:96}],
+                       status: 'ACTIVE SURVEILLANCE'
+                   };
+                   showDossier.value = true;
+               }
+           }, 1000);
+           
+       }, 3000);
+   }, 500);
+};
 
 const showTerminal = ref(false);
 const terminalLogs = ref<any[]>([]);
