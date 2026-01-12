@@ -1,0 +1,23 @@
+{
+  "app": {
+    "title": "OPEN DETECTIVE",
+    "subtitle": "Neural Evidence Tracker"
+  },
+  "sidebar": {
+    "engine": "ENGINE",
+    "status": "STATUS",
+    "db": "DB",
+    "deep_scan": "Deep Scan (Battle Mode)",
+    "global_intel": "Global Intel",
+    "sentiment": "Sentiment Analysis",
+    "export": "Export Case File",
+    "share": "Share Link",
+    "new": "New Investigation",
+    "history": "HISTORY LOGS"
+  },
+  "monitor": {
+      "title": "SYSTEM DIAGNOSTICS",
+      "db_status": "MySQL Database",
+      "engine_status": "SQLBot Engine"
+  }
+}
