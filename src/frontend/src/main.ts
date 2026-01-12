@@ -5,6 +5,7 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import './style.css'
 import App from './App.vue'
+import i18n from './i18n'
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 
@@ -24,4 +25,5 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 }
 
 app.use(ElementPlus)
+app.use(i18n)
 app.mount('#app')

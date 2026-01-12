@@ -7,45 +7,45 @@
           <div class="sidebar-header" @click="reloadPage">
             <span class="logo">🕵️‍♂️</span>
             <div class="title-group">
-              <h1 class="main-title">OPEN DETECTIVE</h1>
-              <span class="sub-title">Neural Evidence Tracker</span>
+              <h1 class="main-title">{{ t('app.title') }}</h1>
+              <span class="sub-title">{{ t('app.subtitle') }}</span>
             </div>
           </div>
 
-          <div class="sidebar-stats">
+          <div class="sidebar-stats" @click="showSystemMonitor = true" style="cursor: pointer">
             <div class="stat-item">
-              <span class="label">ENGINE:</span>
-              <el-tag size="small" :type="engineType === 'sqlbot' ? 'danger' : 'success'">{{ engineType.toUpperCase() }}</el-tag>
+              <span class="label">{{ t('sidebar.engine') }}:</span>
+              <el-tag size="small" :type="sqlbotStatus === 'reachable' ? 'success' : 'danger'">{{ engineType.toUpperCase() }}</el-tag>
             </div>
             <div class="stat-item">
-              <span class="label">STATUS:</span>
-              <el-tag size="small" type="primary" effect="dark">CONNECTED</el-tag>
+              <span class="label">{{ t('sidebar.db') }}:</span>
+              <el-tag size="small" :type="dbStatus ? 'success' : 'danger'" effect="dark">{{ dbStatus ? 'ONLINE' : 'OFFLINE' }}</el-tag>
             </div>
           </div>
 
           <div class="sidebar-actions">
             <el-button class="action-btn" type="danger" plain @click="openDeepScan">
-              <el-icon><Aim /></el-icon> Deep Scan (Battle Mode)
+              <el-icon><Aim /></el-icon> {{ t('sidebar.deep_scan') }}
             </el-button>
             <el-button class="action-btn" type="success" plain @click="showGlobe = true">
-              <el-icon><MapLocation /></el-icon> Global Intel
+              <el-icon><MapLocation /></el-icon> {{ t('sidebar.global_intel') }}
             </el-button>
             <el-button class="action-btn" type="warning" plain @click="openSentiment">
-              <el-icon><ChatDotRound /></el-icon> Sentiment Analysis
+              <el-icon><ChatDotRound /></el-icon> {{ t('sidebar.sentiment') }}
             </el-button>
             <el-button class="action-btn" type="primary" plain @click="exportCase" :disabled="chatHistory.length === 0">
-              <el-icon><Download /></el-icon> Export Case File
+              <el-icon><Download /></el-icon> {{ t('sidebar.export') }}
             </el-button>
             <el-button class="action-btn" type="primary" plain @click="shareSession" :disabled="!currentSessionId">
-              <el-icon><Share /></el-icon> Share Link
+              <el-icon><Share /></el-icon> {{ t('sidebar.share') }}
             </el-button>
             <el-button class="action-btn" @click="createNewSession">
-              <el-icon><Refresh /></el-icon> New Investigation
+              <el-icon><Refresh /></el-icon> {{ t('sidebar.new') }}
             </el-button>
           </div>
 
           <div class="sidebar-sessions">
-            <div class="session-label">HISTORY LOGS</div>
+            <div class="session-label">{{ t('sidebar.history') }}</div>
             <el-scrollbar>
               <div v-for="sess in sessions" :key="sess.id" 
                    :class="['session-item', { active: currentSessionId === sess.id }]"
@@ -62,10 +62,13 @@
           </div>
 
           <div class="sidebar-footer">
-            <div class="theme-switch" style="margin-bottom: 10px; text-align: center;">
+            <div class="theme-switch" style="margin-bottom: 10px; text-align: center; display: flex; justify-content: center; gap: 10px;">
                 <el-button circle size="small" @click="toggleDark()">
                   <el-icon v-if="isDark"><Moon /></el-icon>
                   <el-icon v-else><Sunny /></el-icon>
+                </el-button>
+                <el-button circle size="small" @click="toggleLanguage()">
+                  <span style="font-size: 10px; font-weight: bold;">{{ locale.toUpperCase() }}</span>
                 </el-button>
             </div>
             <div class="system-time">{{ currentTime }}</div>
@@ -238,6 +241,27 @@
           <SentimentView v-if="sentimentData" :data="sentimentData" />
         </div>
       </div>
+
+      <!-- System Monitor Overlay -->
+      <div v-if="showSystemMonitor" class="battle-overlay" @click.self="showSystemMonitor = false">
+        <div class="battle-card" style="width: 500px;">
+          <div class="battle-header">
+            <h2>SYSTEM DIAGNOSTICS</h2>
+            <el-button circle size="small" @click="showSystemMonitor = false"><el-icon><Delete /></el-icon></el-button>
+          </div>
+          <div style="padding: 10px; color: #ccc;">
+            <h3>MySQL Database</h3>
+            <p>Status: <span :style="{color: dbStatus ? '#67c23a' : '#f56c6c'}">{{ dbStatus ? 'CONNECTED' : 'DISCONNECTED' }}</span></p>
+            <p v-if="systemDetails.db?.details">Pool: {{ systemDetails.db.details.size }} (Free: {{ systemDetails.db.details.free }})</p>
+            
+            <el-divider />
+            
+            <h3>SQLBot Engine</h3>
+            <p>Endpoint: {{ systemDetails.sqlbot?.status }}</p>
+            <p v-if="systemDetails.sqlbot?.code">Response Code: {{ systemDetails.sqlbot.code }}</p>
+          </div>
+        </div>
+      </div>
     </div>
   </el-config-provider>
 </template>
@@ -258,11 +282,17 @@ import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
 import { useDark, useToggle } from '@vueuse/core';
 import { 
   User, Monitor, Download, Refresh, Share, Moon, Sunny,
-  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu
+  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu, Switch
 } from '@element-plus/icons-vue';
+import { useI18n } from 'vue-i18n';
 
+const { t, locale } = useI18n();
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
+
+const toggleLanguage = () => {
+  locale.value = locale.value === 'en' ? 'zh' : 'en';
+};
 
 const md = new MarkdownIt({
   html: true,
@@ -293,6 +323,25 @@ const isListening = ref(false);
 const scrollRef = ref<any>(null);
 const engineType = ref('sqlbot');
 const currentTime = ref('');
+const dbStatus = ref(false);
+const sqlbotStatus = ref('checking');
+const systemDetails = ref<any>({});
+const showSystemMonitor = ref(false);
+
+const checkSystemHealth = async () => {
+  try {
+    const health = await axios.get(`${API_BASE}/health`);
+    dbStatus.value = health.data.db_connected;
+    systemDetails.value.db = health.data;
+    
+    const sb = await axios.get(`${API_BASE}/sqlbot-health`);
+    sqlbotStatus.value = sb.data.status;
+    systemDetails.value.sqlbot = sb.data;
+  } catch (e) {
+    dbStatus.value = false;
+    sqlbotStatus.value = 'error';
+  }
+};
 
 // Session State
 const sessions = ref<any[]>([]);
@@ -374,6 +423,8 @@ const loadSession = async (id: string) => {
 onMounted(async () => {
   setInterval(updateTime, 1000);
   updateTime();
+  checkSystemHealth();
+  setInterval(checkSystemHealth, 30000);
   await fetchSessions();
   
   const urlParams = new URLSearchParams(window.location.search);

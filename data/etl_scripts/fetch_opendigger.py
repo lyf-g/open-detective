@@ -68,10 +68,26 @@ def transform_and_load(repo, metric, data):
         cursor.close()
         conn.close()
 
-def run_etl():
-    print("🚀 Starting OpenDigger MySQL ETL...")
+import argparse
+
+def save_repo_to_config(repo):
     repos = load_repos()
+    if repo not in repos:
+        repos.append(repo)
+        try:
+            with open(CONFIG_PATH, 'w') as f:
+                json.dump(repos, f, indent=2)
+            print(f"📝 Added {repo} to {CONFIG_PATH}")
+        except Exception as e:
+            print(f"❌ Failed to update config: {e}")
+
+def run_etl(specific_repos=None):
+    print("🚀 Starting OpenDigger MySQL ETL...")
+    repos = specific_repos if specific_repos else load_repos()
+    
+    print(f"🎯 Target Repositories: {len(repos)}")
     for repo in repos:
+        print(f"   Processing {repo}...")
         for metric in METRICS:
             data = fetch_metric(repo, metric)
             if data:
@@ -79,4 +95,16 @@ def run_etl():
     print("🎉 ETL Complete!")
 
 if __name__ == "__main__":
-    run_etl()
+    parser = argparse.ArgumentParser(description="Fetch OpenDigger metrics.")
+    parser.add_argument("--repo", type=str, help="Fetch a specific repository (e.g. 'google/jax')")
+    parser.add_argument("--add", action="store_true", help="Add the specific repo to repos.json")
+    
+    args = parser.parse_args()
+    
+    if args.repo:
+        target_repos = [args.repo]
+        if args.add:
+            save_repo_to_config(args.repo)
+        run_etl(target_repos)
+    else:
+        run_etl()

@@ -1,0 +1,23 @@
+{
+  "app": {
+    "title": "开源神探",
+    "subtitle": "神经元证据追踪器"
+  },
+  "sidebar": {
+    "engine": "引擎",
+    "status": "状态",
+    "db": "数据库",
+    "deep_scan": "深度扫描 (战斗模式)",
+    "global_intel": "全球情报",
+    "sentiment": "舆情分析",
+    "export": "导出案件卷宗",
+    "share": "分享链接",
+    "new": "新建调查",
+    "history": "历史记录"
+  },
+  "monitor": {
+      "title": "系统诊断",
+      "db_status": "MySQL 数据库",
+      "engine_status": "SQLBot 引擎"
+  }
+}
