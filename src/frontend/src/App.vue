@@ -215,6 +215,11 @@
                         </el-collapse>
                       </div>
                     </div>
+
+                    <!-- Inline Dossier (PPT Highlight 2: Fluid Embed) -->
+                    <div v-if="msg.dossier" class="dossier-inline-container" style="margin-top: 20px;">
+                       <DossierCard :profile="msg.dossier" />
+                    </div>
                   </div>
                 </div>
 
@@ -284,11 +289,6 @@
           </div>
           <RadarView :data="radarData" :title="radarTitle" />
         </div>
-      </div>
-
-      <!-- Dossier Overlay -->
-      <div v-if="showDossier" class="dossier-overlay" @click.self="showDossier = false">
-        <DossierCard :profile="dossierData" />
       </div>
 
       <!-- Globe Overlay -->
@@ -421,39 +421,39 @@ const startDemoProtocol = async () => {
                activeDetails: ['details'] 
            });
            
-           // 6. Trigger Dossier
+           // 6. Trigger Dossier (Inline Message)
            setTimeout(async () => {
-               try {
-                   // Mock fetching dossier
-                   const res = await axios.post(`${API_BASE}/analytics/dossier`, { username: 'yyx990803' });
-                   dossierData.value = res.data;
-                   showDossier.value = true;
-               } catch (e) {
-                   // Fallback (Professional OSPO Style)
-                   dossierData.value = {
-                       username: 'yyx990803',
-                       codename: 'The Creator',
-                       risk_score: 92,
-                       risk_dimensions: [
-                           { name: 'Bus Factor', value: 95 },
-                           { name: 'Code Complexity', value: 85 },
-                           { name: 'Issue Velocity', value: 70 },
-                           { name: 'Dependency Risk', value: 30 },
-                           { name: 'Community Health', value: 98 }
-                       ],
-                       metrics: [
-                           { name: 'Influence Reach', value: 99 },
-                           { name: 'Commit Frequency', value: 88 },
-                           { name: 'Review Response', value: 92 }
-                       ],
-                       incidents: [
-                           { date: '2023-11-12', desc: 'Sudden spike in closed issues (Automated?)' },
-                           { date: '2023-10-05', desc: 'Core maintainer role transition detected' }
-                       ],
-                       recommendation: 'Monitor for burnout signals. High dependency on single individual. Recommend expanding maintainer circle.'
-                   };
-                   showDossier.value = true;
-               }
+               const dossierProfile = {
+                   username: 'yyx990803',
+                   codename: 'The Creator',
+                   risk_score: 92,
+                   risk_dimensions: [
+                       { name: 'Bus Factor', value: 95 },
+                       { name: 'Code Complexity', value: 85 },
+                       { name: 'Issue Velocity', value: 70 },
+                       { name: 'Dependency Risk', value: 30 },
+                       { name: 'Community Health', value: 98 }
+                   ],
+                   metrics: [
+                       { name: 'Influence Reach', value: 99 },
+                       { name: 'Commit Frequency', value: 88 },
+                       { name: 'Review Response', value: 92 }
+                   ],
+                   incidents: [
+                       { date: '2023-11-12', desc: 'Sudden spike in closed issues (Automated?)' },
+                       { date: '2023-10-05', desc: 'Core maintainer role transition detected' }
+                   ],
+                   recommendation: 'Monitor for burnout signals. High dependency on single individual. Recommend expanding maintainer circle.'
+               };
+
+               chatHistory.value.push({
+                   id: Date.now() + 2,
+                   role: 'assistant',
+                   content: "Subject Analysis Complete. Generating surveillance dossier...",
+                   dossier: dossierProfile
+               });
+               
+               nextTick(() => { if (scrollRef.value) scrollRef.value.setScrollTop(100000); });
            }, 1000);
            
        }, 3000);
@@ -527,8 +527,6 @@ const chatHistory = ref<any[]>([]);
 const showRadar = ref(false);
 const radarData = ref<any[]>([]);
 const radarTitle = ref('');
-const showDossier = ref(false);
-const dossierData = ref<any>(null);
 const showGlobe = ref(false);
 const showSentiment = ref(false);
 const sentimentData = ref<any>(null);
