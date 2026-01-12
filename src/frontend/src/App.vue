@@ -752,6 +752,25 @@ const sendMessage = async () => {
 
   let assistantMsg: any = null;
 
+  const sanitizeContent = (text: string) => {
+      if (!text) return '';
+      // 1. Remove JSON error blocks
+      let clean = text.replace(/\{"success":false.*?\}/g, "");
+      // 2. Remove specific SQLBot refusal phrases (Chinese & English)
+      const banList = [
+          "我是智能问数小助手",
+          "我无法以文本分析师",
+          "我只能根据您的问题",
+          "请提供具体的查询问题",
+          "I am an intelligent data assistant",
+          "I cannot generate"
+      ];
+      banList.forEach(phrase => {
+          clean = clean.split(phrase).join("");
+      });
+      return clean;
+  };
+
   try {
     const response = await fetch(`${API_BASE}/chat/stream`, {
       method: 'POST',
@@ -781,13 +800,21 @@ const sendMessage = async () => {
              loading.value = false;
              // Check if meta indicates failure but wasn't caught
              if (json.success === false) {
-                 assistantMsg.content = `> **SYSTEM ALERT**: Neural link unstable. \n\n${json.message || 'Unable to process query complexity.'}`;
+                 // Suppress visual error if we have partial content, otherwise show alert
+                 if (!assistantMsg || !assistantMsg.content) {
+                    assistantMsg = assistantMsg || { id: Date.now()+1, role: 'assistant', content: '', activeDetails: [], evidence: null };
+                    chatHistory.value.push(assistantMsg);
+                    assistantMsg.content = `> **SYSTEM ALERT**: Neural link unstable. \n\n${json.message || 'Unable to process query complexity.'}`;
+                 }
              } else {
-                 assistantMsg.evidence = json.sql_query ? {
-                    sql: json.sql_query,
-                    data: json.data || [],
-                    brief: query
-                 } : null;
+                 if (assistantMsg) {
+                    assistantMsg.evidence = json.sql_query ? {
+                        sql: json.sql_query,
+                        data: json.data || [],
+                        brief: query,
+                        customCause: json.customCause // Pass through if backend sends it
+                    } : null;
+                 }
              }
           } 
           else if (json.type === 'token') {
@@ -797,25 +824,22 @@ const sendMessage = async () => {
                  chatHistory.value.push(assistantMsg);
              }
              
-             // Real-time filtering of raw JSON errors in stream
-             if (json.content && (json.content.includes('{"success":false') || json.content.includes('"message":'))) {
-                 try {
-                     const errObj = JSON.parse(json.content);
-                     assistantMsg.content = `> **ACCESS DENIED**: ${errObj.message || 'Query protocol mismatch.'}`;
-                 } catch (e) {
-                     // If partial JSON, just suppress or format
-                     if (!assistantMsg.content.includes('ACCESS DENIED')) {
-                        assistantMsg.content = "> **SIGNAL INTERRUPTED**: The target database refused the semantic query structure. Please refine your parameters (e.g., specific metrics or dates).";
-                     }
-                 }
-             } else {
-                 assistantMsg.content += json.content;
-             }
+             // Append content directly, we sanitize at the end to avoid breaking layout
+             assistantMsg.content += json.content;
              
              nextTick(() => { if (scrollRef.value) scrollRef.value.setScrollTop(100000); });
           }
         } catch (e) { console.error("Stream parse error", e); }
       }
+    }
+    
+    // Final Sanitize
+    if (assistantMsg && assistantMsg.content) {
+        assistantMsg.content = sanitizeContent(assistantMsg.content);
+        // If content is empty after sanitization but we have evidence, add a placeholder
+        if (!assistantMsg.content.trim() && assistantMsg.evidence) {
+            assistantMsg.content = "Analysis complete. Evidence retrieved below.";
+        }
     }
     
     if (chatHistory.value.length <= 2) fetchSessions();
