@@ -268,7 +268,15 @@ class SQLBotClient:
         ans = self._ask_ai(prompt)
         
         # Check for refusal
-        refusal_keywords = ["我是智能问数小助手", "I cannot", "我无法", "抱歉"]
+        refusal_keywords = [
+            "我是智能问数小助手", 
+            "I cannot", 
+            "我无法", 
+            "抱歉",
+            "我的核心功能是根据数据库表结构",
+            "超出了我的能力范围",
+            "text analyst"
+        ]
         if any(k in ans for k in refusal_keywords):
             return self._generate_fallback_report(question, data)
 

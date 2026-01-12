@@ -666,7 +666,26 @@ onMounted(async () => {
 
 const renderMarkdown = (content: string) => {
   if (!content) return '';
-  let sanitized = content.replace(/\{.*?\}/gs, '');
+  
+  // 1. Sanitize JSON artifacts
+  let sanitized = content.replace(/\{"success":false.*?\}/gs, '');
+  
+  // 2. Transform Tags into UI Cards
+  if (sanitized.includes('[NEURAL DEDUCTION]')) {
+      sanitized = sanitized.replace(
+          /\[NEURAL DEDUCTION\]/g, 
+          `<div class="analysis-card deduction"><div class="card-title">🧠 NEURAL DEDUCTION</div><div class="card-content">`
+      );
+      // Close deduction div before anomaly or end
+      if (sanitized.includes('[ANOMALY ALERT]')) {
+          sanitized = sanitized.replace(/\[ANOMALY ALERT\]/g, `</div></div><div class="analysis-card anomaly"><div class="card-title">🚨 ANOMALY DETECTED</div><div class="card-content">`);
+      }
+      sanitized += '</div></div>'; // Close final tags
+  }
+  
+  // 3. Clean Brackets
+  sanitized = sanitized.replace(/\{.*?\}/gs, '');
+  
   return md.render(sanitized.trim());
 };
 
