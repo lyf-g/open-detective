@@ -39,18 +39,18 @@
       
       <!-- Causal Overlay (PPT Highlight 7) -->
       <transition name="fade">
-        <div v-if="showCause" class="cause-overlay" @click="showCause = false">
+        <div v-if="showCause && activeCause" class="cause-overlay" @click="showCause = false">
             <div class="cause-graph">
                 <div class="cause-title">PROBABILISTIC CAUSAL GRAPH (P(C|E))</div>
                 <div class="nodes">
-                    <div class="node root">Activity Spike</div>
-                    <div class="arrow">↓ (0.95)</div>
-                    <div class="node event">Release v3.4</div>
-                    <div class="arrow">↓ (0.82)</div>
-                    <div class="node outcome">Issue Increase</div>
+                    <div class="node root">{{ activeCause.root }}</div>
+                    <div class="arrow">↓ ({{ activeCause.prob1 }})</div>
+                    <div class="node event">{{ activeCause.event }}</div>
+                    <div class="arrow">↓ ({{ activeCause.prob2 }})</div>
+                    <div class="node outcome">{{ activeCause.outcome }}</div>
                 </div>
-                <div class="alt-path">
-                    <div class="connector">↳ (0.60) HackerNews Trend</div>
+                <div class="alt-path" v-if="activeCause.alt">
+                    <div class="connector">↳ ({{ activeCause.alt_prob }}) {{ activeCause.alt }}</div>
                 </div>
             </div>
         </div>
@@ -96,13 +96,29 @@ const props = defineProps<{
   data: any[];
   title?: string;
   theme?: 'light' | 'dark';
+  customCause?: any; // { root, event, outcome, prob1, prob2, alt }
 }>();
 
 const analyzing = ref(false);
 const anomalies = ref<any[]>([]);
 const showCause = ref(false);
+const activeCause = ref<any>(null);
 
 const analyzeCause = () => {
+    if (props.customCause) {
+        activeCause.value = props.customCause;
+    } else {
+        // Default Mock
+        activeCause.value = {
+            root: 'Activity Spike',
+            event: 'Feature Release',
+            outcome: 'Issue Increase',
+            prob1: 0.95,
+            prob2: 0.82,
+            alt: 'HackerNews Trend',
+            alt_prob: 0.60
+        };
+    }
     showCause.value = true;
 };
 
