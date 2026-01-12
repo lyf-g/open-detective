@@ -97,10 +97,10 @@
                   <span style="font-size: 10px; font-weight: bold;">{{ locale.toUpperCase() }}</span>
                 </el-button>
                 <el-button circle size="small" @click="showTerminal = !showTerminal" :type="showTerminal ? 'primary' : ''">
-                  <el-icon><Terminal /></el-icon>
+                  <el-icon><Odometer /></el-icon>
                 </el-button>
                 <el-button circle size="small" @click="startDemoProtocol" type="warning" plain>
-                  <el-icon><Lightning /></el-icon>
+                  <el-icon><Opportunity /></el-icon>
                 </el-button>
             </div>
             <div class="system-time">{{ currentTime }}</div>
@@ -365,8 +365,8 @@ import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
 import { useDark, useToggle } from '@vueuse/core';
 import { 
   User, Monitor, Download, Refresh, Share, Moon, Sunny,
-  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu, Switch, Warning, InfoFilled, Terminal,
-  CircleCheck, Lock, Timer, Lightning
+  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu, Switch, Warning, InfoFilled,
+  CircleCheck, Lock, Timer, Odometer, Opportunity
 } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 
