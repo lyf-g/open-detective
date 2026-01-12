@@ -76,6 +76,17 @@
             </el-scrollbar>
           </div>
 
+          <!-- Multi-Agent Grid (PPT Highlight 6) -->
+          <div class="agent-network">
+             <div class="network-title">MULTI-AGENT SWARM</div>
+             <div class="network-grid">
+                <div :class="['node', {active: activeAgent === 'router'}]">ROUTER</div>
+                <div :class="['node', {active: activeAgent === 'sql'}]">SQL</div>
+                <div :class="['node', {active: activeAgent === 'sec'}]">SEC</div>
+                <div :class="['node', {active: activeAgent === 'vis'}]">VIS</div>
+             </div>
+          </div>
+
           <div class="sidebar-footer">
             <div class="theme-switch" style="margin-bottom: 10px; text-align: center; display: flex; justify-content: center; gap: 10px;">
                 <el-button circle size="small" @click="toggleDark()">
@@ -363,6 +374,7 @@ const toggleDark = useToggle(isDark);
 const showTerminal = ref(false);
 const terminalLogs = ref<any[]>([]);
 const terminalRef = ref<HTMLElement | null>(null);
+const activeAgent = ref<string | null>(null);
 
 const addLog = (type: string, prefix: string, msg: string) => {
   const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
@@ -626,6 +638,13 @@ const sendMessage = async () => {
   userInput.value = '';
   loading.value = true;
 
+  // Simulate Agent Swarm
+  activeAgent.value = 'router';
+  setTimeout(() => activeAgent.value = 'sql', 800);
+  setTimeout(() => activeAgent.value = 'sec', 1800);
+  setTimeout(() => activeAgent.value = 'vis', 2800);
+  setTimeout(() => activeAgent.value = null, 4000);
+
   nextTick(() => {
     if (scrollRef.value) scrollRef.value.setScrollTop(100000);
   });
@@ -861,20 +880,19 @@ body {
 .log-type.warn { color: #e6a23c; }
 .log-msg { color: #aaa; }
 
-/* Evidence HUD */
-.evidence-hud {
-  display: flex;
-  gap: 20px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 8px 12px;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #333;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.7rem;
+/* Multi-Agent Grid */
+.agent-network { margin-top: 20px; border-top: 1px solid #333; padding-top: 15px; }
+.network-title { font-size: 0.65rem; color: #555; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; }
+.network-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.node {
+  background: #111; border: 1px solid #333; color: #444; font-size: 0.7rem; text-align: center; padding: 5px; border-radius: 4px; transition: all 0.3s;
+  font-weight: bold;
 }
-.hud-item { display: flex; align-items: center; gap: 5px; }
-.hud-item.success { color: #67c23a; }
-.hud-item.info { color: #00bcd4; }
+.node.active { color: #000; box-shadow: 0 0 10px currentColor; }
+.node:nth-child(1).active { background: #00bcd4; border-color: #00bcd4; color: #00bcd4; color: #000;} /* Router */
+.node:nth-child(2).active { background: #409eff; border-color: #409eff; color: #409eff; color: #000;} /* SQL */
+.node:nth-child(3).active { background: #e6a23c; border-color: #e6a23c; color: #e6a23c; color: #000;} /* SEC */
+.node:nth-child(4).active { background: #67c23a; border-color: #67c23a; color: #67c23a; color: #000;} /* VIS */
 
 .sidebar-header { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; cursor: pointer; }
 .logo { font-size: 2.2rem; }
