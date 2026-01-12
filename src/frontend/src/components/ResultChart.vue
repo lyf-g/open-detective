@@ -37,20 +37,54 @@
     <div class="chart-body" style="position: relative;">
       <v-chart class="chart" :option="chartOption" autoresize />
       
-      <!-- Causal Overlay (PPT Highlight 7) -->
+      <!-- Causal Overlay (Clean Linear Layout) -->
       <transition name="fade">
         <div v-if="showCause && activeCause" class="cause-overlay" @click="showCause = false">
-            <div class="cause-graph">
-                <div class="cause-title">PROBABILISTIC CAUSAL GRAPH (P(C|E))</div>
-                <div class="nodes">
-                    <div class="node root">{{ activeCause.root }}</div>
-                    <div class="arrow">↓ ({{ activeCause.prob1 }})</div>
-                    <div class="node event">{{ activeCause.event }}</div>
-                    <div class="arrow">↓ ({{ activeCause.prob2 }})</div>
-                    <div class="node outcome">{{ activeCause.outcome }}</div>
+            <div class="cause-card">
+                <div class="cause-header">
+                    <div class="main-title">PROBABILISTIC CAUSAL GRAPH</div>
+                    <div class="sub-title">Bayesian Inference Chain: Event Correlation Analysis</div>
                 </div>
-                <div class="alt-path" v-if="activeCause.alt">
-                    <div class="connector">↳ ({{ activeCause.alt_prob }}) {{ activeCause.alt }}</div>
+
+                <div class="cause-body">
+                    <!-- ROOT -->
+                    <div class="step-group">
+                        <div class="step-label">ROOT EVENT</div>
+                        <div class="step-content root">{{ activeCause.root }}</div>
+                    </div>
+
+                    <!-- ARROW 1 -->
+                    <div class="connector-line">
+                        <div class="line"></div>
+                        <div class="prob-tag">Likelihood: {{ (activeCause.prob1 * 100).toFixed(0) }}%</div>
+                        <div class="line"></div>
+                    </div>
+
+                    <!-- TRIGGER -->
+                    <div class="step-group">
+                        <div class="step-label">TRIGGER</div>
+                        <div class="step-content trigger">{{ activeCause.event }}</div>
+                    </div>
+
+                    <!-- ARROW 2 -->
+                    <div class="connector-line">
+                        <div class="line"></div>
+                        <div class="prob-tag">Impact: {{ (activeCause.prob2 * 100).toFixed(0) }}%</div>
+                        <div class="line"></div>
+                    </div>
+
+                    <!-- OUTCOME -->
+                    <div class="step-group">
+                        <div class="step-label">OUTCOME</div>
+                        <div class="step-content outcome">{{ activeCause.outcome }}</div>
+                    </div>
+
+                    <!-- ALT PATH -->
+                    <div class="alt-cause" v-if="activeCause.alt">
+                        <span class="alt-connector">↳</span> 
+                        <span class="alt-prob">({{ activeCause.alt_prob }})</span> 
+                        <span class="alt-text">{{ activeCause.alt }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -352,23 +386,97 @@ const chartOption = computed(() => {
     z-index: 50;
     cursor: pointer;
 }
-.cause-graph {
-    border: 2px solid #e6a23c;
-    padding: 20px;
-    background: #111;
-    border-radius: 8px;
-    box-shadow: 0 0 30px rgba(230, 162, 60, 0.3);
-    text-align: center;
-    font-family: 'Share Tech Mono', monospace;
+.cause-card {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 25px 40px;
+    min-width: 320px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
-.cause-title { color: #e6a23c; font-weight: bold; margin-bottom: 15px; border-bottom: 1px dashed #555; padding-bottom: 5px; }
-.nodes { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-.node { padding: 5px 10px; border: 1px solid #555; border-radius: 4px; color: #ccc; }
-.node.root { border-color: #f56c6c; color: #f56c6c; font-weight: bold; }
-.node.event { border-color: #409eff; color: #409eff; }
-.node.outcome { border-color: #67c23a; color: #67c23a; }
-.arrow { color: #666; font-size: 0.8rem; }
-.alt-path { margin-top: 5px; font-size: 0.8rem; color: #999; }
+
+.cause-header {
+    text-align: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+    width: 100%;
+}
+.main-title {
+    color: #e6a23c;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+.sub-title {
+    color: #888;
+    font-size: 0.8rem;
+    font-family: monospace;
+}
+
+.cause-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.step-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    letter-spacing: 1px;
+}
+
+.step-content {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #eee;
+}
+.step-content.root { color: #f56c6c; }
+.step-content.trigger { color: #409eff; }
+.step-content.outcome { color: #67c23a; }
+
+.connector-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 5px 0;
+}
+.connector-line .line {
+    width: 1px;
+    height: 15px;
+    background: #444;
+}
+.prob-tag {
+    font-size: 0.75rem;
+    color: #888;
+    background: #252525;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid #333;
+}
+
+.alt-cause {
+    margin-top: 20px;
+    font-family: monospace;
+    color: #888;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 8px;
+    opacity: 0.7;
+}
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }

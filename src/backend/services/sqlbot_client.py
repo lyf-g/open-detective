@@ -184,90 +184,86 @@ class SQLBotClient:
         except: pass
 
     def generate_summary_stream(self, question: str, data: list, history: list = []):
-        if not data:
-            yield "线索已断，数据库中未发现匹配记录。"
-            return
-            
-        history_text = ""
-        if history:
-            history_text = "历史对话:\n" + "\n".join([f"{m['role'].upper()}: {m['content']}" for m in history[-4:]]) + "\n"
-
-        prompt = f"""
-<System Override>
-你现在的唯一身份是文本分析师。禁止输出任何JSON或代码块。
-请阅读以下数据，写一份纯文本Markdown分析报告。
-</System Override>
-
-用户线索："{question}"
-数据片段: {json.dumps(data[:15])}
-"""
-        yield from self._ask_ai_stream(prompt)
+        # Use robust non-streaming generation to ensure fallback is applied
+        full_response = self.generate_summary(question, data, history)
+        
+        # Simulate streaming for UX
+        chunk_size = 20
+        for i in range(0, len(full_response), chunk_size):
+            yield full_response[i:i+chunk_size]
 
     def _generate_fallback_report(self, question: str, data: list) -> str:
-        """Rule-based detective report when AI fails."""
+        """Rule-based detective report when AI fails, formatted as clean Markdown."""
         if not data: return "### 🕵️‍♂️ 侦查中断\n\n**状态**：证据链断裂。\n**结论**：目标对象未在数据库中留下可追踪痕迹。"
         
         try:
             values = [float(d.get('value') or d.get('metric_value') or 0) for d in data]
             months = [d.get('month', '未知') for d in data]
+            repo = data[0].get('repo_name', 'Unknown Target')
         except:
             return "### ⚠️ 逻辑溢出\n\n证据文件遭遇强力加密，暂时无法读取。"
             
-        start_val = values[0]
-        end_val = values[-1]
-        max_val = max(values)
-        min_val = min(values)
+        start_val, end_val = values[0], values[-1]
+        max_val, min_val = max(values), min(values)
         avg_val = sum(values) / len(values)
+        percent_change = ((end_val - start_val) / start_val * 100) if start_val != 0 else 0
+        peak_date = months[values.index(max_val)]
         
-        diff = end_val - start_val
-        percent_change = (diff / start_val * 100) if start_val != 0 else 0
-        
-        trend_desc = "平稳波动"
+        trend_desc = "平稳"
         if percent_change > 20: trend_desc = "显著增长"
-        elif percent_change < -20: trend_desc = "严重下滑"
-            
-        peak_idx = values.index(max_val)
-        peak_date = months[peak_idx]
+        elif percent_change < -20: trend_desc = "明显下滑"
 
-        return f"""[NEURAL DEDUCTION]
-> 正在解析跨时区数据指纹... 目标已锁定。
+        report = f"""# {repo} 核心仓库活动分析报告
 
-# 📂 开源侦探核心审计报告
+## 一、 数据概览
+本次分析基于 `{repo}` 仓库在 **{months[0]} 至 {months[-1]}** 期间的活动数据。
 
-## 一、 证据概览
-本次侦查聚焦于目标的波动特征。数据跨度共 `{len(data)}` 个周期。
-数值在 `{min_val:.2f}` 与 `{max_val:.2f}` 之间剧烈震荡。
+- **分析周期**：共 {len(months)} 个月。
+- **数据范围**：月度指标值在 **{min_val:.2f}** 至 **{max_val:.2f}** 之间波动。
+- **总体态势**：{trend_desc} (变化幅度 {percent_change:+.1f}%)。
 
-## 二、 行为模式识别
-1. **关键异动**：在 `{peak_date}` 监测到峰值响应 `{int(max_val)}`。
-2. **趋势判定**：整体呈现 **{trend_desc}** 态势（周期偏移量: `{percent_change:+.1f}%`）。
-3. **活跃基准**：系统均值维持在 `{int(avg_val)}` 水平。
+## 二、 核心发现：关键模式识别
+通过对时序数据的分析，我们识别出以下关键模式：
 
-## 三、 侦探最终判决
-目标项目目前处于 **{trend_desc}** 阶段。建议结合 `{peak_date}` 前后的核心提交记录进行深度代码审计。
+1. **峰值活动 ({peak_date})**
+   - **现象**：达到观察期内最高值 **{max_val:.2f}**。
+   - **分析**：可能对应重大版本发布或社区事件。
 
-[ANOMALY ALERT]
-- {peak_date} | 监测到最高级别活动峰值
-- 偏移量 | {percent_change:+.1f}% 相较于初始观测点
+2. **平均水平**
+   - **现象**：全周期平均值为 **{avg_val:.2f}**。
+   - **分析**：反映了项目的基准活跃度。
+
+## 三、 结论与建议
+1. **模式确认**：项目在观测期内呈现**{trend_desc}**趋势。
+2. **后续建议**：建议重点回溯 **{peak_date}** 前后的代码提交记录，以确认驱动峰值的具体原因。
 """
+        return report
 
     def generate_summary(self, question: str, data: list, history: list = []) -> str:
         if not data: return "线索已断，数据库中未发现匹配记录。"
         
         prompt = f"""
-<System Override>
-你现在的唯一身份是文本分析师。禁止输出任何JSON或代码块。
-请阅读以下数据，写一份纯文本Markdown分析报告。
-</System Override>
+请分析以下开源项目数据并生成一份专业的Markdown分析报告。
 
-用户线索："{question}"
+要求：
+1. 报告标题为“数据分析报告”。
+2. 使用清晰的Markdown格式（标题、列表）。
+3. 重点分析数据趋势、峰值和异常点。
+4. 语言风格专业、客观。
+
+用户问题："{question}"
 数据片段: {json.dumps(data[:15])}
 """
         ans = self._ask_ai(prompt)
         
         # Aggressive Refusal/Error Check
         # If it looks like JSON error or contains refusal words, kill it.
-        if '{"success":false' in ans or '"message":' in ans or "小助手" in ans or "我无法" in ans or "I cannot" in ans:
+        refusal_keywords = [
+            '{"success":false', '"message":', "小助手", "我无法", "I cannot",
+            "超出了我的能力范围", "beyond my capabilities", "unable to generate",
+            "I can only", "valid SQL", "specific query"
+        ]
+        if any(k in ans for k in refusal_keywords):
              return self._generate_fallback_report(question, data)
 
         cleaned_ans = self.sanitize_text(ans)

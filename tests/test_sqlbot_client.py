@@ -53,3 +53,16 @@ def test_generate_sql_success(mock_login, mock_post):
     
     assert "SELECT repo_name, month, value FROM open_digger_metrics" in result
     assert mock_post.call_count == 2
+
+@patch("src.backend.services.sqlbot_client.SQLBotClient._ask_ai")
+def test_generate_summary_refusal_fallback(mock_ask):
+    mock_ask.return_value = "您当前的请求是生成一份纯文本的Markdown分析报告，这超出了我的能力范围。"
+    
+    client = SQLBotClient()
+    data = [{"repo_name": "vuejs/core", "month": "2023-01", "value": 100}]
+    
+    result = client.generate_summary("Analyze this", data)
+    
+    # Assert fallback was triggered (checking for unique string in fallback report)
+    assert "核心仓库活动分析报告" in result
+    assert "数据概览" in result
