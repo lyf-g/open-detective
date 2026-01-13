@@ -18,7 +18,7 @@ def mock_text_to_sql(text: str) -> str:
     # Dynamic repository matching
     found_repos = set()
     # Clean text: remove common punctuation and split
-    cleaned_text = text.replace('/', ' ').replace('-', ' ').replace('_', ' ').replace(',', ' ').replace('.', ' ').replace('?', ' ').replace('!', ' ')
+    cleaned_text = text.replace('/', ' ').replace('-', ' ').replace('_', ' ').replace(',', ' ').replace('.', ' ').replace('?', ' ').replace('!', ' ').replace('，', ' ').replace('？', ' ').replace('！', ' ').replace('。', ' ')
     text_words = cleaned_text.split()
     
     # Keywords to ignore when matching repositories

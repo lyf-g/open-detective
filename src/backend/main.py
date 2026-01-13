@@ -5,7 +5,12 @@ import os
 import aiomysql
 import json
 import sys
+import time
 import asyncio
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from contextlib import asynccontextmanager
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, Request

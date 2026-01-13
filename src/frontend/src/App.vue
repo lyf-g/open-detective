@@ -121,7 +121,7 @@
                     <template #image>
                       <div class="neon-circle">🔍</div>
                     </template>
-                    <p class="hint">Select a session or start a new investigation.</p>
+                    <p class="hint">Type your query below or select a suggested topic to begin.</p>
                     <SuggestedQuestions @select="handleSuggestion" />
                   </el-empty>
                 </div>

@@ -27,6 +27,13 @@ class Settings(BaseSettings):
     SQLBOT_DATASOURCE_ID: int = 1
     SQLBOT_API_KEY: str = ""
     
+    @field_validator("ANOMALY_THRESHOLD")
+    @classmethod
+    def check_threshold(cls, v: float) -> float:
+        if v <= 0:
+            raise ValueError("ANOMALY_THRESHOLD must be positive")
+        return v
+
     @field_validator("DB_POOL_MAX")
     @classmethod
     def check_pool_size(cls, v: int, info) -> int:

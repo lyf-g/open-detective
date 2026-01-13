@@ -1,3 +1,7 @@
+"""
+DEPRECATED: This module provides synchronous DB connections.
+Please use src.backend.main.app.state.pool (aiomysql) for async operations.
+"""
 import os
 import mysql.connector
 import time
