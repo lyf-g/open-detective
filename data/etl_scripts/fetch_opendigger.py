@@ -12,6 +12,8 @@ DB_NAME = os.getenv("DB_NAME", "open_detective")
 BASE_URL = "https://oss.x-lab.info/open_digger/github"
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), '../repos.json')
 
+from typing import List, Dict, Optional, Any
+
 def get_db_connection():
     return mysql.connector.connect(
         host=DB_HOST,
@@ -20,7 +22,7 @@ def get_db_connection():
         database=DB_NAME
     )
 
-def load_repos():
+def load_repos() -> List[str]:
     try:
         with open(CONFIG_PATH, 'r') as f:
             return json.load(f)
@@ -30,7 +32,7 @@ def load_repos():
 
 METRICS = ["stars", "activity", "openrank", "bus_factor", "issues_new", "issues_closed"]
 
-def fetch_metric(repo, metric):
+def fetch_metric(repo: str, metric: str) -> Optional[Dict[str, Any]]:
     url = f"{BASE_URL}/{repo}/{metric}.json"
     try:
         response = requests.get(url, timeout=10)
@@ -40,7 +42,7 @@ def fetch_metric(repo, metric):
         print(f"❌ Error fetching {url}: {e}")
     return None
 
-def transform_and_load(repo, metric, data):
+def transform_and_load(repo: str, metric: str, data: Dict[str, Any]):
     if not data: return
     records = []
     for month, value in data.items():
@@ -70,7 +72,7 @@ def transform_and_load(repo, metric, data):
 
 import argparse
 
-def save_repo_to_config(repo):
+def save_repo_to_config(repo: str):
     repos = load_repos()
     if repo not in repos:
         repos.append(repo)
@@ -81,7 +83,7 @@ def save_repo_to_config(repo):
         except Exception as e:
             print(f"❌ Failed to update config: {e}")
 
-def run_etl(specific_repos=None):
+def run_etl(specific_repos: Optional[List[str]] = None):
     print("🚀 Starting OpenDigger MySQL ETL...")
     repos = specific_repos if specific_repos else load_repos()
     

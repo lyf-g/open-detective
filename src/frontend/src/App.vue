@@ -376,7 +376,7 @@ import { ElMessage, ElMessageBox, ElLoading } from 'element-plus';
 import { useDark, useToggle } from '@vueuse/core';
 import { 
   User, Monitor, Download, Refresh, Share, Moon, Sunny,
-  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, Microphone, MapLocation, ChatDotRound, Loading, Search, Cpu, Switch, Warning, InfoFilled,
+  DataLine, CopyDocument, Connection, Promotion, Delete, Aim, MapLocation, ChatDotRound, Loading, Search, Cpu, Warning, InfoFilled,
   CircleCheck, Lock, Timer, Odometer, Opportunity
 } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';

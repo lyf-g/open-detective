@@ -49,6 +49,7 @@ def run_sqlbot_init():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    start_time = time.time()
     configure_logger()
     check_system_integrity()
 
@@ -94,6 +95,9 @@ async def lifespan(app: FastAPI):
         logger.critical("Could not connect to MySQL after multiple attempts. Exiting.")
         raise RuntimeError("Database connection failed")
 
+    duration = time.time() - start_time
+    logger.info(f"Startup complete in {duration:.2f}s")
+
     yield
     if scheduler:
         scheduler.shutdown()
@@ -123,7 +127,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:8080", "http://localhost:8082", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

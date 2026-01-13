@@ -35,7 +35,7 @@
     </div>
     
     <div class="chart-body" style="position: relative;">
-      <v-chart class="chart" :option="chartOption" autoresize />
+      <v-chart class="chart" :option="chartOption" autoresize :loading="!data || data.length === 0" />
       
       <!-- Causal Overlay (Clean Linear Layout) -->
       <transition name="fade">
