@@ -22,8 +22,8 @@
           <div class="sidebar-header" @click="reloadPage">
             <span class="logo">🕵️‍♂️</span>
             <div class="title-group">
-              <h1 class="main-title">{{ t('app.title') }}</h1>
-              <span class="sub-title">{{ t('app.subtitle') }}</span>
+              <h1 class="main-title">OPEN-DETECTIVE</h1>
+              <span class="sub-title">AUTONOMOUS INSIGHT ENGINE</span>
             </div>
           </div>
 

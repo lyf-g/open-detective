@@ -5,6 +5,8 @@ import requests
 
 router = APIRouter()
 
+from datetime import datetime
+
 @router.get("/health", response_model=HealthResponse)
 async def health_check(request: Request):
     db_status = False
@@ -24,9 +26,10 @@ async def health_check(request: Request):
     
     return {
         "status": "ok", 
-        "version": "0.1.0", 
+        "version": "1.0.0", 
         "db_connected": db_status,
-        "details": pool_info
+        "details": pool_info,
+        "timestamp": datetime.utcnow().isoformat()
     }
 
 @router.get("/sqlbot-health")

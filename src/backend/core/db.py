@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from src.backend.services.logger import logger
 
 def get_db_connection():
+    logger.warning("Using synchronous DB connection (Deprecated). Prefer app.state.pool.")
     return mysql.connector.connect(
         host=os.getenv("DB_HOST", "localhost"),
         user=os.getenv("DB_USER", "root"),

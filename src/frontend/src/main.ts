@@ -20,6 +20,12 @@ axios.interceptors.response.use(
 
 const app = createApp(App)
 
+app.config.errorHandler = (err, vm, info) => {
+  console.error('[Open-Detective Error]', err);
+  console.error('[Vue Info]', info);
+  // Optional: Send to backend logging endpoint
+};
+
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }

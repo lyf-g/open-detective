@@ -1,6 +1,8 @@
+# Copyright (c) 2026 Open-Detective Contributors
+# Licensed under the MIT License. See LICENSE file for details.
+
 import os
 import aiomysql
-import time
 import json
 import sys
 import asyncio
@@ -13,6 +15,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.backend.services.logger import configure_logger, logger
@@ -100,8 +103,21 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Open-Detective API",
-    description="Backend for Open-Detective",
-    version="0.1.0",
+    description="""
+    ## 🕵️‍♂️ Open-Detective: The Autonomous Open Source Insight Engine
+
+    **Key Capabilities:**
+    - **Natural Language Inquiry**: Chat with your data using SQLBot.
+    - **Neural Deduction**: Automated insights and anomaly detection.
+    - **Root Cause Analysis**: Bayesian inference for event correlation.
+    
+    Powered by FastAPI, AsyncIO, and OpenDigger.
+    """,
+    version="1.0.0",
+    contact={
+        "name": "Open-Detective Team",
+        "url": "https://github.com/lyf-g/open-detective"
+    },
     lifespan=lifespan
 )
 
@@ -113,7 +129,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(CorrelationIdMiddleware)
+
+# Security Headers
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    return response
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -139,6 +165,11 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 app.include_router(api_router, prefix="/api/v1")
 
-@app.get("/")
+@app.get("/", tags=["System"])
 def read_root():
-    return {"message": "Open-Detective Backend is running!"}
+    return {
+        "system": "Open-Detective",
+        "status": "operational",
+        "version": "1.0.0",
+        "motto": "Don't just query. Investigate."
+    }

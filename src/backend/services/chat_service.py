@@ -21,12 +21,15 @@ def detect_anomalies(data: list) -> list:
         change = (curr - prev) / prev
         if abs(change) > threshold:
             type_label = "SPIKE" if change > 0 else "DROP"
-            anomalies.append({
+            anomaly = {
                 "month": data[i].get('month'),
                 "repo": repo,
                 "type": type_label,
-                "intensity": f"{abs(change)*100:.1f}%"
-            })
+                "intensity": f"{abs(change)*100:.1f}%",
+                "z_score": abs(change) * 2 # Mock Z-score for now
+            }
+            anomalies.append(anomaly)
+            logger.info("Anomaly Detected", **anomaly)
     return anomalies[:3]
 
 class ChatService:

@@ -5,6 +5,7 @@ import json
 import base64
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 ENDPOINT = os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
 USERNAME = os.getenv("SQLBOT_USERNAME", "admin")
@@ -166,6 +167,7 @@ def configure_llm(token):
     except Exception as e:
         print(f"❌ LLM config failed: {e}")
 
+@retry(stop=stop_after_attempt(5), wait=wait_fixed(5))
 def main():
     # Allow manually disabling via env
     if os.getenv("SQLBOT_AUTO_CONFIG", "false").lower() != "true":

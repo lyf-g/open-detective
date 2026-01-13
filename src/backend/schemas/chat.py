@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Dict, Optional, Any
 from datetime import datetime
 
@@ -7,6 +7,7 @@ class ChatRequest(BaseModel):
     session_id: Optional[str] = None
 
 class Session(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     title: str
     created_at: datetime
@@ -29,6 +30,7 @@ class HealthResponse(BaseModel):
     version: str
     db_connected: bool
     details: Optional[Dict[str, Any]] = None
+    timestamp: Optional[str] = None
 
 class FeedbackRequest(BaseModel):
     session_id: str
