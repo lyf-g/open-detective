@@ -715,13 +715,13 @@ const renderMarkdown = (content: string) => {
   if (sanitized.includes('[NEURAL DEDUCTION]') || sanitized.includes('NEURAL DEDUCTION')) {
       sanitized = sanitized.replace(
           /(\*\*|__)?\[?NEURAL DEDUCTION\]?(\*\*|__)?/g, 
-          `<div class="analysis-card deduction"><div class="card-title">🧠 NEURAL DEDUCTION</div><div class="card-content">`
+          `<div class="analysis-card deduction"><div class="card-title">🧠 NEURAL DEDUCTION</div><div class="card-content">\n\n`
       );
       
       if (sanitized.includes('[ANOMALY ALERT]') || sanitized.includes('ANOMALY DETECTED')) {
           sanitized = sanitized.replace(
               /(\*\*|__)?\[?(ANOMALY ALERT|ANOMALY DETECTED)\]?(\*\*|__)?/g, 
-              `</div></div><div class="analysis-card anomaly"><div class="card-title">🚨 ANOMALY DETECTED</div><div class="card-content">`
+              `</div></div><div class="analysis-card anomaly"><div class="card-title">🚨 ANOMALY DETECTED</div><div class="card-content">\n\n`
           );
       }
       sanitized += '</div></div>'; 
