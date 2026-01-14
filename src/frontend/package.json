@@ -13,7 +13,7 @@
     "@types/markdown-it": "^14.1.2",
     "@vueuse/core": "^14.1.0",
     "axios": "^1.6.0",
-    "echarts": "^5.5.0",
+    "echarts": "^6.0.0",
     "echarts-gl": "^2.0.9",
     "echarts-wordcloud": "^2.1.0",
     "element-plus": "^2.13.0",
