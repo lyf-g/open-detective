@@ -38,4 +38,4 @@ sqlparse
 redis
 prometheus-fastapi-instrumentator
 cryptography
-mypy==1.8.0
+mypy==1.19.1
