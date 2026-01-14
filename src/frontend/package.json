@@ -16,7 +16,7 @@
     "echarts": "^5.5.0",
     "echarts-gl": "^2.0.9",
     "echarts-wordcloud": "^2.1.0",
-    "element-plus": "^2.13.0",
+    "element-plus": "^2.13.1",
     "highlight.js": "^11.11.1",
     "lucide-vue-next": "^0.562.0",
     "markdown-it": "^14.1.0",
