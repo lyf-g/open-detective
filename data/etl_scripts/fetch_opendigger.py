@@ -12,6 +12,7 @@ DB_NAME = os.getenv("DB_NAME", "open_detective")
 
 BASE_URL = "https://oss.x-lab.info/open_digger/github"
 CONFIG_PATH = Path(__file__).parent.parent / "repos.json"
+DEFAULT_TIMEOUT = 10
 
 from typing import List, Dict, Optional, Any
 
@@ -36,7 +37,7 @@ METRICS = ["stars", "activity", "openrank", "bus_factor", "issues_new", "issues_
 def fetch_metric(repo: str, metric: str) -> Optional[Dict[str, Any]]:
     url = f"{BASE_URL}/{repo}/{metric}.json"
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=DEFAULT_TIMEOUT)
         if response.status_code == 200:
             return response.json()
     except Exception as e:
