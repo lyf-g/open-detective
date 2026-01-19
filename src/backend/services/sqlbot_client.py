@@ -36,6 +36,9 @@ class SQLBotClient:
         self.timeout = settings.SQLBOT_TIMEOUT
         self.repo_list = settings.ALLOWED_REPOS
 
+    def __repr__(self) -> str:
+        return f"SQLBotClient(endpoint='{self.endpoint}', datasource_id={self.datasource_id})"
+
     def _get_public_key(self) -> str:
         url = f"{self.endpoint}/api/v1/system/config/key"
         try:
