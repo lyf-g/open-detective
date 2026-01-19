@@ -8,7 +8,7 @@ from src.backend.core.config import settings
 from src.backend.services.analytics import forecast_next_months
 from src.backend.services.sql_validator import validate_sql
 
-def detect_anomalies(data: list) -> list:
+def detect_anomalies(data: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Scans data for significant spikes or drops."""
     if len(data) < 3: return []
     threshold = settings.ANOMALY_THRESHOLD
