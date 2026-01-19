@@ -74,25 +74,27 @@ class SQLBotClient:
         pk = self._get_public_key()
         if not pk:
             return None
+        payload = {
+            "username": self._encrypt_rsa(self.username, pk),
+            "password": self._encrypt_rsa(self.password, pk),
+            "grant_type": "password",
+        }
         try:
             res = requests.post(
-                f"{self.endpoint}/api/v1/login/access-token",
-                data={
-                    "username": self._encrypt_rsa(self.username, pk),
-                    "password": self._encrypt_rsa(self.password, pk),
-                    "grant_type": "password",
-                },
-                timeout=self.timeout,
+                f"{self.endpoint}/api/v1/login/access-token", data=payload, timeout=self.timeout,
             )
-            if res.status_code == 200:
-                token = res.json().get("data", {}).get(
-                    "access_token",
-                ) or res.json().get("access_token")
-                SQLBotClient._cached_token = token
-                return token
-            logger.error("login_failed", status_code=res.status_code, body=res.text)
         except Exception as e:
             logger.error("login_exception", error=str(e))
+            return None
+
+        if res.status_code == 200:
+            token = res.json().get("data", {}).get(
+                "access_token",
+            ) or res.json().get("access_token")
+            SQLBotClient._cached_token = token
+            return token
+        
+        logger.error("login_failed", status_code=res.status_code, body=res.text)
         return None
 
     def _get_headers(self) -> dict[str, str]:
