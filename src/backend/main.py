@@ -104,8 +104,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     if not pool:
         logger.critical("Could not connect to MySQL after multiple attempts. Exiting.")
-        err_msg = "Database connection failed"
-        raise RuntimeError(err_msg)
+        sys.exit(1)
 
     duration = time.time() - start_time
     logger.info(f"Startup complete in {duration:.2f}s")
