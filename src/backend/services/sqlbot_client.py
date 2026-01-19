@@ -105,12 +105,12 @@ class SQLBotClient:
         # 1. Clean JSON artifacts first
         text = re.sub(r"\{\"success\":.*?\}(?=\s|SELECT|$)", "", text, flags=re.DOTALL)
         # 2. Extract SQL block
-        match = re.search(r"```sql\n?(.*?)\n?```", text, re.DOTALL | re.IGNORECASE)
+        match = re.search(r"```sql\s*\n?(.*?)\n?\s*```", text, re.DOTALL | re.IGNORECASE)
         if match:
             return match.group(1).strip()
         # 3. Extract raw SELECT
         match = re.search(
-            r"(SELECT\s+.*?(?:LIMIT\s+\d+|;))", text, re.DOTALL | re.IGNORECASE,
+            r"(SELECT\s+.*?(?:LIMIT\s+\d+|;|$))", text, re.DOTALL | re.IGNORECASE,
         )
         if match:
             return match.group(1).split("execute-success")[0].strip()
