@@ -105,7 +105,7 @@ async def chat_stream(request: Request, payload: ChatRequest):
 @router.post("/feedback", summary="Submit Feedback", tags=["chat"])
 async def collect_feedback(payload: FeedbackRequest):
     entry = payload.model_dump()
-    entry["timestamp"] = str(datetime.now())
+    entry["timestamp"] = str(datetime.now(timezone.utc))
     os.makedirs("data", exist_ok=True)
     with open("data/feedback.jsonl", "a") as f:
         f.write(json.dumps(entry) + "\n")
