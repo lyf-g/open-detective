@@ -22,9 +22,9 @@ class SQLBotClient:
     def __init__(self, endpoint: str | None = None):
         self.endpoint = endpoint or settings.SQLBOT_ENDPOINT
         self.username = settings.SQLBOT_USERNAME
-        self.password = settings.SQLBOT_PASSWORD
+        self.password = settings.SQLBOT_PASSWORD.get_secret_value()
         self.datasource_id = settings.SQLBOT_DATASOURCE_ID
-        self.static_token = settings.SQLBOT_API_KEY
+        self.static_token = settings.SQLBOT_API_KEY.get_secret_value()
         self.timeout = settings.SQLBOT_TIMEOUT
         self.repo_list = settings.ALLOWED_REPOS
 
