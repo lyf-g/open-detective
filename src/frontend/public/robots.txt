@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Open-Detective Crawler Policy
+Disallow: /api/
