@@ -66,6 +66,11 @@ class SentimentResponse(BaseModel):
     keywords: list[dict[str, Any]]
 
 
+class AnomalyResponse(BaseModel):
+    anomalies: list[dict[str, Any]]
+    count: int
+
+
 @router.post("/analytics/anomalies", summary="Detect Anomalies", response_model=AnomalyResponse)
 async def check_anomalies(payload: AnomalyRequest):
     """Detect statistical anomalies in provided time-series data."""
