@@ -45,10 +45,10 @@ class SQLBotClient:
         try:
             res = requests.get(url, timeout=self.timeout)
             if res.status_code == 200:
-                data = res.json().get("data")
+                data = res.json().get("data", {})
                 if isinstance(data, dict):
-                    return data.get("public_key") or data.get("publicKey") or ""
-                return data
+                    return str(data.get("public_key") or data.get("publicKey") or "")
+                return str(data)
         except Exception as e:
             logger.error("failed_to_get_public_key", error=str(e), url=url)
         return ""
