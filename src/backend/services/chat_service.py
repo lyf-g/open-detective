@@ -34,7 +34,7 @@ def detect_anomalies(data: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 class ChatService:
     @staticmethod
-    async def save_user_message(pool, session_id: str, message: str):
+    async def save_user_message(pool: Any, session_id: str, message: str):
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
                 await cur.execute("INSERT INTO messages (session_id, role, content) VALUES (%s, %s, %s)", (session_id, 'user', message))
@@ -48,7 +48,7 @@ class ChatService:
                     await cur.execute("UPDATE sessions SET title = %s WHERE id = %s", (title, session_id))
 
     @staticmethod
-    async def save_assistant_message(pool, session_id: str, answer: str, sql: str, data: list[dict[str, Any]]):
+    async def save_assistant_message(pool: Any, session_id: str, answer: str, sql: str, data: list[dict[str, Any]]):
         evidence_data_json = json.dumps(data, default=str) if data else None
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
@@ -58,7 +58,7 @@ class ChatService:
                 )
 
     @staticmethod
-    async def get_history(pool, session_id: str) -> list[dict[str, Any]]:
+    async def get_history(pool: Any, session_id: str) -> list[dict[str, Any]]:
         try:
             async with pool.acquire() as conn:
                 async with conn.cursor() as cur:
@@ -68,7 +68,7 @@ class ChatService:
         except: return []
 
     @staticmethod
-    async def process_request(message: str, history: list[dict[str, Any]], pool) -> Tuple[str, list[dict[str, Any]], str, str, list[str]]:
+    async def process_request(message: str, history: list[dict[str, Any]], pool: Any) -> Tuple[str, list[dict[str, Any]], str, str, list[str]]:
         engine_type_raw = settings.SQL_ENGINE_TYPE
         engine_type = engine_type_raw.split('#')[0].strip().lower()
         repair_logs = []
