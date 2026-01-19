@@ -46,7 +46,7 @@ packaging==25.0
 pluggy==1.6.0
 pydantic_core==2.41.5
 Pygments==2.19.2
-starlette==0.50.0
+starlette==0.52.1
 typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.6.2
