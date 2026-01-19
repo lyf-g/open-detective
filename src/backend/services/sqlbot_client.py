@@ -55,7 +55,7 @@ class SQLBotClient:
         return ""
 
     def _encrypt_rsa(self, text: str, public_key_str: str) -> str:
-        if not public_key_str or not isinstance(public_key_str, str):
+        if not public_key_str:
             return text
         try:
             key = RSA.importKey(public_key_str)
