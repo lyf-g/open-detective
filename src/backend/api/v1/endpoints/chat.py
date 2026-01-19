@@ -102,7 +102,7 @@ async def chat_stream(request: Request, payload: ChatRequest):
 
     return StreamingResponse(event_generator(), media_type="application/x-ndjson")
 
-@router.post("/feedback", summary="Submit Feedback", tags=["chat"])
+@router.post("/feedback", summary="Submit Feedback", tags=["chat"], response_description="Acknowledgement of feedback receipt.")
 async def collect_feedback(payload: FeedbackRequest):
     entry = payload.model_dump()
     entry["timestamp"] = str(datetime.now(timezone.utc))
