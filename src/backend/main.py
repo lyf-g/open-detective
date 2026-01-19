@@ -33,7 +33,7 @@ from src.backend.services.logger import configure_logger, logger
 load_dotenv()
 
 
-def check_system_integrity() -> None:
+def ensure_system_integrity() -> None:
     """Ensure critical configuration files exist."""
     base_dir = Path(__file__).parent.parent.parent
     data_dir = base_dir / "data"
@@ -61,7 +61,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     start_time = time.time()
     configure_logger()
     logger.info("System initializing", python_path=sys.path)
-    check_system_integrity()
+    ensure_system_integrity()
 
     # Trigger SQLBot Init in background
     asyncio.create_task(asyncio.to_thread(run_sqlbot_init))
