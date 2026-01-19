@@ -56,7 +56,7 @@ def run_sqlbot_init() -> None:
     """Run the SQLBot auto-configuration script."""
     script_path = (Path(__file__).parent.parent.parent / "data" / "etl_scripts" / "init_sqlbot.py").resolve()
     try:
-        logger.info("Starting SQLBot auto-configuration...")
+        logger.info("Starting SQLBot auto-configuration...", script_path=str(script_path))
         subprocess.run([sys.executable, str(script_path)], check=True)
         logger.info("SQLBot auto-configuration finished.")
     except Exception as e:
