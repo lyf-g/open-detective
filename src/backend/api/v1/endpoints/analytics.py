@@ -46,16 +46,16 @@ class SentimentRequest(BaseModel):
 
 
 @router.post("/analytics/anomalies", summary="Detect Anomalies")
-async def check_anomalies(request: AnomalyRequest):
+async def check_anomalies(payload: AnomalyRequest):
     """Detect statistical anomalies in provided time-series data."""
-    results = detect_anomalies(request.data, request.threshold)
+    results = detect_anomalies(payload.data, payload.threshold)
     return {"anomalies": results, "count": len(results)}
 
 
 @router.post("/analytics/dossier", summary="Get Suspect Dossier", response_model=DossierResponse)
-async def get_suspect_dossier(request: DossierRequest):
+async def get_suspect_dossier(payload: DossierRequest):
     """Generate a psychological and skill profile for a given GitHub contributor."""
-    user = request.username
+    user = payload.username
     # Mock Dossier Generation (In real app, query GitHub/OpenDigger user metrics)
 
     codenames = {
