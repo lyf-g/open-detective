@@ -52,24 +52,27 @@ Traditional dashboards show you **What** happened. Open-Detective tells you **Wh
 
 ## 🚀 Quick Start (快速启动)
 
-### 1. Boot up the Command Center
+### 1. Configure Environment
+Copy the example environment file and customize it:
+```bash
+cp .env.example .env
+```
+
+### 2. Boot up the Command Center
 Launch the entire stack with a single command:
 ```bash
 docker-compose up --build -d
 ```
 
-### 2. Initialize the Evidence Room
+### 3. Initialize Evidence Data
 Populate your database with real-world history from 50+ top-tier open source projects:
 ```bash
-# Initialize schema and load 50+ top repos' historical data
+# Wait 10s for DB to be ready, then:
 docker-compose exec backend python data/etl_scripts/fetch_opendigger.py
 ```
 
-### 3. Smart SQLBot Auto-Config
-Set `SQLBOT_AUTO_CONFIG=true` in `.env`. The system will automatically:
-1.  Authenticate with SQLBot.
-2.  Register the MySQL datasource.
-3.  Configure LLM parameters.
+### 4. Start Investigating
+Visit [http://localhost:8082](http://localhost:8082) and start your first inquiry!
 
 ---
 
