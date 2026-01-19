@@ -18,7 +18,7 @@ logger = structlog.get_logger().bind(component="sqlbot_client")
 
 class SQLBotClient:
     # Class-level cache to share authentication and SQL results across requests
-    _cached_token = None
+    _cached_token: str | None = None
     _sql_cache = {}
     SQL_CACHE_LIMIT = 200
     VERSION = "1.0.0"
