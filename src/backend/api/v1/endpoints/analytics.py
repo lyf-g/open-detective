@@ -149,7 +149,9 @@ async def get_repo_profile(payload: ProfileRequest, request: Request):
     return {"repo": repo, "radar": radar_data}
 
 
-def mock_profile(name, v1, v2, v3, v4, v5):
+def mock_profile(
+    name: str, v1: float, v2: float, v3: float, v4: float, v5: float,
+) -> dict[str, Any]:
     return {
         "repo": name,
         "radar": [
