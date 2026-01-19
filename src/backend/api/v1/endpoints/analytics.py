@@ -8,7 +8,7 @@ from src.backend.services.analytics import detect_anomalies
 
 router = APIRouter()
 
-MOCK_DATA_CONFIG = {
+REPO_MOCK_DATA = {
     "vue": ("Vue.js", 95, 80, 90, 70, 85),
     "react": ("React", 98, 90, 95, 80, 90),
 }
@@ -114,7 +114,7 @@ async def get_repo_profile(payload: ProfileRequest, request: Request) -> dict[st
 
     if not metrics:
         # Return mock data if repo not found (for demo purposes)
-        for key, params in MOCK_DATA_CONFIG.items():
+        for key, params in REPO_MOCK_DATA.items():
             if key in repo.lower():
                 return mock_profile(*params)
         return mock_profile(repo, 50, 50, 50, 50, 50)
