@@ -15,6 +15,7 @@ from datetime import datetime, timezone
     "/health",
     response_model=HealthResponse,
     response_description="Returns the system health status, database connectivity, and environment info.",
+    tags=["System"],
 )
 async def health_check(request: Request):
     db_status = False
@@ -40,13 +41,13 @@ async def health_check(request: Request):
     }
 
 
-@router.get("/ping")
+@router.get("/ping", tags=["System"])
 async def ping():
     """Minimal connectivity check."""
     return "pong"
 
 
-@router.get("/sqlbot-health")
+@router.get("/sqlbot-health", tags=["System"])
 async def sqlbot_health():
     endpoint = os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
     try:
