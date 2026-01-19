@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import httpx
 from fastapi import APIRouter, Request
 
+from src.backend import __version__
 from src.backend.core.config import settings
 from src.backend.schemas.chat import HealthResponse
 
@@ -42,7 +43,7 @@ async def health_check(request: Request):
 
     return {
         "status": "ok",
-        "version": "1.1.0",
+        "version": __version__,
         "python_version": sys.version.split()[0],
         "environment": settings.APP_ENV,
         "log_level": settings.LOG_LEVEL,
