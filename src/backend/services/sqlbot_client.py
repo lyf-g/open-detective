@@ -386,6 +386,7 @@ Columns:
 
         examples = self._get_few_shot_examples()
 
+        # Build the final Text-to-SQL prompt with system instructions and context
         prompt = f"""
 <System>
 You are Open-Detective, an expert data analyst specializing in Open Source Software metrics.
