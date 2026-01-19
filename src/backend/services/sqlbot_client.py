@@ -12,7 +12,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 
 from src.backend.core.config import settings
 
-logger = structlog.get_logger()
+logger = structlog.get_logger().bind(component="sqlbot_client")
 
 
 class SQLBotClient:
