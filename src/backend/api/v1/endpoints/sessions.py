@@ -18,7 +18,7 @@ async def create_session(request: Request):
         await cur.execute(
             "INSERT INTO sessions (id, title) VALUES (%s, %s)", (session_id, title),
         )
-    return {"id": session_id, "title": title, "created_at": datetime.now()}
+    return {"id": session_id, "title": title, "created_at": datetime.now(timezone.utc)}
 
 
 @router.get("/sessions", response_model=list[Session], summary="List All Sessions")
