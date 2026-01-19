@@ -50,7 +50,7 @@ async def get_session_messages(session_id: str, request: Request):
                 if row.get("evidence_data") and isinstance(row["evidence_data"], str):
                     try:
                         row["evidence_data"] = json.loads(row["evidence_data"])
-                    except:
+                    except json.JSONDecodeError:
                         pass
             return rows
 
