@@ -18,9 +18,9 @@ def validate_sql(sql: str) -> bool:
         "GRANT",
         "REVOKE",
     }
-    upper_sql = sql.upper()
+    upper_sql = f" {sql.upper()} "
     for word in forbidden:
-        if f" {word} " in f" {upper_sql} ":  # Check distinct words
+        if f" {word} " in upper_sql:
             logger.warning("forbidden_keyword_detected", keyword=word, sql=sql)
             return False
 
