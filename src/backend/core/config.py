@@ -46,6 +46,12 @@ class Settings(BaseSettings):
             raise ValueError(err_msg)
         return v
 
+    def __str__(self) -> str:
+        return f"Settings(DB_NAME={self.DB_NAME}, SQL_ENGINE_TYPE={self.SQL_ENGINE_TYPE})"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
     # Resolves to project root .env if running from src/backend
     # or relies on environment variables already set
     model_config = SettingsConfigDict(
