@@ -2,6 +2,7 @@ import requests
 import mysql.connector
 import os
 import json
+from pathlib import Path
 
 # Configuration
 DB_HOST = os.getenv("DB_HOST", "localhost")
@@ -10,7 +11,7 @@ DB_PASSWORD = os.getenv("DB_PASSWORD", "")
 DB_NAME = os.getenv("DB_NAME", "open_detective")
 
 BASE_URL = "https://oss.x-lab.info/open_digger/github"
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), '../repos.json')
+CONFIG_PATH = Path(__file__).parent.parent / "repos.json"
 
 from typing import List, Dict, Optional, Any
 
