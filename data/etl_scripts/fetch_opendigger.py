@@ -98,17 +98,50 @@ def run_etl(specific_repos: Optional[List[str]] = None):
                 transform_and_load(repo, metric, data)
     print("🎉 ETL Complete!")
 
-if __name__ == "__main__":
+import sys
+
+
+
+def main() -> int:
+
     parser = argparse.ArgumentParser(description="Fetch OpenDigger metrics.")
+
     parser.add_argument("--repo", type=str, help="Fetch a specific repository (e.g. 'google/jax')")
+
     parser.add_argument("--add", action="store_true", help="Add the specific repo to repos.json")
+
     
+
     args = parser.parse_args()
+
     
-    if args.repo:
-        target_repos = [args.repo]
-        if args.add:
-            save_repo_to_config(args.repo)
-        run_etl(target_repos)
-    else:
-        run_etl()
+
+    try:
+
+        if args.repo:
+
+            target_repos = [args.repo]
+
+            if args.add:
+
+                save_repo_to_config(args.repo)
+
+            run_etl(target_repos)
+
+        else:
+
+            run_etl()
+
+        return 0
+
+    except Exception as e:
+
+        print(f"❌ ETL failed: {e}")
+
+        return 1
+
+
+
+if __name__ == "__main__":
+
+    sys.exit(main())
