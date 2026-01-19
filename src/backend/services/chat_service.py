@@ -68,7 +68,7 @@ class ChatService:
         except: return []
 
     @staticmethod
-    async def process_request(message: str, history: list, pool) -> Tuple[str, list, str, str, list]:
+    async def process_request(message: str, history: list, pool) -> Tuple[str, list[dict[str, Any]], str, str, list[str]]:
         engine_type_raw = settings.SQL_ENGINE_TYPE
         engine_type = engine_type_raw.split('#')[0].strip().lower()
         repair_logs = []
