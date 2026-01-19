@@ -10,4 +10,20 @@ addopts = "-ra -q"
 testpaths = [
     "tests",
 ]
+pythonpath = ["."]
 asyncio_mode = "auto"
+
+[tool.black]
+line-length = 88
+
+[tool.ruff]
+select = ["ALL"]
+ignore = [
+    "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107", # Missing docstrings
+    "E501",  # Line too long
+    "ANN101", # Missing type annotation for self
+    "ANN401", # Dynamically typed expressions (Any) are disallowed
+    "FIX002", # Line contains TODO
+    "S101", # Use of assert detected
+    "TRY003", # Avoid specifying long messages outside the exception class
+]
