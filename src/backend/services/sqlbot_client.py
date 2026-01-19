@@ -119,14 +119,14 @@ class SQLBotClient:
 
         # Metric Aliasing Map
         metric_map = {
-            "'star'": "'stars'",
-            "'issue'": "'issues_new'",
-            "'issues'": "'issues_new'",
-            "'rank'": "'openrank'",
-            "'activity'": "'activity'",
+            "star": "stars",
+            "issue": "issues_new",
+            "issues": "issues_new",
+            "rank": "openrank",
+            "activity": "activity",
         }
         for k, v in metric_map.items():
-            sql = sql.replace(k, v)
+            sql = re.sub(rf"'{k}'", f"'{v}'", sql, flags=re.IGNORECASE)
 
         def repl(m):
             v = m.group(1)
