@@ -2,7 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from pydantic import field_validator
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     # Database
     DB_HOST: str = "localhost"
     DB_USER: str = "root"
-    DB_PASSWORD: str = ""
+    DB_PASSWORD: SecretStr = SecretStr("")
     DB_NAME: str = "open_detective"
     DB_POOL_MIN: int = 1
     DB_POOL_MAX: int = 20
@@ -34,9 +34,9 @@ class Settings(BaseSettings):
     # SQLBot
     SQLBOT_ENDPOINT: str = "http://sqlbot:8000"
     SQLBOT_USERNAME: str = "admin"
-    SQLBOT_PASSWORD: str = "SQLBot@123456"
+    SQLBOT_PASSWORD: SecretStr = SecretStr("SQLBot@123456")
     SQLBOT_DATASOURCE_ID: int = 1
-    SQLBOT_API_KEY: str = ""
+    SQLBOT_API_KEY: SecretStr = SecretStr("")
     SQLBOT_TIMEOUT: int = 30
 
     @field_validator("ANOMALY_THRESHOLD")
