@@ -37,6 +37,7 @@ class SQLBotClient:
         self.datasource_id = settings.SQLBOT_DATASOURCE_ID
         self.static_token = settings.SQLBOT_API_KEY.get_secret_value()
         self.timeout = settings.SQLBOT_TIMEOUT
+        self.ai_timeout = settings.SQLBOT_AI_TIMEOUT
         self.repo_list = settings.ALLOWED_REPOS
 
     def __repr__(self) -> str:
@@ -187,7 +188,7 @@ class SQLBotClient:
                 f"{self.endpoint}/api/v1/chat/question",
                 json={"question": prompt, "chat_id": chat_id},
                 headers=headers,
-                timeout=self.timeout,
+                timeout=self.ai_timeout,
                 stream=True,
             )
             full = ""
@@ -229,7 +230,7 @@ class SQLBotClient:
                 f"{self.endpoint}/api/v1/chat/question",
                 json={"question": prompt, "chat_id": chat_id},
                 headers=headers,
-                timeout=self.timeout,
+                timeout=self.ai_timeout,
                 stream=True,
             )
             for line in res.iter_lines():
