@@ -94,17 +94,15 @@ async def get_repo_profile(payload: ProfileRequest, request: Request):
 
     async with pool.acquire() as conn, conn.cursor() as cur:
         # Get latest month data
-        await cur.execute(
-            """
-                SELECT metric_type, value 
-                FROM open_digger_metrics 
-                WHERE repo_name = %s 
-                AND month = (
-                    SELECT MAX(month) FROM open_digger_metrics WHERE repo_name = %s
-                )
-            """,
-            (repo, repo),
-        )
+        query = """
+            SELECT metric_type, value 
+            FROM open_digger_metrics 
+            WHERE repo_name = %s 
+            AND month = (
+                SELECT MAX(month) FROM open_digger_metrics WHERE repo_name = %s
+            )
+        """
+        await cur.execute(query, (repo, repo))
         rows = await cur.fetchall()
         for row in rows:
             metrics[row["metric_type"]] = float(row["value"])
