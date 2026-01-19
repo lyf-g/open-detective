@@ -11,7 +11,7 @@ import os
 
 router = APIRouter()
 
-@router.post("/chat", response_model=ChatResponse)
+@router.post("/chat", response_model=ChatResponse, summary="Chat with AI", tags=["chat"])
 @limiter.limit("10/minute")
 async def chat(request: Request, payload: ChatRequest):
     pool = request.app.state.pool
@@ -48,7 +48,7 @@ async def chat(request: Request, payload: ChatRequest):
         engine_source=engine
     )
 
-@router.post("/chat/stream")
+@router.post("/chat/stream", summary="Stream Chat with AI", tags=["chat"])
 @limiter.limit("10/minute")
 async def chat_stream(request: Request, payload: ChatRequest):
     pool = request.app.state.pool
@@ -102,7 +102,7 @@ async def chat_stream(request: Request, payload: ChatRequest):
 
     return StreamingResponse(event_generator(), media_type="application/x-ndjson")
 
-@router.post("/feedback")
+@router.post("/feedback", summary="Submit Feedback", tags=["chat"])
 async def collect_feedback(payload: FeedbackRequest):
     entry = payload.model_dump()
     entry["timestamp"] = str(datetime.now())
