@@ -111,7 +111,7 @@ async def collect_feedback(payload: FeedbackRequest):
         f.write(json.dumps(entry) + "\n")
     return {"status": "received"}
 
-@router.get("/messages/{message_id}/export")
+@router.get("/messages/{message_id}/export", summary="Export Message Data", tags=["chat"])
 async def export_message_data(message_id: int, request: Request, format: str = "csv"):
     pool = request.app.state.pool
     async with pool.acquire() as conn:
