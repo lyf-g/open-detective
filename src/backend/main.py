@@ -198,7 +198,7 @@ async def global_exception_handler(_request: Request, exc: Exception) -> JSONRes
 app.include_router(api_router, prefix="/api/v1")
 
 
-@app.get("/", tags=["System"])
+@app.get("/", tags=["System"], response_description="Basic system information.")
 def read_root() -> dict[str, str]:
     return {
         "system": "Open-Detective",
