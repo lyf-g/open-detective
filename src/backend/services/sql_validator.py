@@ -6,6 +6,17 @@ logger = structlog.get_logger()
 
 def validate_sql(sql: str) -> bool:
     """Validates that the SQL query is a read-only SELECT statement.
+    
+    This validator employs a multi-layered defense strategy:
+    1. A keyword blacklist to block dangerous DDL/DML operations (DROP, DELETE, etc.)
+       at the string level.
+    2. Formal parsing using sqlparse to ensure the statement type is explicitly 'SELECT'.
+    
+    Args:
+        sql: The raw SQL string to validate.
+        
+    Returns:
+        bool: True if the query is considered safe and read-only, False otherwise.
     """
     # 1. Explicit Keyword Blacklist (Defense in Depth)
     forbidden = {
