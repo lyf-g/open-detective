@@ -44,8 +44,11 @@ def ensure_system_integrity() -> None:
     data_dir.mkdir(parents=True, exist_ok=True)
     if not repo_path.exists():
         logger.warning("repos.json not found. Creating default configuration.")
-        with repo_path.open("w") as f:
-            json.dump(["vuejs/core", "facebook/react", "fastapi/fastapi"], f, indent=2)
+        try:
+            with repo_path.open("w") as f:
+                json.dump(["vuejs/core", "facebook/react", "fastapi/fastapi"], f, indent=2)
+        except Exception as e:
+            logger.error("failed_to_create_default_repos_config", error=str(e))
 
 
 def run_sqlbot_init() -> None:
