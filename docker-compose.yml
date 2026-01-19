@@ -8,6 +8,11 @@ services:
       - .env
     ports:
       - "8081:8081"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - ./.env:/app/.env
     environment:
@@ -47,6 +52,11 @@ services:
       - "8001:8001"
     environment:
       - SECRET_KEY=${SQLBOT_SECRET_KEY:-default_secret_key}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - db_data:/opt/sqlbot/db_shared
       - ./data/sqlbot/excel:/opt/sqlbot/data/excel
@@ -66,6 +76,11 @@ services:
       - MYSQL_DATABASE=open_detective
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - ./data/mysql:/var/lib/mysql
   redis:
