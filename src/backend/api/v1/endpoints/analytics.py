@@ -90,7 +90,7 @@ def norm(val: float, max_val: float) -> float:
 
 
 @router.post("/analytics/profile", summary="Get Repository Profile")
-async def get_repo_profile(payload: ProfileRequest, request: Request):
+async def get_repo_profile(payload: ProfileRequest, request: Request) -> dict[str, Any]:
     """Retrieve repository metrics and generate a normalized radar chart profile."""
     repo = payload.repo
     pool = request.app.state.pool
