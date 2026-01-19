@@ -37,6 +37,7 @@ async def list_sessions(request: Request):
     "/sessions/{session_id}/messages",
     response_model=list[Message],
     summary="Get Session Messages",
+    tags=["sessions"],
 )
 async def get_session_messages(session_id: str, request: Request):
     pool: Any = request.app.state.pool
