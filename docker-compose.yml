@@ -1,5 +1,6 @@
 services:
   backend:
+    container_name: open-detective-backend
     build:
       context: .
       dockerfile: src/backend/Dockerfile
@@ -27,6 +28,7 @@ services:
       - redis
 
   frontend:
+    container_name: open-detective-frontend
     build:
       context: .
       dockerfile: src/frontend/Dockerfile
@@ -36,6 +38,7 @@ services:
       - backend
 
   sqlbot:
+    container_name: open-detective-sqlbot
     image: dataease/sqlbot
     restart: unless-stopped
     privileged: true
@@ -55,6 +58,7 @@ services:
       - mysql
 
   mysql:
+    container_name: open-detective-db
     image: mysql:8.0
     restart: always
     environment:
@@ -65,6 +69,7 @@ services:
     volumes:
       - ./data/mysql:/var/lib/mysql
   redis:
+    container_name: open-detective-redis
     image: redis:alpine
     restart: always
     ports:
