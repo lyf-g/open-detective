@@ -94,7 +94,7 @@ class SQLBotClient:
         if token and not token.startswith("Bearer "):
             token = f"Bearer {token}"
         return {
-            "X-SQLBOT-TOKEN": token,
+            "X-SQLBOT-TOKEN": str(token),
             "Content-Type": "application/json",
             "User-Agent": f"Open-Detective/{self.VERSION}",
         }
