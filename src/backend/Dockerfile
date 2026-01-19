@@ -22,5 +22,9 @@ COPY data ./data
 # Expose port
 EXPOSE 8081
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8081/api/v1/ping || exit 1
+
 # Run application
 CMD ["python", "-m", "uvicorn", "src.backend.main:app", "--host", "0.0.0.0", "--port", "8081"]
