@@ -359,8 +359,9 @@ class SQLBotClient:
                 with open(path) as f:
                     examples = json.load(f)
                 return "\n".join([f"Q: {e['q']}\nSQL: {e['sql']}" for e in examples])
-        except:
-            pass
+            logger.warning("few_shot_examples_not_found", path=path)
+        except Exception as e:
+            logger.error("failed_to_load_few_shot_examples", error=str(e))
         return ""
 
     def generate_sql(self, question: str, history: list = []) -> str | None:
