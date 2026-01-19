@@ -70,6 +70,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     asyncio.create_task(asyncio.to_thread(run_sqlbot_init))
 
     # Lazy import ETL script to avoid sys.path issues during startup
+    scheduler = None
     try:
         root_dir = Path(__file__).parent.parent.parent.resolve()
         sys.path.append(str(root_dir))
@@ -80,7 +81,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         scheduler.start()
     except ImportError:
         logger.warning("ETL Script import failed, scheduler not started")
-        scheduler = None
 
     # Async Pool
     pool = None
