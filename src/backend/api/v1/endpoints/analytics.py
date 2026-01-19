@@ -19,6 +19,11 @@ class AnomalyRequest(BaseModel):
     threshold: float = Field(2.0, description="Z-score threshold for anomaly detection.")
 
 
+class AnomalyResponse(BaseModel):
+    anomalies: list[dict[str, Any]]
+    count: int
+
+
 class ProfileRequest(BaseModel):
     repo: str = Field(..., description="Full repository name (owner/repo).")
 
@@ -45,7 +50,7 @@ class SentimentRequest(BaseModel):
         return v
 
 
-@router.post("/analytics/anomalies", summary="Detect Anomalies")
+@router.post("/analytics/anomalies", summary="Detect Anomalies", response_model=AnomalyResponse)
 async def check_anomalies(payload: AnomalyRequest):
     """Detect statistical anomalies in provided time-series data."""
     results = detect_anomalies(payload.data, payload.threshold)
