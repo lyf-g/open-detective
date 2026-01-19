@@ -15,11 +15,11 @@ def test_extract_sql_no_markdown():
     raw = "SELECT * FROM table"
     assert client._extract_sql(raw) == "SELECT * FROM table"
 
-def test_repair_sql_metric_mapping():
+def test_normalize_sql_metric_mapping():
     client = SQLBotClient()
     sql = "SELECT * FROM t WHERE metric='star'"
-    repaired = client.repair_sql(sql)
-    assert "'stars'" in repaired
+    normalized = client.normalize_sql(sql)
+    assert "'stars'" in normalized
 
 @patch("requests.post")
 @patch("src.backend.services.sqlbot_client.SQLBotClient._login")
