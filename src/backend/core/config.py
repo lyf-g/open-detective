@@ -22,6 +22,14 @@ class Settings(BaseSettings):
     SQL_ENGINE_TYPE: str = "mock"
     ANOMALY_THRESHOLD: float = 0.5
     LOG_LEVEL: str = "INFO"
+    ALLOWED_REPOS: list[str] = [
+        "vuejs/core",
+        "facebook/react",
+        "fastapi/fastapi",
+        "tensorflow/tensorflow",
+        "microsoft/vscode",
+        "kubernetes/kubernetes",
+    ]
 
     # SQLBot
     SQLBOT_ENDPOINT: str = "http://sqlbot:8000"
