@@ -48,6 +48,7 @@ class Settings(BaseSettings):
     SQLBOT_DATASOURCE_ID: int = 1
     SQLBOT_API_KEY: SecretStr = SecretStr("")
     SQLBOT_TIMEOUT: int = 30
+    SQLBOT_AI_TIMEOUT: int = 60
 
     @field_validator("ANOMALY_THRESHOLD")
     @classmethod
