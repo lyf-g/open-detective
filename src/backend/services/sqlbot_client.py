@@ -141,17 +141,13 @@ class SQLBotClient:
         if '"axis":' in text or '"type":' in text or '"series":' in text:
             return ""  # Discard entirely if it's a chart config
 
-        # 3. Clean residual JSON brackets
+        # 3. Clean residual JSON brackets and artifacts
         text = re.sub(r"^\s*\{.*?\}\s*$", "", text, flags=re.DOTALL)
         text = re.sub(r"[\[\]\{\}]", "", text)  # Remove remaining brackets
 
-        # 4. Clean residual JSON artifacts (comma, quote, colon at end/start)
-        text = re.sub(r'[,":\s]+$', "", text)
-        text = re.sub(r'^[,":\s]+', "", text)
-
-        # 5. Remove system words
+        # 4. Clean residual JSON artifacts and system words
         text = re.sub(
-            r"execute-success|\[DONE\]|智能问数小助手|抱歉|无法",
+            r'^[,":\s]+|[,":\s]+$|execute-success|\[DONE\]|智能问数小助手|抱歉|无法',
             "",
             text,
             flags=re.IGNORECASE,
