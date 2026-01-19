@@ -134,7 +134,7 @@ class ChatService:
         return sql_query, data, engine_type, error_msg, repair_logs
 
     @staticmethod
-    def generate_deduction(data: list) -> str:
+    def generate_deduction(data: list[dict[str, Any]]) -> str:
         """Generates a noir/cyberpunk style insight."""
         if not data:
             return "Scan complete. No trace found in the archives."
