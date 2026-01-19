@@ -10,12 +10,14 @@ from src.backend.schemas.chat import HealthResponse
 
 router = APIRouter()
 
+SYSTEM_TAG = "System"
+
 
 @router.get(
     "/health",
     response_model=HealthResponse,
     response_description="Returns the system health status, database connectivity, and environment info.",
-    tags=["System"],
+    tags=[SYSTEM_TAG],
 )
 async def health_check(request: Request):
     db_status = False
@@ -51,13 +53,13 @@ async def health_check(request: Request):
     }
 
 
-@router.get("/ping", tags=["System"], response_model=str)
+@router.get("/ping", tags=[SYSTEM_TAG], response_model=str)
 async def ping():
     """Minimal connectivity check."""
     return "pong"
 
 
-@router.get("/sqlbot-health", tags=["System"])
+@router.get("/sqlbot-health", tags=[SYSTEM_TAG])
 async def sqlbot_health():
     endpoint = os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
     try:
