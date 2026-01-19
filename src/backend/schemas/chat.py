@@ -48,8 +48,8 @@ class HealthResponse(BaseModel):
     log_level: str | None = None
     db_connected: bool
     redis_connected: bool | None = None
-    details: dict[str, Any] | None = None
-    timestamp: str | None = None
+    details: dict[str, Any] | None = Field(default=None, description="Optional system details.")
+    timestamp: str | None = Field(default=None, description="ISO timestamp of the health check.")
 
 
 class FeedbackRequest(BaseModel):
