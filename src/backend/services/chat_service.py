@@ -159,7 +159,7 @@ class ChatService:
             return "Pattern is stable. No significant deviations observed."
 
     @staticmethod
-    async def generate_answer_stream(message: str, data: list, history: list, engine_type: str) -> AsyncGenerator[str, None]:
+    async def generate_answer_stream(message: str, data: list[dict[str, Any]], history: list[dict[str, Any]], engine_type: str) -> AsyncGenerator[str, None]:
         # 1. Deduction (The "Hook")
         deduction = ChatService.generate_deduction(data)
         yield f"**[NEURAL DEDUCTION]**\n> {deduction}\n\n"
