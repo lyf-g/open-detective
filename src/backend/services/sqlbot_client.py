@@ -81,7 +81,11 @@ class SQLBotClient:
         token = self.static_token or SQLBotClient._cached_token or self._login()
         if token and not token.startswith("Bearer "):
             token = f"Bearer {token}"
-        return {"X-SQLBOT-TOKEN": token, "Content-Type": "application/json"}
+        return {
+            "X-SQLBOT-TOKEN": token,
+            "Content-Type": "application/json",
+            "User-Agent": "Open-Detective/1.0",
+        }
 
     def _extract_sql(self, text: str) -> str:
         if not text:
