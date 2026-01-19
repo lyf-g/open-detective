@@ -26,7 +26,7 @@ def get_db_connection():
 
 def load_repos() -> List[str]:
     try:
-        with open(CONFIG_PATH, 'r') as f:
+        with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
         print(f"⚠️ Config file not found at {CONFIG_PATH}, utilizing defaults.")
@@ -79,7 +79,7 @@ def save_repo_to_config(repo: str):
     if repo not in repos:
         repos.append(repo)
         try:
-            with open(CONFIG_PATH, 'w') as f:
+            with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
                 json.dump(repos, f, indent=2)
             print(f"📝 Added {repo} to {CONFIG_PATH}")
         except Exception as e:
