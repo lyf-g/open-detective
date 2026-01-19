@@ -1,12 +1,17 @@
-import structlog
 import logging
 import sys
+
+import structlog
 from asgi_correlation_id import correlation_id
+
+from src.backend.core.config import settings
+
 
 def add_correlation(logger, log_method, event_dict):
     if request_id := correlation_id.get():
         event_dict["request_id"] = request_id
     return event_dict
+
 
 def configure_logger():
     structlog.configure(
@@ -20,7 +25,7 @@ def configure_logger():
             structlog.processors.format_exc_info,
             structlog.processors.UnicodeDecoder(),
             add_correlation,
-            structlog.processors.JSONRenderer()
+            structlog.processors.JSONRenderer(),
         ],
         context_class=dict,
         logger_factory=structlog.stdlib.LoggerFactory(),
@@ -29,7 +34,7 @@ def configure_logger():
     )
 
     handler = logging.StreamHandler(sys.stdout)
-    
+
     # Add correlation ID filter to standard logging
     class CorrelationIdFilter(logging.Filter):
         def filter(self, record):
@@ -38,15 +43,17 @@ def configure_logger():
             return True
 
     handler.addFilter(CorrelationIdFilter())
-    handler.setFormatter(logging.Formatter(
-        '%(asctime)s [%(levelname)s] [%(request_id)s] %(name)s: %(message)s'
-    ))
+    handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s [%(levelname)s] [%(request_id)s] %(name)s: %(message)s",
+        ),
+    )
 
     root_logger = logging.getLogger()
     # Avoid duplicate logs if handler already exists
     if not root_logger.handlers:
         root_logger.addHandler(handler)
-    root_logger.setLevel(logging.INFO)
+    root_logger.setLevel(getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO))
 
     # Startup Banner
     print(r"""
@@ -59,5 +66,6 @@ def configure_logger():
         | |                                                      
         |_|   v1.0.0 | System Initialized                        
     """)
+
 
 logger = structlog.get_logger()

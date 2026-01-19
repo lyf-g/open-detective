@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     # App
     SQL_ENGINE_TYPE: str = "mock"
     ANOMALY_THRESHOLD: float = 0.5
+    LOG_LEVEL: str = "INFO"
 
     # SQLBot
     SQLBOT_ENDPOINT: str = "http://sqlbot:8000"
