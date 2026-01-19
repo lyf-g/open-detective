@@ -48,7 +48,7 @@ class ChatService:
                     await cur.execute("UPDATE sessions SET title = %s WHERE id = %s", (title, session_id))
 
     @staticmethod
-    async def save_assistant_message(pool, session_id: str, answer: str, sql: str, data: list):
+    async def save_assistant_message(pool, session_id: str, answer: str, sql: str, data: list[dict[str, Any]]):
         evidence_data_json = json.dumps(data, default=str) if data else None
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
