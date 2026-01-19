@@ -42,12 +42,12 @@ class DossierResponse(BaseModel):
 
 class HealthResponse(BaseModel):
     status: str = Field(..., description="The overall health status of the system (e.g., ok, error).")
-    version: str
-    python_version: str | None = None
-    environment: str | None = None
-    log_level: str | None = None
-    db_connected: bool
-    redis_connected: bool | None = None
+    version: str = Field(..., description="System version.")
+    python_version: str | None = Field(default=None, description="Running Python version.")
+    environment: str | None = Field(default=None, description="App runtime environment.")
+    log_level: str | None = Field(default=None, description="Configured logging level.")
+    db_connected: bool = Field(..., description="Database connection status.")
+    redis_connected: bool | None = Field(default=None, description="Redis connection status.")
     details: dict[str, Any] | None = Field(default=None, description="Detailed status of individual components like database and pool size.")
     timestamp: str | None = Field(default=None, description="ISO timestamp of the health check.")
 
