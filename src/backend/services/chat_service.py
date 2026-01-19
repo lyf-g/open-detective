@@ -71,7 +71,7 @@ class ChatService:
     async def process_request(message: str, history: list[dict[str, Any]], pool: Any) -> Tuple[str, list[dict[str, Any]], str, str, list[str]]:
         engine_type_raw = settings.SQL_ENGINE_TYPE
         engine_type = engine_type_raw.split('#')[0].strip().lower()
-        repair_logs = []
+        healing_logs = []
 
         sql_query = ""
         if engine_type == "sqlbot":
@@ -117,21 +117,21 @@ class ChatService:
                 error_msg = str(e)
                 logger.warning(f"SQL Error (Attempt {attempt+1})", error=error_msg)
                 
-                repair_logs.append(f"⚠️ **Error Detected:** {error_msg[:50]}...")
+                healing_logs.append(f"⚠️ **Error Detected:** {error_msg[:50]}...")
                 
                 # Heuristic Repair (Mock/Simple)
                 if "Unknown column" in error_msg or "starrrs" in sql_query:
-                    repair_logs.append("🔧 **System Protocol:** Analyzing Schema...")
+                    healing_logs.append("🔧 **System Protocol:** Analyzing Schema...")
                     if "starrrs" in sql_query:
                         sql_query = sql_query.replace("starrrs", "stars")
-                        repair_logs.append("✅ **Patch Applied:** Corrected column 'starrrs' to 'stars'.")
+                        healing_logs.append("✅ **Patch Applied:** Corrected column 'starrrs' to 'stars'.")
                     else:
-                        repair_logs.append("⚠️ **Patch Failed:** Schema mismatch. Terminating.")
+                        healing_logs.append("⚠️ **Patch Failed:** Schema mismatch. Terminating.")
                         break # Cannot fix unknown error
                 else:
                     break # Unknown error, stop
         
-        return sql_query, data, engine_type, error_msg, repair_logs
+        return sql_query, data, engine_type, error_msg, healing_logs
 
     @staticmethod
     def generate_deduction(data: list[dict[str, Any]]) -> str:

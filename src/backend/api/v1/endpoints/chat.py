@@ -21,12 +21,12 @@ async def chat(request: Request, payload: ChatRequest):
     history = await ChatService.get_history(pool, payload.session_id) if payload.session_id else []
     
     # Unpack 5 values
-    sql, data, engine, error, repair_logs = await ChatService.process_request(payload.message, history, pool)
+    sql, data, engine, error, healing_logs = await ChatService.process_request(payload.message, history, pool)
     
     answer = ""
     # Prepend repair logs to answer
-    if repair_logs:
-        answer += "\n".join(repair_logs) + "\n\n"
+    if healing_logs:
+        answer += "\n".join(healing_logs) + "\n\n"
 
     if error:
         answer += f"数据库查询执行失败: {error}"
@@ -58,13 +58,13 @@ async def chat_stream(request: Request, payload: ChatRequest):
     history = await ChatService.get_history(pool, payload.session_id) if payload.session_id else []
     
     # Unpack 5 values
-    sql, data, engine, error, repair_logs = await ChatService.process_request(payload.message, history, pool)
+    sql, data, engine, error, healing_logs = await ChatService.process_request(payload.message, history, pool)
     
     async def event_generator():
         # 1. Stream Repair Logs (Visual Self-Healing)
         full_answer = ""
-        if repair_logs:
-            for log in repair_logs:
+        if healing_logs:
+            for log in healing_logs:
                 chunk = f"{log}\n\n"
                 yield json.dumps({"type": "token", "content": chunk}) + "\n"
                 full_answer += chunk
