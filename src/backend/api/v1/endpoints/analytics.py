@@ -3,6 +3,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
 
+from src.backend.schemas.chat import DossierResponse
 from src.backend.services.analytics import detect_anomalies
 
 router = APIRouter()
@@ -46,7 +47,7 @@ async def check_anomalies(request: AnomalyRequest):
     return {"anomalies": results, "count": len(results)}
 
 
-@router.post("/analytics/dossier", summary="Get Suspect Dossier")
+@router.post("/analytics/dossier", summary="Get Suspect Dossier", response_model=DossierResponse)
 async def get_suspect_dossier(request: DossierRequest):
     """Generate a psychological and skill profile for a given GitHub contributor."""
     user = request.username
