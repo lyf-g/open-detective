@@ -8,6 +8,11 @@ from src.backend.services.analytics import detect_anomalies
 
 router = APIRouter()
 
+MOCK_DATA_CONFIG = {
+    "vue": ("Vue.js", 95, 80, 90, 70, 85),
+    "react": ("React", 98, 90, 95, 80, 90),
+}
+
 
 class AnomalyRequest(BaseModel):
     data: list[dict[str, Any]] = Field(..., description="Time-series data records to analyze.")
@@ -109,10 +114,6 @@ async def get_repo_profile(payload: ProfileRequest, request: Request):
 
     if not metrics:
         # Return mock data if repo not found (for demo purposes)
-        MOCK_DATA_CONFIG = {
-            "vue": ("Vue.js", 95, 80, 90, 70, 85),
-            "react": ("React", 98, 90, 95, 80, 90),
-        }
         for key, params in MOCK_DATA_CONFIG.items():
             if key in repo.lower():
                 return mock_profile(*params)
