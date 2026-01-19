@@ -10,7 +10,7 @@ from src.backend.schemas.chat import Message, Session
 router = APIRouter()
 
 
-@router.post("/sessions", response_model=Session, summary="Create New Session")
+@router.post("/sessions", response_model=Session, summary="Create New Session", tags=["sessions"], response_description="The newly created session object.")
 async def create_session(request: Request):
     session_id = str(uuid.uuid4())
     title = "New Investigation"
