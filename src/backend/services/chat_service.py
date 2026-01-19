@@ -58,7 +58,7 @@ class ChatService:
                 )
 
     @staticmethod
-    async def get_history(pool, session_id: str) -> list:
+    async def get_history(pool, session_id: str) -> list[dict[str, Any]]:
         try:
             async with pool.acquire() as conn:
                 async with conn.cursor() as cur:
