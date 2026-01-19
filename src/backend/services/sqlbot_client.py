@@ -117,7 +117,7 @@ class SQLBotClient:
             return match.group(1).split("execute-success")[0].strip()
         return text.strip()
 
-    def repair_sql(self, sql: str) -> str:
+    def normalize_sql(self, sql: str) -> str:
         if not sql or len(sql) > 5000:
             return sql or ""
         sql = re.sub(r"--.*$", "", sql, flags=re.MULTILINE)
@@ -416,7 +416,7 @@ Instructions:
 {history_text}
 Question: {question}
 """
-        result = self.repair_sql(self._extract_sql(self._ask_ai(prompt)))
+        result = self.normalize_sql(self._extract_sql(self._ask_ai(prompt)))
 
         # Cache Result
         if result:
