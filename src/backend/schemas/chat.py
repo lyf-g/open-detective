@@ -48,7 +48,7 @@ class HealthResponse(BaseModel):
     log_level: str | None = None
     db_connected: bool
     redis_connected: bool | None = None
-    details: dict[str, Any] | None = Field(default=None, description="Optional system details.")
+    details: dict[str, Any] | None = Field(default=None, description="Detailed status of individual components like database and pool size.")
     timestamp: str | None = Field(default=None, description="ISO timestamp of the health check.")
 
 
