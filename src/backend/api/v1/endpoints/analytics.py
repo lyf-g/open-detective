@@ -50,6 +50,12 @@ class SentimentRequest(BaseModel):
         return v
 
 
+class SentimentResponse(BaseModel):
+    repo: str
+    score: float
+    keywords: list[dict[str, Any]]
+
+
 @router.post("/analytics/anomalies", summary="Detect Anomalies", response_model=AnomalyResponse)
 async def check_anomalies(payload: AnomalyRequest):
     """Detect statistical anomalies in provided time-series data."""
@@ -170,7 +176,7 @@ def mock_profile(
     }
 
 
-@router.post("/analytics/sentiment", summary="Get Sentiment Analysis")
+@router.post("/analytics/sentiment", summary="Get Sentiment Analysis", response_model=SentimentResponse)
 async def get_sentiment(payload: SentimentRequest):
     """Analyze community sentiment for a repository based on keywords and scores."""
     repo = payload.repo.lower()
