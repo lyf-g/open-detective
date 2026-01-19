@@ -431,5 +431,5 @@ Question: {question}
         return result
 
 
-def sqlbot_text_to_sql(text: str) -> str:
+def sqlbot_text_to_sql(text: str) -> str | None:
     return SQLBotClient().generate_sql(text)
