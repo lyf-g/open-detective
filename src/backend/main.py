@@ -39,8 +39,9 @@ def ensure_system_integrity() -> None:
     """Ensure critical configuration files exist."""
     base_dir = Path(__file__).parent.parent.parent
     data_dir = base_dir / "data"
-    data_dir.mkdir(parents=True, exist_ok=True)
     repo_path = data_dir / "repos.json"
+
+    data_dir.mkdir(parents=True, exist_ok=True)
     if not repo_path.exists():
         logger.warning("repos.json not found. Creating default configuration.")
         with repo_path.open("w") as f:
