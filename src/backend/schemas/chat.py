@@ -37,11 +37,11 @@ class DossierResponse(BaseModel):
     threat_level: str
     psych_profile: str
     skills: list[dict[str, Any]]
-    status: str
+    status: str = Field(..., description="The overall health status of the system (e.g., ok, error).")
 
 
 class HealthResponse(BaseModel):
-    status: str
+    status: str = Field(..., description="The overall health status of the system (e.g., ok, error).")
     version: str
     python_version: str | None = None
     environment: str | None = None
