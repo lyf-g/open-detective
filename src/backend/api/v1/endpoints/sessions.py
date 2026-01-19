@@ -56,7 +56,7 @@ async def get_session_messages(session_id: str, request: Request):
             return rows
 
 
-@router.get("/sessions/{session_id}/export", summary="Export Session as Markdown", response_description="The generated markdown file content.")
+@router.get("/sessions/{session_id}/export", summary="Export Session as Markdown", tags=["sessions"], response_description="The generated markdown file content.")
 async def export_session(session_id: str, request: Request):
     messages = await get_session_messages(session_id, request)
 
