@@ -115,8 +115,8 @@ async def get_repo_profile(payload: ProfileRequest, request: Request):
         return mock_profile(repo, 50, 50, 50, 50, 50)
 
     # Normalization (Simple Heuristic)
-    def norm(val, max_val):
-        return min(100, max(0, (val / max_val) * 100))
+    def norm(val: float, max_val: float) -> float:
+        return max(0.0, min(100.0, (val / max_val) * 100.0))
 
     radar_data = [
         {
