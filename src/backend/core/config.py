@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://redis:6379/0"
 
     # App
+    APP_ENV: str = "production"
     SQL_ENGINE_TYPE: str = "mock"
     ANOMALY_THRESHOLD: float = 0.5
     LOG_LEVEL: str = "INFO"

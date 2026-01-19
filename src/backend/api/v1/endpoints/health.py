@@ -3,6 +3,7 @@ import os
 import httpx
 from fastapi import APIRouter, Request
 
+from src.backend.core.config import settings
 from src.backend.schemas.chat import HealthResponse
 
 router = APIRouter()
@@ -27,6 +28,8 @@ async def health_check(request: Request):
     return {
         "status": "ok",
         "version": "1.0.0",
+        "environment": settings.APP_ENV,
+        "log_level": settings.LOG_LEVEL,
         "db_connected": db_status,
         "details": pool_info,
         "timestamp": datetime.now(timezone.utc).isoformat(),
