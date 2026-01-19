@@ -18,6 +18,7 @@ logger = structlog.get_logger()
 class SQLBotClient:
     _cached_token = None
     _sql_cache = {}
+    MAX_SQL_CACHE = 200
 
     def __init__(self, endpoint: str | None = None):
         self.endpoint = endpoint or settings.SQLBOT_ENDPOINT
@@ -413,7 +414,8 @@ Question: {question}
 
         # Cache Result
         if result:
-            if len(SQLBotClient._sql_cache) > 200:
+            if len(SQLBotClient._sql_cache) >= SQLBotClient.MAX_SQL_CACHE:
+                # Evict oldest item (FIFO)
                 SQLBotClient._sql_cache.pop(next(iter(SQLBotClient._sql_cache)))
             SQLBotClient._sql_cache[cache_key] = result
 
