@@ -45,7 +45,7 @@ async def chat(request: Request, payload: ChatRequest):
         answer=answer,
         sql_query=sql or "",
         data=data,
-        engine_source=engine
+        engine=engine
     )
 
 @router.post("/chat/stream", summary="Stream Chat with AI", tags=["chat"])

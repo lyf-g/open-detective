@@ -28,7 +28,7 @@ class ChatResponse(BaseModel):
     answer: str
     sql_query: str
     data: list[dict[str, Any]]
-    engine_source: str
+    engine: str
 
 
 class DossierResponse(BaseModel):
