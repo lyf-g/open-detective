@@ -1,7 +1,7 @@
 from typing import Any
 
-from fastapi import APIRouter, Request
-from pydantic import BaseModel, field_validator
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel, Field, field_validator
 
 from src.backend.services.analytics import detect_anomalies
 
@@ -9,12 +9,12 @@ router = APIRouter()
 
 
 class AnomalyRequest(BaseModel):
-    data: list[dict[str, Any]]
-    threshold: float = 2.0
+    data: list[dict[str, Any]] = Field(..., description="Time-series data records to analyze.")
+    threshold: float = Field(2.0, description="Z-score threshold for anomaly detection.")
 
 
 class ProfileRequest(BaseModel):
-    repo: str
+    repo: str = Field(..., description="Full repository name (owner/repo).")
 
     @field_validator("repo")
     @classmethod
@@ -25,11 +25,11 @@ class ProfileRequest(BaseModel):
 
 
 class DossierRequest(BaseModel):
-    username: str
+    username: str = Field(..., description="GitHub username to investigate.")
 
 
 class SentimentRequest(BaseModel):
-    repo: str
+    repo: str = Field(..., description="Full repository name (owner/repo).")
 
     @field_validator("repo")
     @classmethod
