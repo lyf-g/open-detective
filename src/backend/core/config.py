@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     SQL_ENGINE_TYPE: str = "mock"
     ANOMALY_THRESHOLD: float = 0.5
     LOG_LEVEL: str = "INFO"
+    CORS_ORIGINS: list[str] = ["http://localhost:8080", "http://localhost:8082", "*"]
     ALLOWED_REPOS: list[str] = [
         "vuejs/core",
         "facebook/react",
