@@ -1,11 +1,17 @@
 venv/
 .venv/
 src/frontend/node_modules/
-__pycache__/
-*.pyc
-.DS_Store
-.prompt
 .env
+.DS_Store
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
 
 # Open-Detective Data Artifacts
 open_detective.db
