@@ -20,7 +20,7 @@ class SQLBotClient:
     # Class-level cache to share authentication and SQL results across requests
     _cached_token = None
     _sql_cache = {}
-    MAX_SQL_CACHE = 200
+    SQL_CACHE_LIMIT = 200
     VERSION = "1.0.0"
     METRIC_ALIAS_MAP = {
         "star": "stars",
@@ -418,7 +418,7 @@ Question: {question}
 
         # Cache Result
         if result:
-            if len(SQLBotClient._sql_cache) >= SQLBotClient.MAX_SQL_CACHE:
+            if len(SQLBotClient._sql_cache) >= SQLBotClient.SQL_CACHE_LIMIT:
                 # Evict oldest item (FIFO)
                 SQLBotClient._sql_cache.pop(next(iter(SQLBotClient._sql_cache)))
             SQLBotClient._sql_cache[cache_key] = result
