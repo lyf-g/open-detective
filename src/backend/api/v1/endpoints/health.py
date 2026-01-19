@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timezone
 
 import httpx
 from fastapi import APIRouter, Request
@@ -7,8 +8,6 @@ from src.backend.core.config import settings
 from src.backend.schemas.chat import HealthResponse
 
 router = APIRouter()
-
-from datetime import datetime, timezone
 
 
 @router.get(
