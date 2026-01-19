@@ -19,6 +19,13 @@ class SQLBotClient:
     _cached_token = None
     _sql_cache = {}
     MAX_SQL_CACHE = 200
+    METRIC_ALIAS_MAP = {
+        "star": "stars",
+        "issue": "issues_new",
+        "issues": "issues_new",
+        "rank": "openrank",
+        "activity": "activity",
+    }
 
     def __init__(self, endpoint: str | None = None):
         self.endpoint = endpoint or settings.SQLBOT_ENDPOINT
@@ -111,15 +118,7 @@ class SQLBotClient:
         sql = re.sub(r"--.*$", "", sql, flags=re.MULTILINE)
         sql = re.sub(r"/\*.*?\*/", "", sql, flags=re.DOTALL)
 
-        # Metric Aliasing Map
-        metric_map = {
-            "star": "stars",
-            "issue": "issues_new",
-            "issues": "issues_new",
-            "rank": "openrank",
-            "activity": "activity",
-        }
-        for k, v in metric_map.items():
+        for k, v in self.METRIC_ALIAS_MAP.items():
             sql = re.sub(rf"'{k}'", f"'{v}'", sql, flags=re.IGNORECASE)
 
         def repl(m):
