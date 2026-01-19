@@ -33,8 +33,8 @@ class Settings(BaseSettings):
     @field_validator("ANOMALY_THRESHOLD")
     @classmethod
     def check_threshold(cls, v: float) -> float:
-        if v <= 0:
-            err_msg = "ANOMALY_THRESHOLD must be positive"
+        if v <= 0 or v > 10.0:
+            err_msg = "ANOMALY_THRESHOLD must be between 0 and 10.0"
             raise ValueError(err_msg)
         return v
 
