@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class ChatRequest(BaseModel):
-    message: str
+    message: str = Field(..., min_length=1, max_length=1000)
     session_id: str | None = None
 
 
