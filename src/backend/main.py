@@ -150,6 +150,16 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(CorrelationIdMiddleware)
 
 
+# Process Time Middleware
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next: Any) -> Any:
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
+
 # Security Headers
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next: Any) -> Any:
