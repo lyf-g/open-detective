@@ -86,7 +86,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.warning("ETL Script import failed, scheduler not started")
 
     # Async Pool
-    pool = None
+    pool: aiomysql.Pool | None = None
     for i in range(MAX_RETRIES):
         try:
             logger.info("Connecting to MySQL (Async)", attempt=i + 1)
