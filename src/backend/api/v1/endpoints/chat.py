@@ -13,15 +13,15 @@ router = APIRouter()
 
 @router.post("/chat", response_model=ChatResponse)
 @limiter.limit("10/minute")
-async def chat(request: Request, chat_request: ChatRequest):
+async def chat(request: Request, payload: ChatRequest):
     pool = request.app.state.pool
-    if chat_request.session_id:
-        await ChatService.save_user_message(pool, chat_request.session_id, chat_request.message)
+    if payload.session_id:
+        await ChatService.save_user_message(pool, payload.session_id, payload.message)
     
-    history = await ChatService.get_history(pool, chat_request.session_id) if chat_request.session_id else []
+    history = await ChatService.get_history(pool, payload.session_id) if payload.session_id else []
     
     # Unpack 5 values
-    sql, data, engine, error, repair_logs = await ChatService.process_request(chat_request.message, history, pool)
+    sql, data, engine, error, repair_logs = await ChatService.process_request(payload.message, history, pool)
     
     answer = ""
     # Prepend repair logs to answer
@@ -35,11 +35,11 @@ async def chat(request: Request, chat_request: ChatRequest):
     elif not data:
         answer += "报告 Agent，在当前数据库中未搜寻到相关线索..."
     else:
-        async for chunk in ChatService.generate_answer_stream(chat_request.message, data, history, engine):
+        async for chunk in ChatService.generate_answer_stream(payload.message, data, history, engine):
             answer += chunk
     
-    if chat_request.session_id:
-        await ChatService.save_assistant_message(pool, chat_request.session_id, answer, sql, data)
+    if payload.session_id:
+        await ChatService.save_assistant_message(pool, payload.session_id, answer, sql, data)
         
     return ChatResponse(
         answer=answer,
@@ -50,15 +50,15 @@ async def chat(request: Request, chat_request: ChatRequest):
 
 @router.post("/chat/stream")
 @limiter.limit("10/minute")
-async def chat_stream(request: Request, chat_request: ChatRequest):
+async def chat_stream(request: Request, payload: ChatRequest):
     pool = request.app.state.pool
-    if chat_request.session_id:
-        await ChatService.save_user_message(pool, chat_request.session_id, chat_request.message)
+    if payload.session_id:
+        await ChatService.save_user_message(pool, payload.session_id, payload.message)
     
-    history = await ChatService.get_history(pool, chat_request.session_id) if chat_request.session_id else []
+    history = await ChatService.get_history(pool, payload.session_id) if payload.session_id else []
     
     # Unpack 5 values
-    sql, data, engine, error, repair_logs = await ChatService.process_request(chat_request.message, history, pool)
+    sql, data, engine, error, repair_logs = await ChatService.process_request(payload.message, history, pool)
     
     async def event_generator():
         # 1. Stream Repair Logs (Visual Self-Healing)
@@ -68,9 +68,6 @@ async def chat_stream(request: Request, chat_request: ChatRequest):
                 chunk = f"{log}\n\n"
                 yield json.dumps({"type": "token", "content": chunk}) + "\n"
                 full_answer += chunk
-                # import asyncio # Need to ensure asyncio is imported if we sleep, but ChatService handles sleep in its generator.
-                # Here we are in endpoint. We can't easily sleep without async. 
-                # FastAPI endpoints are async, so 'import asyncio' at top level is fine.
 
         # 2. Send Meta
         yield json.dumps({
@@ -94,20 +91,20 @@ async def chat_stream(request: Request, chat_request: ChatRequest):
             yield json.dumps({"type": "token", "content": msg}) + "\n"
             full_answer += msg
         else:
-            async for chunk in ChatService.generate_answer_stream(chat_request.message, data, history, engine):
+            async for chunk in ChatService.generate_answer_stream(payload.message, data, history, engine):
                 yield json.dumps({"type": "token", "content": chunk}) + "\n"
                 full_answer += chunk
         
-        if chat_request.session_id:
-            await ChatService.save_assistant_message(pool, chat_request.session_id, full_answer, sql, data)
+        if payload.session_id:
+            await ChatService.save_assistant_message(pool, payload.session_id, full_answer, sql, data)
         
         yield json.dumps({"type": "done"}) + "\n"
 
     return StreamingResponse(event_generator(), media_type="application/x-ndjson")
 
 @router.post("/feedback")
-async def collect_feedback(feedback: FeedbackRequest):
-    entry = feedback.model_dump()
+async def collect_feedback(payload: FeedbackRequest):
+    entry = payload.model_dump()
     entry["timestamp"] = str(datetime.now())
     os.makedirs("data", exist_ok=True)
     with open("data/feedback.jsonl", "a") as f:
