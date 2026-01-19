@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, NamedTuple
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
@@ -8,9 +8,19 @@ from src.backend.services.analytics import detect_anomalies
 
 router = APIRouter()
 
+
+class RepoMetrics(NamedTuple):
+    name: str
+    v1: float
+    v2: float
+    v3: float
+    v4: float
+    v5: float
+
+
 REPO_MOCK_DATA = {
-    "vue": ("Vue.js", 95, 80, 90, 70, 85),
-    "react": ("React", 98, 90, 95, 80, 90),
+    "vue": RepoMetrics("Vue.js", 95, 80, 90, 70, 85),
+    "react": RepoMetrics("React", 98, 90, 95, 80, 90),
 }
 
 
