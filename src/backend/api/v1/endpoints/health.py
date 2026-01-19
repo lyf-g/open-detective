@@ -30,13 +30,22 @@ async def health_check(request: Request):
     except Exception as e:
         pool_info["error"] = str(e)
 
+    # Redis Check
+    redis_status = None
+    try:
+        from src.backend.core.redis import is_redis_available
+        redis_status = await is_redis_available()
+    except (ImportError, Exception):
+        redis_status = False
+
     return {
         "status": "ok",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "python_version": sys.version.split()[0],
         "environment": settings.APP_ENV,
         "log_level": settings.LOG_LEVEL,
         "db_connected": db_status,
+        "redis_connected": redis_status,
         "details": pool_info,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
