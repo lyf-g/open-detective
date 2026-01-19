@@ -60,6 +60,7 @@ def run_sqlbot_init() -> None:
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     start_time = time.time()
     configure_logger()
+    logger.info("System initializing", python_path=sys.path)
     check_system_integrity()
 
     # Trigger SQLBot Init in background
