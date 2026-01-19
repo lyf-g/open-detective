@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import datetime, timezone
 
 import httpx
@@ -32,6 +33,7 @@ async def health_check(request: Request):
     return {
         "status": "ok",
         "version": "1.0.0",
+        "python_version": sys.version.split()[0],
         "environment": settings.APP_ENV,
         "log_level": settings.LOG_LEVEL,
         "db_connected": db_status,
