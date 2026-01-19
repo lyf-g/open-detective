@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, field_validator
 from src.backend.schemas.chat import DossierResponse
 from src.backend.services.analytics import detect_anomalies
 
-router = APIRouter()
+router = APIRouter(prefix="/analytics", tags=["analytics"])
 
 
 class RepoMetrics(NamedTuple):
@@ -71,14 +71,14 @@ class AnomalyResponse(BaseModel):
     count: int
 
 
-@router.post("/analytics/anomalies", summary="Detect Anomalies", response_model=AnomalyResponse)
+@router.post("anomalies", summary="Detect Anomalies", response_model=AnomalyResponse)
 async def check_anomalies(payload: AnomalyRequest):
     """Detect statistical anomalies in provided time-series data."""
     results = detect_anomalies(payload.data, payload.threshold)
     return {"anomalies": results, "count": len(results)}
 
 
-@router.post("/analytics/dossier", summary="Get Suspect Dossier", response_model=DossierResponse)
+@router.post("dossier", summary="Get Suspect Dossier", response_model=DossierResponse)
 async def get_suspect_dossier(payload: DossierRequest):
     """Generate a psychological and skill profile for a given GitHub contributor."""
     user = payload.username
@@ -115,7 +115,7 @@ def norm(val: float, max_val: float) -> float:
     return max(0.0, min(100.0, (val / max_val) * 100.0))
 
 
-@router.post("/analytics/profile", summary="Get Repository Profile")
+@router.post("profile", summary="Get Repository Profile")
 async def get_repo_profile(payload: ProfileRequest, request: Request) -> dict[str, Any]:
     """Retrieve repository metrics and generate a normalized radar chart profile."""
     repo = payload.repo
@@ -191,7 +191,7 @@ def mock_profile(
     }
 
 
-@router.post("/analytics/sentiment", summary="Get Sentiment Analysis", response_model=SentimentResponse)
+@router.post("sentiment", summary="Get Sentiment Analysis", response_model=SentimentResponse)
 async def get_sentiment(payload: SentimentRequest):
     """Analyze community sentiment for a repository based on keywords and scores."""
     repo = payload.repo.lower()
