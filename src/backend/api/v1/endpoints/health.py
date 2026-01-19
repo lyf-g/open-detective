@@ -11,7 +11,11 @@ router = APIRouter()
 from datetime import datetime, timezone
 
 
-@router.get("/health", response_model=HealthResponse)
+@router.get(
+    "/health",
+    response_model=HealthResponse,
+    response_description="Returns the system health status, database connectivity, and environment info.",
+)
 async def health_check(request: Request):
     db_status = False
     pool_info = {}
