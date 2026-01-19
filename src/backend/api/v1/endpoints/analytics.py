@@ -78,6 +78,11 @@ async def get_suspect_dossier(request: DossierRequest):
     }
 
 
+def norm(val: float, max_val: float) -> float:
+    """Normalize a value to a scale of 0-100."""
+    return max(0.0, min(100.0, (val / max_val) * 100.0))
+
+
 @router.post("/analytics/profile")
 async def get_repo_profile(payload: ProfileRequest, request: Request):
     """Retrieve repository metrics and generate a normalized radar chart profile."""
@@ -113,10 +118,6 @@ async def get_repo_profile(payload: ProfileRequest, request: Request):
             if key in repo.lower():
                 return mock_profile(*params)
         return mock_profile(repo, 50, 50, 50, 50, 50)
-
-    # Normalization (Simple Heuristic)
-    def norm(val: float, max_val: float) -> float:
-        return max(0.0, min(100.0, (val / max_val) * 100.0))
 
     radar_data = [
         {
