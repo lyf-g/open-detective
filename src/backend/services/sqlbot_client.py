@@ -22,6 +22,8 @@ class SQLBotClient:
     _sql_cache: dict[str, str] = {}
     SQL_CACHE_LIMIT = 200
     VERSION = "1.0.0"
+    TOKEN_HEADER = "X-SQLBOT-TOKEN"
+    USER_AGENT_PREFIX = "Open-Detective"
     METRIC_ALIAS_MAP = {
         "star": "stars",
         "issue": "issues_new",
@@ -98,7 +100,7 @@ class SQLBotClient:
         if token and not token.startswith("Bearer "):
             token = f"Bearer {token}"
         return {
-            "X-SQLBOT-TOKEN": str(token),
+            self.TOKEN_HEADER: str(token),
             "Content-Type": "application/json",
             "User-Agent": f"Open-Detective/{self.VERSION}",
         }
