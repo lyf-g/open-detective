@@ -3,6 +3,7 @@ import json
 import os
 import re
 from datetime import datetime
+from pathlib import Path
 
 import requests
 import structlog
@@ -352,14 +353,11 @@ class SQLBotClient:
 
     def _get_few_shot_examples(self) -> str:
         try:
-            path = os.path.join(
-                os.path.dirname(__file__), "../../../data/examples.json",
-            )
-            if os.path.exists(path):
-                with open(path) as f:
-                    examples = json.load(f)
+            path = Path(__file__).parent.parent.parent.parent / "data" / "examples.json"
+            if path.exists():
+                examples = json.loads(path.read_text(encoding="utf-8"))
                 return "\n".join([f"Q: {e['q']}\nSQL: {e['sql']}" for e in examples])
-            logger.warning("few_shot_examples_not_found", path=path)
+            logger.warning("few_shot_examples_not_found", path=str(path))
         except Exception as e:
             logger.error("failed_to_load_few_shot_examples", error=str(e))
         return ""
