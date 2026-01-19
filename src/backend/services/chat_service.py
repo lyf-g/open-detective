@@ -5,32 +5,10 @@ from typing import Optional, Tuple, AsyncGenerator, Any
 from src.backend.services.engine_factory import get_sql_engine
 from src.backend.services.logger import logger
 from src.backend.core.config import settings
-from src.backend.services.analytics import forecast_next_months
+from src.backend.services.analytics import forecast_next_months, detect_anomalies
 from src.backend.services.sql_validator import validate_sql
 
-def detect_anomalies(data: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Scans data for significant spikes or drops."""
-    if len(data) < 3: return []
-    threshold = settings.ANOMALY_THRESHOLD
-    anomalies = []
-    for i in range(1, len(data)):
-        prev = float(data[i-1].get('value') or data[i-1].get('metric_value') or 0)
-        curr = float(data[i].get('value') or data[i].get('metric_value') or 0)
-        repo = data[i].get('repo_name') or "Unknown Repository"
-        if prev == 0: continue
-        change = (curr - prev) / prev
-        if abs(change) > threshold:
-            type_label = "SPIKE" if change > 0 else "DROP"
-            anomaly = {
-                "month": data[i].get('month'),
-                "repo": repo,
-                "type": type_label,
-                "intensity": f"{abs(change)*100:.1f}%",
-                "z_score": abs(change) * 2 # Mock Z-score for now
-            }
-            anomalies.append(anomaly)
-            logger.info("Anomaly Detected", **anomaly)
-    return anomalies[:3]
+
 
 class ChatService:
     @staticmethod
@@ -175,8 +153,14 @@ class ChatService:
                 await asyncio.sleep(0)
         else:
             yield f"Evidence retrieved: {len(data)} records found.\n"
-            
-        clues = detect_anomalies(data)
+
+        clues = detect_anomalies(data, threshold=settings.ANOMALY_THRESHOLD)
         if clues:
-             clue_text = "\n\n**[ANOMALY ALERT]**\n" + "\n".join([f"- {c['month']} | {c['repo']} {c['type']} detected ({c['intensity']})" for c in clues])
-             yield clue_text
+            clue_text = "\n\n**[ANOMALY ALERT]**\n" + "\n".join(
+                [
+                    f"- {c['month']} | {c.get('repo_name', 'Unknown')} | Z-Score: {c['z_score']:.2f}"
+                    for c in clues[:3]
+                ]
+            )
+            yield clue_text
+        
