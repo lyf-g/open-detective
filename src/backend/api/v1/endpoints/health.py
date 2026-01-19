@@ -40,6 +40,12 @@ async def health_check(request: Request):
     }
 
 
+@router.get("/ping")
+async def ping():
+    """Minimal connectivity check."""
+    return "pong"
+
+
 @router.get("/sqlbot-health")
 async def sqlbot_health():
     endpoint = os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
