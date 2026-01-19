@@ -1,35 +1,40 @@
-import requests
-from tenacity import retry, stop_after_attempt, wait_fixed
-import os
-from datetime import datetime
-import json
-import re
 import base64
-from typing import Optional
-from dotenv import dotenv_values
-from Crypto.PublicKey import RSA
+import json
+import os
+import re
+from datetime import datetime
+
+import requests
+import structlog
 from Crypto.Cipher import PKCS1_v1_5
+from Crypto.PublicKey import RSA
+from tenacity import retry, stop_after_attempt, wait_fixed
+
+logger = structlog.get_logger()
+
 
 class SQLBotClient:
     _cached_token = None
     _repo_list = []
     _sql_cache = {}
 
-    def __init__(self, endpoint: Optional[str] = None):
+    def __init__(self, endpoint: str | None = None):
         self.endpoint = endpoint or os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
         self.username = os.getenv("SQLBOT_USERNAME") or "admin"
         self.password = os.getenv("SQLBOT_PASSWORD") or "SQLBot@123456"
         self.datasource_id = int(os.getenv("SQLBOT_DATASOURCE_ID", "1"))
         self.static_token = os.getenv("SQLBOT_API_KEY")
-        
+
         if not SQLBotClient._repo_list:
             try:
-                repo_path = os.path.join(os.path.dirname(__file__), '../../../data/repos.json')
+                repo_path = os.path.join(
+                    os.path.dirname(__file__), "../../../data/repos.json",
+                )
                 if os.path.exists(repo_path):
-                    with open(repo_path, 'r') as f:
+                    with open(repo_path) as f:
                         SQLBotClient._repo_list = json.load(f)
-            except:
-                pass
+            except Exception as e:
+                logger.error("failed_to_load_repos", error=str(e))
 
     def _get_public_key(self) -> str:
         url = f"{self.endpoint}/api/v1/system/config/key"
@@ -40,64 +45,82 @@ class SQLBotClient:
                 if isinstance(data, dict):
                     return data.get("public_key") or data.get("publicKey") or ""
                 return data
-        except: pass
+        except Exception as e:
+            logger.error("failed_to_get_public_key", error=str(e), url=url)
         return ""
 
     def _encrypt_rsa(self, text: str, public_key_str: str) -> str:
-        if not public_key_str or not isinstance(public_key_str, str): return text
+        if not public_key_str or not isinstance(public_key_str, str):
+            return text
         try:
             key = RSA.importKey(public_key_str)
             cipher = PKCS1_v1_5.new(key)
             encrypted = cipher.encrypt(text.encode())
-            return base64.b64encode(encrypted).decode('utf-8')
-        except: return text
+            return base64.b64encode(encrypted).decode("utf-8")
+        except Exception as e:
+            logger.error("rsa_encryption_failed", error=str(e))
+            return text
 
-    def _login(self) -> Optional[str]:
+    def _login(self) -> str | None:
         pk = self._get_public_key()
-        if not pk: return None
+        if not pk:
+            return None
         payload = {
             "username": self._encrypt_rsa(self.username, pk),
             "password": self._encrypt_rsa(self.password, pk),
-            "grant_type": "password"
+            "grant_type": "password",
         }
         try:
-            res = requests.post(f"{self.endpoint}/api/v1/login/access-token", data=payload, timeout=10)
+            res = requests.post(
+                f"{self.endpoint}/api/v1/login/access-token", data=payload, timeout=10,
+            )
             if res.status_code == 200:
-                token = res.json().get("data", {}).get("access_token") or res.json().get("access_token")
+                token = res.json().get("data", {}).get(
+                    "access_token",
+                ) or res.json().get("access_token")
                 SQLBotClient._cached_token = token
                 return token
-        except: pass
+            logger.error("login_failed", status_code=res.status_code, body=res.text)
+        except Exception as e:
+            logger.error("login_exception", error=str(e))
         return None
 
     def _get_headers(self):
         token = self.static_token or SQLBotClient._cached_token or self._login()
-        if token and not token.startswith("Bearer "): token = f"Bearer {token}"
+        if token and not token.startswith("Bearer "):
+            token = f"Bearer {token}"
         return {"X-SQLBOT-TOKEN": token, "Content-Type": "application/json"}
 
     def _extract_sql(self, text: str) -> str:
-        if not text: return ""
+        if not text:
+            return ""
         # 1. Clean JSON artifacts first
-        text = re.sub(r'\{\"success\":.*?\}(?=\s|SELECT|$)', '', text, flags=re.DOTALL)
+        text = re.sub(r"\{\"success\":.*?\}(?=\s|SELECT|$)", "", text, flags=re.DOTALL)
         # 2. Extract SQL block
         match = re.search(r"```sql\n?(.*?)\n?```", text, re.DOTALL | re.IGNORECASE)
-        if match: return match.group(1).strip()
+        if match:
+            return match.group(1).strip()
         # 3. Extract raw SELECT
-        match = re.search(r"(SELECT\s+.*?(?:LIMIT\s+\d+|;))", text, re.DOTALL | re.IGNORECASE)
-        if match: return match.group(1).split("execute-success")[0].strip()
+        match = re.search(
+            r"(SELECT\s+.*?(?:LIMIT\s+\d+|;))", text, re.DOTALL | re.IGNORECASE,
+        )
+        if match:
+            return match.group(1).split("execute-success")[0].strip()
         return text.strip()
 
     def repair_sql(self, sql: str) -> str:
-        if not sql: return ""
-        sql = re.sub(r'--.*$', '', sql, flags=re.MULTILINE)
-        sql = re.sub(r'/\*.*?\*/', '', sql, flags=re.DOTALL)
-        
+        if not sql:
+            return ""
+        sql = re.sub(r"--.*$", "", sql, flags=re.MULTILINE)
+        sql = re.sub(r"/\*.*?\*/", "", sql, flags=re.DOTALL)
+
         # Metric Aliasing Map
         metric_map = {
             "'star'": "'stars'",
             "'issue'": "'issues_new'",
             "'issues'": "'issues_new'",
             "'rank'": "'openrank'",
-            "'activity'": "'activity'"
+            "'activity'": "'activity'",
         }
         for k, v in metric_map.items():
             sql = sql.replace(k, v)
@@ -105,113 +128,161 @@ class SQLBotClient:
         def repl(m):
             v = m.group(1)
             for p in SQLBotClient._repo_list:
-                if v.lower() in p.lower().replace('/', ' ').split() or v.lower() == p.lower():
+                if (
+                    v.lower() in p.lower().replace("/", " ").split()
+                    or v.lower() == p.lower()
+                ):
                     return f"'{p}'"
             return f"'{v}'"
+
         return re.sub(r"'(.*?)'", repl, sql).strip()
 
     def sanitize_text(self, text: str) -> str:
         """Aggressive cleanup. If text looks like a JSON chart config, discard it."""
-        if not text: return ""
-        
+        if not text:
+            return ""
+
         # 1. Remove Markdown Code Blocks
-        text = re.sub(r'```.*?```', '', text, flags=re.DOTALL)
-        
+        text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
+
         # 2. Check for Chart Configuration signatures
         if '"axis":' in text or '"type":' in text or '"series":' in text:
-            return "" # Discard entirely if it's a chart config
-            
+            return ""  # Discard entirely if it's a chart config
+
         # 3. Clean residual JSON brackets
-        text = re.sub(r'^\s*\{.*?\}\s*$', '', text, flags=re.DOTALL)
-        text = re.sub(r'[\[\]\{\}]', '', text) # Remove remaining brackets
+        text = re.sub(r"^\s*\{.*?\}\s*$", "", text, flags=re.DOTALL)
+        text = re.sub(r"[\[\]\{\}]", "", text)  # Remove remaining brackets
 
         # 4. Clean residual JSON artifacts (comma, quote, colon at end/start)
-        text = re.sub(r'[,":\s]+$', '', text)
-        text = re.sub(r'^[,":\s]+', '', text)
-        
+        text = re.sub(r'[,":\s]+$', "", text)
+        text = re.sub(r'^[,":\s]+', "", text)
+
         # 5. Remove system words
-        text = re.sub(r'execute-success|\[DONE\]|智能问数小助手|抱歉|无法', '', text, flags=re.IGNORECASE)
-        
+        text = re.sub(
+            r"execute-success|\[DONE\]|智能问数小助手|抱歉|无法",
+            "",
+            text,
+            flags=re.IGNORECASE,
+        )
+
         return text.strip()
 
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def _ask_ai(self, prompt: str) -> str:
         headers = self._get_headers()
         try:
-            res = requests.post(f"{self.endpoint}/api/v1/chat/start", json={"question": prompt, "datasource": self.datasource_id}, headers=headers, timeout=20)
-            if res.status_code != 200: return ""
+            res = requests.post(
+                f"{self.endpoint}/api/v1/chat/start",
+                json={"question": prompt, "datasource": self.datasource_id},
+                headers=headers,
+                timeout=20,
+            )
+            if res.status_code != 200:
+                return ""
             data = res.json().get("data", res.json())
             chat_id = data.get("id")
-            if not chat_id: return data.get("records", [{}])[0].get("content", "")
-            
-            res = requests.post(f"{self.endpoint}/api/v1/chat/question", json={"question": prompt, "chat_id": chat_id}, headers=headers, timeout=30, stream=True)
+            if not chat_id:
+                return data.get("records", [{}])[0].get("content", "")
+
+            res = requests.post(
+                f"{self.endpoint}/api/v1/chat/question",
+                json={"question": prompt, "chat_id": chat_id},
+                headers=headers,
+                timeout=30,
+                stream=True,
+            )
             full = ""
             for line in res.iter_lines():
                 if line:
-                    d = line.decode('utf-8')
+                    d = line.decode("utf-8")
                     if d.startswith("data:"):
                         js = d[5:].strip()
-                        if js == "[DONE]": break
-                        try: full += json.loads(js).get("content", "")
-                        except: pass
+                        if js == "[DONE]":
+                            break
+                        try:
+                            full += json.loads(js).get("content", "")
+                        except:
+                            pass
             return full
-        except: return ""
+        except:
+            return ""
 
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def _ask_ai_stream(self, prompt: str):
         headers = self._get_headers()
         try:
-            res = requests.post(f"{self.endpoint}/api/v1/chat/start", json={"question": prompt, "datasource": self.datasource_id}, headers=headers, timeout=20)
-            if res.status_code != 200: return
-            
+            res = requests.post(
+                f"{self.endpoint}/api/v1/chat/start",
+                json={"question": prompt, "datasource": self.datasource_id},
+                headers=headers,
+                timeout=20,
+            )
+            if res.status_code != 200:
+                return
+
             data = res.json().get("data", res.json())
             chat_id = data.get("id")
             if not chat_id:
                 yield data.get("records", [{}])[0].get("content", "")
                 return
-            
-            res = requests.post(f"{self.endpoint}/api/v1/chat/question", json={"question": prompt, "chat_id": chat_id}, headers=headers, timeout=30, stream=True)
+
+            res = requests.post(
+                f"{self.endpoint}/api/v1/chat/question",
+                json={"question": prompt, "chat_id": chat_id},
+                headers=headers,
+                timeout=30,
+                stream=True,
+            )
             for line in res.iter_lines():
                 if line:
-                    d = line.decode('utf-8')
+                    d = line.decode("utf-8")
                     if d.startswith("data:"):
                         js = d[5:].strip()
-                        if js == "[DONE]": break
+                        if js == "[DONE]":
+                            break
                         try:
                             content = json.loads(js).get("content", "")
-                            if content: yield content
-                        except: pass
-        except: pass
+                            if content:
+                                yield content
+                        except:
+                            pass
+        except:
+            pass
 
     def generate_summary_stream(self, question: str, data: list, history: list = []):
         # Use robust non-streaming generation to ensure fallback is applied
         full_response = self.generate_summary(question, data, history)
-        
+
         # Simulate streaming for UX
         chunk_size = 20
         for i in range(0, len(full_response), chunk_size):
-            yield full_response[i:i+chunk_size]
+            yield full_response[i : i + chunk_size]
 
     def _generate_fallback_report(self, question: str, data: list) -> str:
         """Rule-based detective report when AI fails, formatted as clean Markdown."""
-        if not data: return "### 🕵️‍♂️ 侦查中断\n\n**状态**：证据链断裂。\n**结论**：目标对象未在数据库中留下可追踪痕迹。"
-        
+        if not data:
+            return "### 🕵️‍♂️ 侦查中断\n\n**状态**：证据链断裂。\n**结论**：目标对象未在数据库中留下可追踪痕迹。"
+
         try:
-            values = [float(d.get('value') or d.get('metric_value') or 0) for d in data]
-            months = [d.get('month', '未知') for d in data]
-            repo = data[0].get('repo_name', 'Unknown Target')
+            values = [float(d.get("value") or d.get("metric_value") or 0) for d in data]
+            months = [d.get("month", "未知") for d in data]
+            repo = data[0].get("repo_name", "Unknown Target")
         except:
             return "### ⚠️ 逻辑溢出\n\n证据文件遭遇强力加密，暂时无法读取。"
-            
+
         start_val, end_val = values[0], values[-1]
         max_val, min_val = max(values), min(values)
         avg_val = sum(values) / len(values)
-        percent_change = ((end_val - start_val) / start_val * 100) if start_val != 0 else 0
+        percent_change = (
+            ((end_val - start_val) / start_val * 100) if start_val != 0 else 0
+        )
         peak_date = months[values.index(max_val)]
-        
+
         trend_desc = "平稳"
-        if percent_change > 20: trend_desc = "显著增长"
-        elif percent_change < -20: trend_desc = "明显下滑"
+        if percent_change > 20:
+            trend_desc = "显著增长"
+        elif percent_change < -20:
+            trend_desc = "明显下滑"
 
         report = f"""# {repo} 核心仓库活动分析报告
 
@@ -240,8 +311,9 @@ class SQLBotClient:
         return report
 
     def generate_summary(self, question: str, data: list, history: list = []) -> str:
-        if not data: return "线索已断，数据库中未发现匹配记录。"
-        
+        if not data:
+            return "线索已断，数据库中未发现匹配记录。"
+
         prompt = f"""
 请分析以下开源项目数据并生成一份专业的Markdown分析报告。
 
@@ -255,35 +327,46 @@ class SQLBotClient:
 数据片段: {json.dumps(data[:15])}
 """
         ans = self._ask_ai(prompt)
-        
+
         # Aggressive Refusal/Error Check
         # If it looks like JSON error or contains refusal words, kill it.
         refusal_keywords = [
-            '{"success":false', '"message":', "小助手", "我无法", "I cannot",
-            "超出了我的能力范围", "beyond my capabilities", "unable to generate",
-            "I can only", "valid SQL", "specific query"
+            '{"success":false',
+            '"message":',
+            "小助手",
+            "我无法",
+            "I cannot",
+            "超出了我的能力范围",
+            "beyond my capabilities",
+            "unable to generate",
+            "I can only",
+            "valid SQL",
+            "specific query",
         ]
         if any(k in ans for k in refusal_keywords):
-             return self._generate_fallback_report(question, data)
+            return self._generate_fallback_report(question, data)
 
         cleaned_ans = self.sanitize_text(ans)
-        
+
         if not cleaned_ans:
             return self._generate_fallback_report(question, data)
-            
+
         return cleaned_ans
 
     def _get_few_shot_examples(self) -> str:
         try:
-            path = os.path.join(os.path.dirname(__file__), '../../../data/examples.json')
+            path = os.path.join(
+                os.path.dirname(__file__), "../../../data/examples.json",
+            )
             if os.path.exists(path):
-                with open(path, 'r') as f:
+                with open(path) as f:
                     examples = json.load(f)
                 return "\n".join([f"Q: {e['q']}\nSQL: {e['sql']}" for e in examples])
-        except: pass
+        except:
+            pass
         return ""
 
-    def generate_sql(self, question: str, history: list = []) -> Optional[str]:
+    def generate_sql(self, question: str, history: list = []) -> str | None:
         # Cache Check
         cache_key = f"{question.strip().lower()}|{len(history)}"
         if cache_key in SQLBotClient._sql_cache:
@@ -291,7 +374,11 @@ class SQLBotClient:
 
         history_text = ""
         if history:
-            history_text = "Conversation History:\n" + "\n".join([f"{m['role']}: {m['content']}" for m in history[-4:]]) + "\n"
+            history_text = (
+                "Conversation History:\n"
+                + "\n".join([f"{m['role']}: {m['content']}" for m in history[-4:]])
+                + "\n"
+            )
 
         schema_context = """
 Table: open_digger_metrics
@@ -331,14 +418,15 @@ Instructions:
 Question: {question}
 """
         result = self.repair_sql(self._extract_sql(self._ask_ai(prompt)))
-        
+
         # Cache Result
         if result:
             if len(SQLBotClient._sql_cache) > 200:
                 SQLBotClient._sql_cache.pop(next(iter(SQLBotClient._sql_cache)))
             SQLBotClient._sql_cache[cache_key] = result
-            
+
         return result
+
 
 def sqlbot_text_to_sql(text: str) -> str:
     return SQLBotClient().generate_sql(text)
