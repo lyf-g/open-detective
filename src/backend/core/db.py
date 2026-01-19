@@ -1,33 +1,45 @@
-"""
-DEPRECATED: This module provides synchronous DB connections.
+"""DEPRECATED: This module provides synchronous DB connections.
 Please use src.backend.main.app.state.pool (aiomysql) for async operations.
 """
+
 import os
-import mysql.connector
 import time
 from contextlib import asynccontextmanager
+
+import mysql.connector
 from fastapi import FastAPI
+
 from src.backend.services.logger import logger
 
+
 def get_db_connection():
-    logger.warning("Using synchronous DB connection (Deprecated). Prefer app.state.pool.")
+    """Create a synchronous MySQL database connection.
+    
+    DEPRECATED: Use app.state.pool for asynchronous operations.
+    """
+    logger.warning(
+        "Using synchronous DB connection (Deprecated). Prefer app.state.pool.",
+    )
     return mysql.connector.connect(
         host=os.getenv("DB_HOST", "localhost"),
         user=os.getenv("DB_USER", "root"),
         password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "open_detective")
+        database=os.getenv("DB_NAME", "open_detective"),
     )
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Open MySQL connection with retries
     max_retries = 5
     retry_delay = 5
-    
+
     conn = None
     for i in range(max_retries):
         try:
-            logger.info("Attempting to connect to MySQL", attempt=i+1, max_retries=max_retries)
+            logger.info(
+                "Attempting to connect to MySQL", attempt=i + 1, max_retries=max_retries,
+            )
             conn = get_db_connection()
             if conn.is_connected():
                 logger.info("Successfully connected to MySQL.")
@@ -40,7 +52,7 @@ async def lifespan(app: FastAPI):
             else:
                 logger.error("Max retries reached. Backend shutting down.")
                 raise e
-    
+
     yield
     # Shutdown: Close DB connection
     if conn and conn.is_connected():
