@@ -19,6 +19,7 @@ class SQLBotClient:
     _cached_token = None
     _sql_cache = {}
     MAX_SQL_CACHE = 200
+    VERSION = "1.0.0"
     METRIC_ALIAS_MAP = {
         "star": "stars",
         "issue": "issues_new",
@@ -95,7 +96,7 @@ class SQLBotClient:
         return {
             "X-SQLBOT-TOKEN": token,
             "Content-Type": "application/json",
-            "User-Agent": "Open-Detective/1.0",
+            "User-Agent": f"Open-Detective/{self.VERSION}",
         }
 
     def _extract_sql(self, text: str) -> str:
