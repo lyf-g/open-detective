@@ -10,6 +10,8 @@ from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from tenacity import retry, stop_after_attempt, wait_fixed
 
+from src.backend.core.config import settings
+
 logger = structlog.get_logger()
 
 
@@ -19,11 +21,12 @@ class SQLBotClient:
     _sql_cache = {}
 
     def __init__(self, endpoint: str | None = None):
-        self.endpoint = endpoint or os.getenv("SQLBOT_ENDPOINT", "http://sqlbot:8000")
-        self.username = os.getenv("SQLBOT_USERNAME") or "admin"
-        self.password = os.getenv("SQLBOT_PASSWORD") or "SQLBot@123456"
-        self.datasource_id = int(os.getenv("SQLBOT_DATASOURCE_ID", "1"))
-        self.static_token = os.getenv("SQLBOT_API_KEY")
+        self.endpoint = endpoint or settings.SQLBOT_ENDPOINT
+        self.username = settings.SQLBOT_USERNAME
+        self.password = settings.SQLBOT_PASSWORD
+        self.datasource_id = settings.SQLBOT_DATASOURCE_ID
+        self.static_token = settings.SQLBOT_API_KEY
+        self.timeout = settings.SQLBOT_TIMEOUT
 
         if not SQLBotClient._repo_list:
             try:
@@ -39,7 +42,7 @@ class SQLBotClient:
     def _get_public_key(self) -> str:
         url = f"{self.endpoint}/api/v1/system/config/key"
         try:
-            res = requests.get(url, timeout=5)
+            res = requests.get(url, timeout=self.timeout)
             if res.status_code == 200:
                 data = res.json().get("data")
                 if isinstance(data, dict):
@@ -72,7 +75,7 @@ class SQLBotClient:
         }
         try:
             res = requests.post(
-                f"{self.endpoint}/api/v1/login/access-token", data=payload, timeout=10,
+                f"{self.endpoint}/api/v1/login/access-token", data=payload, timeout=self.timeout,
             )
             if res.status_code == 200:
                 token = res.json().get("data", {}).get(
@@ -175,7 +178,7 @@ class SQLBotClient:
                 f"{self.endpoint}/api/v1/chat/start",
                 json={"question": prompt, "datasource": self.datasource_id},
                 headers=headers,
-                timeout=20,
+                timeout=self.timeout,
             )
             if res.status_code != 200:
                 return ""
@@ -188,7 +191,7 @@ class SQLBotClient:
                 f"{self.endpoint}/api/v1/chat/question",
                 json={"question": prompt, "chat_id": chat_id},
                 headers=headers,
-                timeout=30,
+                timeout=self.timeout,
                 stream=True,
             )
             full = ""
@@ -215,7 +218,7 @@ class SQLBotClient:
                 f"{self.endpoint}/api/v1/chat/start",
                 json={"question": prompt, "datasource": self.datasource_id},
                 headers=headers,
-                timeout=20,
+                timeout=self.timeout,
             )
             if res.status_code != 200:
                 return
@@ -230,7 +233,7 @@ class SQLBotClient:
                 f"{self.endpoint}/api/v1/chat/question",
                 json={"question": prompt, "chat_id": chat_id},
                 headers=headers,
-                timeout=30,
+                timeout=self.timeout,
                 stream=True,
             )
             for line in res.iter_lines():
