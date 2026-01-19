@@ -1,10 +1,12 @@
 # Docker ignore file
-**/node_modules
-**/venv
-**/.venv
-**/__pycache__
-**/.git
-**/.DS_Store
-*.db
-dist
+.git
+.gitignore
 .env
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+node_modules/
+dist/
+__pycache__/
+*.pyc
