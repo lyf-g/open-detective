@@ -43,7 +43,11 @@ class DossierResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     version: str
+    python_version: str | None = None
+    environment: str | None = None
+    log_level: str | None = None
     db_connected: bool
+    redis_connected: bool | None = None
     details: dict[str, Any] | None = None
     timestamp: str | None = None
 
