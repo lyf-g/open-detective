@@ -30,6 +30,14 @@ class Settings(BaseSettings):
         "microsoft/vscode",
         "kubernetes/kubernetes",
     ]
+    SUPPORTED_METRICS: list[str] = [
+        "stars",
+        "activity",
+        "openrank",
+        "bus_factor",
+        "issues_new",
+        "issues_closed",
+    ]
 
     # SQLBot
     SQLBOT_ENDPOINT: str = "http://sqlbot:8000"
