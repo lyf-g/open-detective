@@ -93,7 +93,7 @@ class SQLBotClient:
             logger.error("login_exception", error=str(e))
         return None
 
-    def _get_headers(self):
+    def _get_headers(self) -> dict[str, str]:
         token = self.static_token or SQLBotClient._cached_token or self._login()
         if token and not token.startswith("Bearer "):
             token = f"Bearer {token}"
