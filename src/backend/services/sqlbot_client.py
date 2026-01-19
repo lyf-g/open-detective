@@ -17,7 +17,6 @@ logger = structlog.get_logger()
 
 class SQLBotClient:
     _cached_token = None
-    _repo_list = []
     _sql_cache = {}
 
     def __init__(self, endpoint: str | None = None):
@@ -27,17 +26,7 @@ class SQLBotClient:
         self.datasource_id = settings.SQLBOT_DATASOURCE_ID
         self.static_token = settings.SQLBOT_API_KEY
         self.timeout = settings.SQLBOT_TIMEOUT
-
-        if not SQLBotClient._repo_list:
-            try:
-                repo_path = os.path.join(
-                    os.path.dirname(__file__), "../../../data/repos.json",
-                )
-                if os.path.exists(repo_path):
-                    with open(repo_path) as f:
-                        SQLBotClient._repo_list = json.load(f)
-            except Exception as e:
-                logger.error("failed_to_load_repos", error=str(e))
+        self.repo_list = settings.ALLOWED_REPOS
 
     def _get_public_key(self) -> str:
         url = f"{self.endpoint}/api/v1/system/config/key"
@@ -130,7 +119,7 @@ class SQLBotClient:
 
         def repl(m):
             v = m.group(1)
-            for p in SQLBotClient._repo_list:
+            for p in self.repo_list:
                 if (
                     v.lower() in p.lower().replace("/", " ").split()
                     or v.lower() == p.lower()
@@ -404,7 +393,7 @@ Current Date: {datetime.now().strftime('%Y-%m-%d')}
 Schema Context:
 {schema_context}
 
-Supported Repositories: {", ".join(SQLBotClient._repo_list)}
+Supported Repositories: {", ".join(self.repo_list)}
 
 Few-Shot Examples:
 {examples}
