@@ -118,8 +118,8 @@ class SQLBotClient:
         return text.strip()
 
     def repair_sql(self, sql: str) -> str:
-        if not sql:
-            return ""
+        if not sql or len(sql) > 5000:
+            return sql or ""
         sql = re.sub(r"--.*$", "", sql, flags=re.MULTILINE)
         sql = re.sub(r"/\*.*?\*/", "", sql, flags=re.DOTALL)
 
