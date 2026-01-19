@@ -3,6 +3,8 @@
 .gitignore
 .env
 .DS_Store
+.vscode/
+.idea/
 .pytest_cache/
 .ruff_cache/
 .venv/
