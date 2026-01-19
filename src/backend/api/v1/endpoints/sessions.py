@@ -22,7 +22,7 @@ async def create_session(request: Request):
     return {"id": session_id, "title": title, "created_at": datetime.now(timezone.utc)}
 
 
-@router.get("/sessions", response_model=list[Session], summary="List All Sessions")
+@router.get("/sessions", response_model=list[Session], summary="List All Sessions", tags=["sessions"])
 async def list_sessions(request: Request):
     pool: Any = request.app.state.pool
     async with pool.acquire() as conn, conn.cursor() as cur:
