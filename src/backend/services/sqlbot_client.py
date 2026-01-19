@@ -71,14 +71,15 @@ class SQLBotClient:
         pk = self._get_public_key()
         if not pk:
             return None
-        payload = {
-            "username": self._encrypt_rsa(self.username, pk),
-            "password": self._encrypt_rsa(self.password, pk),
-            "grant_type": "password",
-        }
         try:
             res = requests.post(
-                f"{self.endpoint}/api/v1/login/access-token", data=payload, timeout=self.timeout,
+                f"{self.endpoint}/api/v1/login/access-token",
+                data={
+                    "username": self._encrypt_rsa(self.username, pk),
+                    "password": self._encrypt_rsa(self.password, pk),
+                    "grant_type": "password",
+                },
+                timeout=self.timeout,
             )
             if res.status_code == 200:
                 token = res.json().get("data", {}).get(
