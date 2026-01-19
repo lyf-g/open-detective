@@ -39,14 +39,14 @@ class SentimentRequest(BaseModel):
         return v
 
 
-@router.post("/analytics/anomalies")
+@router.post("/analytics/anomalies", summary="Detect Anomalies")
 async def check_anomalies(request: AnomalyRequest):
     """Detect statistical anomalies in provided time-series data."""
     results = detect_anomalies(request.data, request.threshold)
     return {"anomalies": results, "count": len(results)}
 
 
-@router.post("/analytics/dossier")
+@router.post("/analytics/dossier", summary="Get Suspect Dossier")
 async def get_suspect_dossier(request: DossierRequest):
     """Generate a psychological and skill profile for a given GitHub contributor."""
     user = request.username
@@ -83,7 +83,7 @@ def norm(val: float, max_val: float) -> float:
     return max(0.0, min(100.0, (val / max_val) * 100.0))
 
 
-@router.post("/analytics/profile")
+@router.post("/analytics/profile", summary="Get Repository Profile")
 async def get_repo_profile(payload: ProfileRequest, request: Request):
     """Retrieve repository metrics and generate a normalized radar chart profile."""
     repo = payload.repo
@@ -165,7 +165,7 @@ def mock_profile(
     }
 
 
-@router.post("/analytics/sentiment")
+@router.post("/analytics/sentiment", summary="Get Sentiment Analysis")
 async def get_sentiment(payload: SentimentRequest):
     """Analyze community sentiment for a repository based on keywords and scores."""
     repo = payload.repo.lower()
