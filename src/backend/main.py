@@ -32,6 +32,8 @@ from src.backend.services.logger import configure_logger, logger
 
 load_dotenv()
 
+MAX_RETRIES = 5
+
 
 def ensure_system_integrity() -> None:
     """Ensure critical configuration files exist."""
@@ -81,8 +83,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Async Pool
     pool = None
-    max_retries = 5
-    for i in range(max_retries):
+    for i in range(MAX_RETRIES):
         try:
             logger.info("Connecting to MySQL (Async)", attempt=i + 1)
             pool = await aiomysql.create_pool(
