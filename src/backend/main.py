@@ -33,6 +33,7 @@ from src.backend.services.logger import configure_logger, logger
 load_dotenv()
 
 MAX_RETRIES = 5
+ETL_INTERVAL_HOURS = 24
 
 
 def ensure_system_integrity() -> None:
@@ -80,7 +81,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         from data.etl_scripts.fetch_opendigger import run_etl
 
         scheduler = BackgroundScheduler()
-        scheduler.add_job(run_etl, "interval", hours=24)
+        scheduler.add_job(run_etl, "interval", hours=ETL_INTERVAL_HOURS)
         scheduler.start()
     except ImportError:
         logger.warning("ETL Script import failed, scheduler not started")
