@@ -1,6 +1,7 @@
 import json
 import uuid
 from datetime import datetime, timezone
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request, Response, status
 
@@ -13,7 +14,7 @@ router = APIRouter()
 async def create_session(request: Request):
     session_id = str(uuid.uuid4())
     title = "New Investigation"
-    pool = request.app.state.pool
+    pool: Any = request.app.state.pool
     async with pool.acquire() as conn, conn.cursor() as cur:
         await cur.execute(
             "INSERT INTO sessions (id, title) VALUES (%s, %s)", (session_id, title),
@@ -23,7 +24,7 @@ async def create_session(request: Request):
 
 @router.get("/sessions", response_model=list[Session], summary="List All Sessions")
 async def list_sessions(request: Request):
-    pool = request.app.state.pool
+    pool: Any = request.app.state.pool
     async with pool.acquire() as conn, conn.cursor() as cur:
         await cur.execute(
             "SELECT id, title, created_at FROM sessions ORDER BY created_at DESC",
@@ -38,7 +39,7 @@ async def list_sessions(request: Request):
     summary="Get Session Messages",
 )
 async def get_session_messages(session_id: str, request: Request):
-    pool = request.app.state.pool
+    pool: Any = request.app.state.pool
     async with pool.acquire() as conn:
         async with conn.cursor() as cur:
             await cur.execute(
@@ -82,7 +83,7 @@ async def export_session(session_id: str, request: Request):
     summary="Delete Session",
 )
 async def delete_session(session_id: str, request: Request):
-    pool = request.app.state.pool
+    pool: Any = request.app.state.pool
     async with pool.acquire() as conn:
         async with conn.cursor() as cur:
             # Manually delete messages first to avoid FK constraint issues
