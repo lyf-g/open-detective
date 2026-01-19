@@ -41,7 +41,7 @@ async def health_check(request: Request):
     }
 
 
-@router.get("/ping", tags=["System"])
+@router.get("/ping", tags=["System"], response_model=str)
 async def ping():
     """Minimal connectivity check."""
     return "pong"
