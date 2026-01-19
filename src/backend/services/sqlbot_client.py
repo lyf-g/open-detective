@@ -372,11 +372,11 @@ class SQLBotClient:
                 + "\n"
             )
 
-        schema_context = """
+        schema_context = f"""
 Table: open_digger_metrics
 Columns:
 - repo_name (VARCHAR): Full GitHub repository name (e.g. 'vuejs/core', 'facebook/react')
-- metric_type (VARCHAR): Metric being measured. Valid values: 'stars', 'activity', 'openrank', 'bus_factor', 'issues_new', 'issues_closed'
+- metric_type (VARCHAR): Metric being measured. Valid values: {', '.join(settings.SUPPORTED_METRICS)}
 - month (VARCHAR): Time period in 'YYYY-MM' format
 - value (DOUBLE): The numeric value of the metric
 """
