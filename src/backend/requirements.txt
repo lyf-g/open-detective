@@ -7,7 +7,7 @@ python-dotenv==1.2.1
 # Database & Async
 aiomysql
 redis
-mysql-connector-python==9.5.0
+mysql-connector-python==9.6.0
 alembic
 pydantic-settings
 
