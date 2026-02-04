@@ -30,7 +30,7 @@ prometheus-fastapi-instrumentator
 # Testing & Development
 pytest==9.0.2
 pytest-asyncio
-mypy==1.8.0
+mypy==1.19.1
 
 # Dependencies (Auto-managed)
 annotated-doc==0.0.4
